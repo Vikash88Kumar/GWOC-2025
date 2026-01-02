@@ -52,92 +52,82 @@ export default function HomePage() {
   return (
     <div className="pt-20">
       {/* Hero Section */}
-      <section ref={heroRef} className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10" />
-        
-        {/* Animated Background Elements */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-20 right-20 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            rotate: [90, 0, 90],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-          className="absolute bottom-20 left-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
-        />
+<section ref={heroRef} className="min-h-screen flex items-center justify-center relative overflow-hidden bg-black">
+  {/* --- Background Video Container --- */}
+  <div className="absolute inset-0 w-full h-full overflow-hidden">
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="absolute w-full 
+               /* 1. Make the video taller than the container */
+               h-[120%] 
+               /* 2. Scale it up slightly to prevent side-gaps */
+               scale-110 
+               /* 3. Shift it up to 'cut' the top part */
+               -top-20 md:-top-40
+               left-0 object-cover"
+    >
+      {/* Note: In Vite/React, files in 'public' are served from '/' root */}
+      <source src="/main_video.mp4" type="video/mp4" />
+    </video>
+  </div>
 
-        <motion.div
-          style={{ opacity, scale }}
-          className="max-w-6xl mx-auto px-6 text-center relative z-10"
+  {/* --- Dark Overlay --- */}
+  <div className="absolute inset-0 bg-black/50 md:bg-black/40 z-10" />
+
+  {/* --- Content Container --- */}
+  <motion.div
+    style={{ opacity, scale }}
+    /* ADJUST TEXT POSITION: 
+       - pt-20 moves it down on mobile 
+       - md:pt-0 centers it on desktop
+    */
+    className="max-w-6xl mx-auto px-6 text-center relative z-20 pt-20 md:pt-0"
+  >
+    {/* --- Badge --- */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="inline-block mb-4 md:mb-8"
+    >
+      <span className="px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[10px] md:text-sm tracking-widest uppercase">
+        ✨ Blooming Brands Since 2020
+      </span>
+    </motion.div>
+
+    {/* --- Responsive Buttons --- */}
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.6 }}
+      /* flex-col for mobile (stacked), sm:flex-row for desktop (side-by-side) */
+      className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+    >
+      <Link to="/contact" className="w-full sm:w-auto">
+        <motion.button
+          whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(245, 158, 11, 0.4)" }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 text-black font-bold rounded-full flex items-center justify-center gap-2 transition-all shadow-xl"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="inline-block mb-6"
-          >
-            <span className="px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 text-sm">
-              ✨ Blooming Brands Since 2020
-            </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-6xl md:text-8xl mb-6 leading-tight"
-          >
-            We Make Brands{' '}
-            <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
-              Bloom
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl text-white/70 mb-12 max-w-3xl mx-auto"
-          >
-            Strategic storytelling meets bold creativity. We craft unforgettable brand
-            experiences that drive growth and leave lasting impressions.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link to="/contact">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center gap-2 group"
-              >
-                Start Your Brand Journey
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-            </Link>
-            <Link to="/our-story">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 border border-white/20 rounded-full hover:bg-white/5 transition-colors"
-              >
-                Our Story
-              </motion.button>
-            </Link>
-          </motion.div>
-        </motion.div>
-      </section>
+          Start Your Journey
+          <ArrowRight className="w-5 h-5" />
+        </motion.button>
+      </Link>
+      
+      <Link to="/our-story" className="w-full sm:w-auto">
+        <motion.button
+          whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.05)" }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full sm:w-auto px-10 py-4 border border-amber-500/40 text-amber-500 rounded-full transition-colors "
+        >
+          Our Story
+        </motion.button>
+      </Link>
+    </motion.div>
+  </motion.div>
+</section>
 
       {/* Services Section */}
       <section className="py-32 px-6 relative">
