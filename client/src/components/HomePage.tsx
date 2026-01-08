@@ -20,7 +20,7 @@ const HomePage = () => {
         {/* Background Image with Electric Blue Overlay */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000" 
+            src="./front.png" 
             alt="Studio Interior"
             className="w-full h-full object-cover"
           />
