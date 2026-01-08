@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
         {/* LOGO SECTION */}
         <Link href="/" className="flex items-center gap-3 shrink-0 pointer-events-auto">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black font-black text-sm overflow-hidden">
-            <img src="/vite.svg" alt="Logo" width={20} height={20} />
+            <img src="https://media.istockphoto.com/id/1421948749/vector/simple-star-vector-black-line-icon-isolated.jpg?s=612x612&w=0&k=20&c=EKleOC6kVhNH7qh2S6ZcVZ4jb7zdrRnCAMtoPfgPdWQ=" alt="Logo" width={20} height={20} />
           </div>
           <AnimatePresence mode="popLayout">
             {!scrolled && (

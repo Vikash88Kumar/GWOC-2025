@@ -1,7 +1,9 @@
 // 1) Imports (sequence)
-const asyncHandler = require("../utils/asyncHandler");
-const ApiError = require("../utils/ApiError");
-const { Enquiry, Service } = require("../models");
+import { asyncHandler } from "../utils/asyncHandler";
+import { ApiResponse } from "../utils/apiResponse";
+import { ApiError } from "../utils/apiError";
+import {Enquiry} from "../models/Enquiry.js"
+import {Service} from "../models/Service.js"
 
 // 2) Allowed services (checkbox labels)
 const ALLOWED_SERVICES = new Set([
@@ -39,7 +41,6 @@ exports.submitEnquiryForm = asyncHandler(async (req, res) => {
     phone,
     company,
     budgetRange,
-    timeline,
     source,
   } = req.body;
 
@@ -79,7 +80,6 @@ exports.submitEnquiryForm = asyncHandler(async (req, res) => {
     company: company ? String(company).trim() : "",
 
     budgetRange: budgetRange ? String(budgetRange).trim() : "",
-    timeline: timeline ? String(timeline).trim() : "",
 
     services: selectedServices,     // ✅ array
     serviceIds: serviceIds,         // ✅ array of ObjectIds (optional)

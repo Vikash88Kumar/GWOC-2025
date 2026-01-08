@@ -13,7 +13,6 @@ const EnquirySchema = new Schema(
     company: { type: String, default: "" },
 
     budgetRange: { type: String, default: "" },
-    timeline: { type: String, default: "" },
 
     // ✅ Multiple checkbox selection
     services: {

@@ -3,40 +3,15 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 
-const userSchema=new mongoose.Schema(
-    {
-        username:{
-            type:String,
-            required:true,
-            unique:true
-        },
-        fullName:{
-            type:String,
-            required:true
-        },
-        email:{
-            type:String,
-            required:true,
-            unique:true
-        },
-        password:{
-            type:String,
-            required:true
-        },
-        avatar:{
-            type:String,
-            required :true
-        },
-        coverImage:{
-            type:String,
-            required:true
-        },
-        refreshToken:{
-            type:String
-        },
-    },
-    {timestamps:true}
-)
+const userSchema = new Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    passwordHash: { type: String, required: true },
+    role: { type: String, enum: ["SUPER_ADMIN", "ADMIN", "EDITOR"], default: "ADMIN" },
+  },
+  { timestamps: true }
+);
 
 userSchema.plugin(mongooseAggregatePaginate)
 

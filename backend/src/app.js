@@ -23,12 +23,12 @@ app.get("/",(req,res)=>{
 })
 
 //routes import 
-import userRouter from "./routes/user.routes.js"
-import checkRouter from "./routes/check.routes.js"
+// import userRouter from "./routes/user.routes.js"
+
 
 //routes declare
-app.use("/api/v1/check", checkRouter)
-app.use("/api/v1/users", userRouter)
+
+// app.use("/api/v1/users", userRouter)
 
 
 export {app}

@@ -113,7 +113,7 @@ export default function NavbarDemo() {
 }
 
 const DummyContent = () => (
-  <div className="container mx-auto p-8 pt-32 bg-zinc-900">
+  <div className="container mx-auto p-8 pt-32 bg-black">
     <div className="max-w-3xl mx-auto text-center mb-16">
       <h1 className="text-7xl font-bold tracking-tighter mb-4">
         Premium Branding <br />
