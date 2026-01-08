@@ -1,203 +1,176 @@
-"use client";
+'use client'
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
-import React, { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "@studio-freight/lenis";
-import { Instagram, Facebook, Linkedin } from "lucide-react";
+// --- Types ---
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  items: string[];
+  image: string;
+}
 
-gsap.registerPlugin(ScrollTrigger);
+// --- Data ---
+const SERVICES: Service[] = [
+  {
+    id: '01',
+    title: 'Brand Identity',
+    description: 'We help you define a clear, cohesive identity — one that reflects your purpose, connects with the right audience, and builds long-term trust.',
+    items: ['Brand Strategy', 'Brand Questionnaire', 'Creative Direction', 'Logo Suite', 'Color Palettes', 'Typography', 'Brand Guidelines'],
+    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=800',
+  },
+  {
+    id: '02',
+    title: 'Packaging & Marketing',
+    description: 'Your packaging is your first impression. We make sure it\'s memorable — combining strategy with bold visuals to turn browsers into buyers.',
+    items: ['Custom Product Boxes', 'Stickers and Seals', 'Butter Paper', 'Thank You Cards', 'Product Labels', 'Business Cards', 'Brochures'],
+    image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&q=80&w=800',
+  },
+  {
+    id: '03',
+    title: 'Website Design',
+    description: 'A well-designed website should do more than just exist — it should convert. We build clean, intuitive, and scalable websites.',
+    items: ['Visual Design & Moodboard', 'Sitemap', 'UI/UX Design', 'Up to 15 Product Listings', 'SEO Optimization', 'Speed Optimization', 'Mobile Responsive'],
+    image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=800',
+  }
+];
 
-const HomePage = () => {
+// --- Components ---
+
+const Marquee = () => (
+  <div className="bg-[#4a5342] py-2 overflow-hidden whitespace-nowrap flex border-y border-white/20">
+    <motion.div 
+      initial={{ x: 0 }}
+      animate={{ x: "-50%" }}
+      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      className="flex"
+    >
+      {[...Array(10)].map((_, i) => (
+        <span key={i} className="text-white text-[10px] uppercase tracking-widest mx-4">
+          NO DETAIL IS TOO SMALL • NO DETAIL IS TOO SMALL •
+        </span>
+      ))}
+    </motion.div>
+  </div>
+);
+
+const ServiceCard = ({ service }: { service: Service }) => (
+  <div className="min-w-[100vw] h-screen flex items-center justify-center px-12 md:px-24 bg-[#f9f7f2]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-7xl items-center">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative aspect-square rounded-full overflow-hidden shadow-2xl"
+      >
+        <img src={service.image} alt={service.title} className="w-full h-full object-cover" />
+      </motion.div>
+      
+      <motion.div 
+        initial={{ opacity: 0, x: 50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="flex flex-col space-y-6"
+      >
+        <span className="text-4xl font-serif italic text-gray-400">{service.id}</span>
+        <h2 className="text-5xl font-serif text-[#1a1a1a]">{service.title}</h2>
+        <p className="text-lg text-gray-600 leading-relaxed max-w-md">{service.description}</p>
+        <ul className="space-y-2">
+          {service.items.map((item, idx) => (
+            <li key={idx} className="flex items-center text-sm text-gray-800 before:content-['•'] before:mr-2 before:text-gray-400">
+              {item}
+            </li>
+          ))}
+        </ul>
+      </motion.div>
+    </div>
+  </div>
+);
+
+export default function OdeStudioLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+  });
 
-  /* ---------------- LENIS SMOOTH SCROLL ---------------- */
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      smoothWheel: true,
-      smoothTouch: false,
-      easing: (t: number) => 1 - Math.pow(1 - t, 4),
-    });
-
-    const raf = (time: number) => {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    };
-
-    requestAnimationFrame(raf);
-
-    ScrollTrigger.scrollerProxy(document.body, {
-      scrollTop(value) {
-        return arguments.length
-          ? lenis.scrollTo(value!)
-          : window.scrollY;
-      },
-    });
-
-    ScrollTrigger.addEventListener("refresh", () => lenis.update());
-    ScrollTrigger.refresh();
-
-    return () => {
-      lenis.destroy();
-      ScrollTrigger.killAll();
-    };
-  }, []);
-
-  /* ---------------- GSAP ANIMATIONS ---------------- */
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(".hero-reveal", {
-        opacity: 0,
-        y: 60,
-        scale: 0.98,
-        duration: 1.6,
-        ease: "power4.out",
-      });
-
-      gsap.utils.toArray<HTMLElement>(".service-block").forEach((block) => {
-        gsap.from(block, {
-          scrollTrigger: {
-            trigger: block,
-            start: "top 80%",
-          },
-          opacity: 0,
-          y: 120,
-          duration: 1.4,
-          ease: "power4.out",
-        });
-      });
-
-      gsap.from(".testimonial-track", {
-        xPercent: 0,
-      });
-
-      gsap.to(".testimonial-track", {
-        xPercent: -60,
-        duration: 40,
-        repeat: -1,
-        ease: "none",
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
+  // This maps the vertical scroll of the container to a horizontal translation
+  const xTranslate = useTransform(scrollYProgress, [0, 1], ["0%", "-66.6%"]);
 
   return (
-    <div ref={containerRef} className="bg-[#fdfbf7] text-[#333] font-serif">
+    <div className="bg-[#f9f7f2] font-sans text-[#1a1a1a]">
+      {/* --- HERO SECTION --- */}
+      <section className="min-h-screen flex flex-col justify-center px-12 md:px-24">
+        <nav className="absolute top-0 left-0 w-full p-10 flex justify-between items-center">
+          <h1 className="text-3xl font-serif italic">ode studio</h1>
+          <div className="hidden md:flex space-x-8 text-xs uppercase tracking-widest">
+            <a href="#">Our Story</a><a href="#">Our Work</a><a href="#">Services</a><a href="#">Shop</a>
+          </div>
+        </nav>
 
-      {/* ---------------- HERO ---------------- */}
-      <section className="min-h-screen flex items-center justify-center text-center px-6">
-        <div className="hero-reveal max-w-6xl">
-          <h1 className="text-6xl md:text-[90px] font-light leading-[1.1] mb-12">
-            Creating strategic, <span className="italic">confident</span> designs
-            with{" "}
-            <span className="italic underline decoration-1 text-[#892f1a]">
-              you
-            </span>{" "}
-            at the centre.
-          </h1>
-
-          <button className="border border-[#333] px-12 py-5 text-[10px] uppercase tracking-[0.5em] hover:bg-[#333] hover:text-white transition-all duration-700">
-            Let&apos;s Get Started
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-md"
+          >
+            <h2 className="text-4xl font-serif italic leading-tight mb-8">
+              Confused about where and how to get started? Consider it our problem now.
+            </h2>
+            <p className="text-sm leading-relaxed text-gray-600">
+              Whether you need a cohesive brand identity, impactful brand assets or a seamless online presence, we tailor our 
+              approach to fit your unique goals.
+            </p>
+          </motion.div>
+          <div className="relative h-[400px] bg-slate-200 rounded-lg overflow-hidden">
+             {/* Mocking the collage look */}
+             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1513519245088-0e12902e35ca?q=80&w=800')] bg-cover bg-center opacity-80" />
+             <div className="absolute bottom-10 left-10 bg-white p-6 shadow-xl max-w-[250px]">
+                <p className="font-serif italic">Creating strategic, confident and timeless designs with <span className="underline">you</span> at the center.</p>
+             </div>
+          </div>
         </div>
       </section>
 
-      {/* ---------------- SERVICES ---------------- */}
-      <section className="py-40 px-6 md:px-20 bg-white">
-        <div className="max-w-7xl mx-auto space-y-56">
-          {["Brand Identity", "Packaging", "Website Design", "Social Media"].map(
-            (title, i) => (
-              <div
-                key={i}
-                className="service-block grid md:grid-cols-2 gap-24 items-center"
-              >
-                <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center italic text-gray-400">
-                  Image_0{i + 1}
-                </div>
+      <Marquee />
 
-                <div className="space-y-8">
-                  <span className="text-7xl font-light opacity-10">
-                    0{i + 1}
-                  </span>
-                  <h2 className="text-4xl md:text-6xl">{title}</h2>
-                  <p className="font-sans text-lg text-gray-500 max-w-md">
-                    We craft thoughtful, strategic systems that elevate your
-                    brand.
-                  </p>
-                </div>
-              </div>
-            )
-          )}
+      {/* --- HORIZONTAL SCROLL SERVICES --- */}
+      <div ref={containerRef} className="relative h-[300vh]">
+        <div className="sticky top-0 h-screen overflow-hidden">
+          <motion.div style={{ x: xTranslate }} className="flex">
+            {SERVICES.map((service) => (
+              <ServiceCard key={service.id} service={service} />
+            ))}
+          </motion.div>
         </div>
-      </section>
+      </div>
 
-      {/* ---------------- TESTIMONIALS ---------------- */}
-      <section className="py-40 overflow-hidden">
-        <h2 className="text-center text-4xl italic mb-20 text-[#624a41]">
-          Some kind words
-        </h2>
-
-        <div className="testimonial-track flex gap-10 px-10">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
+      {/* --- TESTIMONIALS SECTION --- */}
+      <section className="py-32 px-12 md:px-24 bg-white">
+        <h3 className="text-xs uppercase tracking-widest text-gray-400 mb-16 text-center">Kind Words</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[1, 2, 3].map((i) => (
+            <motion.div 
               key={i}
-              className="min-w-[450px] bg-white p-14 shadow-sm border"
+              whileHover={{ y: -10 }}
+              className="p-10 bg-[#f9f7f2] rounded-sm border border-gray-100 shadow-sm"
             >
-              <p className="font-sans text-lg italic opacity-80 leading-loose">
-                “Working with Ode has been such a great experience. Every detail
-                felt intentional.”
-              </p>
-
-              <div className="mt-10">
-                <p className="font-bold tracking-widest text-xs uppercase">
-                  Aishaa Nensey
-                </p>
-                <p className="text-[10px] uppercase opacity-40 tracking-widest">
-                  Venjara Carpets
-                </p>
-              </div>
-            </div>
+              <p className="text-sm italic mb-6">"The team offers structure, discipline and undivided attention which are things I have not seen from many other teams I've worked with."</p>
+              <p className="font-serif font-bold">Client Name {i}</p>
+              <p className="text-[10px] uppercase tracking-widest text-gray-400">Company Name</p>
+            </motion.div>
           ))}
         </div>
       </section>
 
-      {/* ---------------- CONTACT ---------------- */}
-      <section className="bg-[#624a41] py-40 px-6">
-        <div className="max-w-5xl mx-auto bg-[#e8e6d8] p-12 md:p-24 shadow-2xl text-center">
-          <h2 className="text-5xl italic mb-14">
-            We&apos;d love to hear from you!
-          </h2>
-
-          <form className="space-y-12">
-            <div className="grid md:grid-cols-2 gap-10">
-              <input className="border-b bg-transparent pb-4 outline-none" placeholder="First Name" />
-              <input className="border-b bg-transparent pb-4 outline-none" placeholder="Last Name" />
-            </div>
-
-            <input className="w-full border-b bg-transparent pb-4 outline-none" placeholder="Email *" />
-
-            <button className="bg-[#624a41] text-white px-14 py-5 rounded-full text-[11px] uppercase tracking-[0.4em] hover:bg-[#892f1a] transition-all">
-              Let&apos;s get started!
-            </button>
-          </form>
+      {/* --- FOOTER CTA --- */}
+      <section className="py-20 border-t border-gray-100 flex flex-col items-center">
+        <h2 className="text-3xl font-serif italic mb-10">Ready to elevate your brand?</h2>
+        <div className="w-full max-w-md flex border-b border-black py-2">
+            <input type="email" placeholder="Email *" className="bg-transparent flex-grow outline-none text-sm" />
+            <button className="text-xs uppercase tracking-widest font-bold">Submit</button>
         </div>
       </section>
-
-      {/* ---------------- FOOTER ---------------- */}
-      <footer className="py-20 flex flex-col items-center gap-10">
-        <div className="flex gap-10 opacity-60">
-          <Instagram size={20} />
-          <Facebook size={20} />
-          <Linkedin size={20} />
-        </div>
-        <p className="text-[10px] tracking-[0.4em] opacity-40 uppercase">
-          © 2026 BY ODE STUDIO. ALL RIGHTS RESERVED.
-        </p>
-      </footer>
     </div>
   );
-};
-
-export default HomePage;
+}

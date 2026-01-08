@@ -13,7 +13,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: '/', label: 'Home' },
   { path: '/services', label: 'Services' },
-  { path: '/our-story', label: 'Our Story' },
+  { path: '/story', label: 'Our Story' },
   { path: '/contact', label: 'Contact' },
 ];
 
