@@ -1,6 +1,7 @@
 'use client'
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Timeline } from "@/components/ui/timeline";
 
 const timelineData = [
   {
@@ -30,93 +31,164 @@ const timelineData = [
   }
 ];
 
+  const data = [
+    {
+      title: "2024",
+      content: (
+        <div>
+          <p className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+            Built and launched Aceternity UI and Aceternity UI Pro from scratch
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <img
+              src="https://assets.aceternity.com/templates/startup-1.webp"
+              alt="startup template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/templates/startup-2.webp"
+              alt="startup template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/templates/startup-3.webp"
+              alt="startup template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/templates/startup-4.webp"
+              alt="startup template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Early 2023",
+      content: (
+        <div>
+          <p className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+            I usually run out of copy, but when I see content this big, I try to
+            integrate lorem ipsum.
+          </p>
+          <p className="mb-8 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+            Lorem ipsum is for people who are too lazy to write copy. But we are
+            not. Here are some more example of beautiful designs I built.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <img
+              src="https://assets.aceternity.com/pro/hero-sections.png"
+              alt="hero template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/features-section.png"
+              alt="feature template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/pro/bento-grids.png"
+              alt="bento template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/cards.png"
+              alt="cards template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Changelog",
+      content: (
+        <div>
+          <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+            Deployed 5 new components on Aceternity today
+          </p>
+          <div className="mb-8">
+            <div className="flex items-center gap-2 text-xs text-neutral-700 md:text-sm dark:text-neutral-300">
+              ✅ Card grid component
+            </div>
+            <div className="flex items-center gap-2 text-xs text-neutral-700 md:text-sm dark:text-neutral-300">
+              ✅ Startup template Aceternity
+            </div>
+            <div className="flex items-center gap-2 text-xs text-neutral-700 md:text-sm dark:text-neutral-300">
+              ✅ Random file upload lol
+            </div>
+            <div className="flex items-center gap-2 text-xs text-neutral-700 md:text-sm dark:text-neutral-300">
+              ✅ Himesh Reshammiya Music CD
+            </div>
+            <div className="flex items-center gap-2 text-xs text-neutral-700 md:text-sm dark:text-neutral-300">
+              ✅ Salman Bhai Fan Club registrations open
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <img
+              src="https://assets.aceternity.com/pro/hero-sections.png"
+              alt="hero template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/features-section.png"
+              alt="feature template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/pro/bento-grids.png"
+              alt="bento template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+            <img
+              src="https://assets.aceternity.com/cards.png"
+              alt="cards template"
+              width={500}
+              height={500}
+              className="h-20 w-full rounded-lg object-cover shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] md:h-44 lg:h-60"
+            />
+          </div>
+        </div>
+      ),
+    },
+  ];
+
 const OdeTimeline = () => {
   return (
-    <div className="bg-[#D9B5B5] min-h-screen py-24 px-4 overflow-x-hidden">
+    <div className=" min-h-screen py-24 px-4 overflow-x-hidden">
       {/* Exact Heading Style */}
-      <div className="max-w-4xl mx-auto text-center mb-16">
-        <h2 className="text-[40px] md:text-[54px] font-light text-[#2D2D2D] tracking-tight">
-          Let's start from <span className="italic font-serif">the beginning</span>
-        </h2>
-      </div>
-
-      <div className="relative max-w-5xl mx-auto">
-        {/* The Exact Vertical Line */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-[#2D2D2D] opacity-40 transform -translate-x-1/2"></div>
-
-        <div className="relative flex flex-col">
-          {timelineData.map((item, index) => {
-            const isLeft = index % 2 !== 0; // In your video, 2019 is on the right
-
-            return (
-              <div key={index} className="relative w-full mb-[-40px] md:mb-[-20px] flex items-center">
-                {/* The Notch/Tick */}
-                <div className="absolute left-1/2 w-6 h-[1px] bg-[#2D2D2D] transform -translate-x-1/2 z-10"></div>
-
-                <motion.div
-                  // The "Exact" Animation: 
-                  // Slide from far left/right + slight rotation + Fade In
-                  initial={{ 
-                    opacity: 0, 
-                    x: isLeft ? -200 : 200, 
-                    rotate: isLeft ? -4 : 4 
-                  }}
-                  whileInView={{ 
-                    opacity: 1, 
-                    x: isLeft ? -20 : 20, // Small overlap of the center
-                    rotate: isLeft ? -2 : 2 
-                  }}
-                  transition={{ 
-                    duration: 0.9, 
-                    ease: [0.16, 1, 0.3, 1], // Smooth "Expo" ease-out
-                  }}
-                  viewport={{ once: false, amount: 0.4 }}
-                  className={`relative w-[85%] md:w-[420px] bg-[#313131] text-white p-6 rounded-sm shadow-2xl
-                    ${isLeft ? "ml-auto" : "mr-auto"}`}
-                  style={{ zIndex: index }}
-                >
-                  <div className="overflow-hidden mb-6">
-                    <img
-                      src={item.image}
-                      alt={item.year}
-                      className="w-full aspect-[4/5] object-cover grayscale brightness-90 hover:grayscale-0 transition-all duration-700"
-                    />
-                  </div>
-                  <div className="space-y-4">
-                    <span className="text-[22px] font-medium block leading-none">{item.year}</span>
-                    <p className="text-[14px] leading-relaxed text-gray-300 font-light tracking-wide">
-                      {item.text}
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Footer Mission Text - Exactly as seen in video */}
-      <div className="max-w-3xl mx-auto text-center mt-64 mb-32 text-[#2D2D2D]">
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-2xl md:text-[32px] leading-[1.3] mb-12 font-medium"
-        >
-          At Ode Studio, our mission is to craft timeless, strategic, and visually compelling brands that help businesses scale with confidence.
-        </motion.p>
-        
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="text-lg md:text-[22px] font-light italic opacity-90"
-        >
-          We take a personalised, collaborative approach, ensuring that every brand we touch is not only aesthetically refined but also deeply rooted in strategy.
-        </motion.p>
-      </div>
+      <div className="bg-[#D9B5B5] relative w-full overflow-clip">
+      <Timeline data={data} />
     </div>
-  );
+      
+    </div>
+  )
+
+
+
 };
 
 export default OdeTimeline;

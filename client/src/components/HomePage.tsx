@@ -3,7 +3,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Instagram, Facebook, Linkedin } from 'lucide-react';
-
+import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
+import { BackgroundLines } from '@/components/ui/background-lines';
+import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 const HomePage = () => {
   const projects = [
     { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
@@ -11,16 +13,49 @@ const HomePage = () => {
     { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
     { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
   ];
+  const images = [
+    "https://assets.aceternity.com/cloudinary_bkp/3d-card.png",
+    "https://assets.aceternity.com/animated-modal.png",
+    "https://assets.aceternity.com/animated-testimonials.webp",
+    "https://assets.aceternity.com/cloudinary_bkp/Tooltip_luwy44.png",
+    "https://assets.aceternity.com/github-globe.png",
+    "https://assets.aceternity.com/glare-card.png",
+    "https://assets.aceternity.com/layout-grid.png",
+    "https://assets.aceternity.com/flip-text.png",
+    "https://assets.aceternity.com/hero-highlight.png",
+    "https://assets.aceternity.com/carousel.webp",
+    "https://assets.aceternity.com/placeholders-and-vanish-input.png",
+    "https://assets.aceternity.com/shooting-stars-and-stars-background.png",
+    "https://assets.aceternity.com/signup-form.png",
+    "https://assets.aceternity.com/cloudinary_bkp/stars_sxle3d.png",
+    "https://assets.aceternity.com/spotlight-new.webp",
+    "https://assets.aceternity.com/cloudinary_bkp/Spotlight_ar5jpr.png",
+    "https://assets.aceternity.com/cloudinary_bkp/Parallax_Scroll_pzlatw_anfkh7.png",
+    "https://assets.aceternity.com/tabs.png",
+    "https://assets.aceternity.com/cloudinary_bkp/Tracing_Beam_npujte.png",
+    "https://assets.aceternity.com/cloudinary_bkp/typewriter-effect.png",
+    "https://assets.aceternity.com/glowing-effect.webp",
+    "https://assets.aceternity.com/hover-border-gradient.png",
+    "https://assets.aceternity.com/cloudinary_bkp/Infinite_Moving_Cards_evhzur.png",
+    "https://assets.aceternity.com/cloudinary_bkp/Lamp_hlq3ln.png",
+    "https://assets.aceternity.com/macbook-scroll.png",
+    "https://assets.aceternity.com/cloudinary_bkp/Meteors_fye3ys.png",
+    "https://assets.aceternity.com/cloudinary_bkp/Moving_Border_yn78lv.png",
+    "https://assets.aceternity.com/multi-step-loader.png",
+    "https://assets.aceternity.com/vortex.png",
+    "https://assets.aceternity.com/wobble-card.png",
+    "https://assets.aceternity.com/world-map.webp",
+  ];
 
   return (
     <div className="bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
-      
+
       {/* --- HERO SECTION WITH BG IMAGE & ELECTRIC BLUE --- */}
       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-20 overflow-hidden">
         {/* Background Image with Electric Blue Overlay */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="./front.jpeg" 
+          <img
+            src="./front.jpeg"
             alt="Studio Interior"
             className="w-full h-full object-cover"
           />
@@ -29,7 +64,7 @@ const HomePage = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-[#624a41]/60 via-transparent to-[#e8e6d8]"></div>
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
@@ -41,7 +76,7 @@ const HomePage = () => {
           <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#e8e6d8] uppercase">
             We ensure your brand feels like home to those it serves.
           </p>
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.05 }}
             className="bg-[#e8e6d8] text-[#624a41] px-10 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] hover:text-white transition-all duration-500 shadow-xl"
           >
@@ -52,21 +87,48 @@ const HomePage = () => {
 
       {/* --- INTRO SECTION --- */}
       <section className="py-32 px-8 md:px-20 grid md:grid-cols-2 gap-20 items-center bg-[#e8e6d8]">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          <h2 className="text-4xl md:text-5xl leading-tight mb-8">
-            Take things <span className="italic text-[#892f1a]">off your plate</span> so you can get on with what you do best.
-          </h2>
-          <p className="font-sans text-[#624a41]/80 leading-relaxed max-w-lg">
-            Whether you’re unsure where to start or need to rebrand your visual identity, we’re here for you. 
-          </p>
+          <div className="relative mx-auto flex w-full max-w-7xl items-center justify-center">
+            <DottedGlowBackground
+              className="pointer-events-none mask-radial-to-90% mask-radial-at-center opacity-20 dark:opacity-100"
+              opacity={60}
+              gap={10}
+              radius={2.5}
+              colorLightVar="--color-neutral-500"
+              glowColorLightVar="--color-neutral-600"
+              colorDarkVar="--color-neutral-500"
+              glowColorDarkVar="--color-dark"
+              backgroundOpacity={0}
+              speedMin={0.3}
+              speedMax={1.6}
+              speedScale={1}
+            />
+
+            <div className="relative z-10 flex w-full flex-col items-center justify-between space-y-6 px-8 py-16 text-center md:flex-row">
+              <div>
+                <h2 className="text-center text-4xl font-normal tracking-tight text-neutral-900 sm:text-5xl md:text-left dark:text-neutral-400">
+                  Ready to buy{" "}
+                  <span className="font-bold dark:text-white">Aceternity Pro</span>?
+                </h2>
+                <p className="mt-4 max-w-lg text-center text-base text-neutral-600 md:text-left dark:text-neutral-300">
+                  Unlock premium components, advanced animations, and exclusive
+                  templates to build stunning modern interfaces.
+                </p>
+              </div>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <button className="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-8 py-3 text-sm font-medium text-neutral-700 shadow-sm transition-all duration-200 hover:bg-neutral-50 hover:shadow-md dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700">
+                  View Pricing
+                </button>
+              </div>
+            </div>
+          </div>
         </motion.div>
-        
         <div className="flex justify-center md:justify-end">
-          <motion.div 
+          <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             className="w-56 h-56 rounded-full border-2 border-[#892f1a] border-dotted flex items-center justify-center p-8 text-center"
@@ -81,10 +143,11 @@ const HomePage = () => {
       {/* --- STICKY WORK SHOWCASE (DARK CHOC) --- */}
       <section className="bg-[#624a41] text-[#e8e6d8] py-32 px-8 md:px-20 relative">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
-          
+
           {/* LEFT SIDE: STICKY HEADER */}
           <div className="md:w-1/3">
             <div className="sticky top-32">
+              <BackgroundLines className="flex items-center justify-center w-full flex-col px-4">
               <h2 className="text-5xl md:text-7xl italic font-light leading-tight mb-6">
                 Glimpse into our work
               </h2>
@@ -92,13 +155,17 @@ const HomePage = () => {
               <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-[#bdaf62]">
                 Portfolio — 2026
               </p>
+              </BackgroundLines>
+              
+              
+              
             </div>
           </div>
 
           {/* RIGHT SIDE: VERTICAL SCROLLING IMAGES */}
           <div className="md:w-2/3 space-y-40">
             {projects.map((proj, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 80 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -107,15 +174,15 @@ const HomePage = () => {
                 className="group"
               >
                 <div className="relative aspect-[16/11] overflow-hidden bg-[#e8e6d8]/5 mb-10">
-                  <motion.img 
+                  <motion.img
                     whileHover={{ scale: 1.08 }}
                     transition={{ duration: 0.9 }}
-                    src={proj.img} 
-                    alt={proj.title} 
+                    src={proj.img}
+                    alt={proj.title}
                     className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
                   />
                 </div>
-                
+
                 <div className="flex flex-col border-l-2 border-[#892f1a] pl-6 transition-all duration-500 group-hover:pl-10">
                   <span className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62] mb-3">{proj.date}</span>
                   <h3 className="text-4xl tracking-wide font-light">{proj.title}</h3>
@@ -148,29 +215,35 @@ const HomePage = () => {
       <footer className="bg-white/40 pt-32 pb-12 px-8 md:px-20 border-t border-[#624a41]/10">
         <div className="flex flex-col md:flex-row justify-between gap-24 mb-32 max-w-7xl mx-auto">
           <div>
-            <h3 className="text-5xl mb-12">Ready to <span className="text-[#892f1a] italic">elevate</span> <br/>your brand?</h3>
+            <h3 className="text-5xl mb-12">Ready to <span className="text-[#892f1a] italic">elevate</span> <br />your brand?</h3>
             <div className="flex border-b border-[#624a41] pb-4 w-full md:w-96 group">
               <input type="text" placeholder="Email Address" className="bg-transparent outline-none flex-grow text-xs uppercase tracking-widest" />
               <ArrowRight className="text-[#892f1a] group-hover:translate-x-2 transition-transform" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-20 text-[10px] font-sans uppercase tracking-[0.4em]">
-             <div className="flex flex-col gap-6">
-                <a href="#" className="hover:text-[#892f1a]">Our Story</a>
-                <a href="#" className="hover:text-[#892f1a]">Work</a>
-             </div>
-             <div className="flex flex-col gap-6">
-                <div className="flex gap-4 text-[#624a41]/60">
-                  <Instagram size={18} className="hover:text-[#892f1a]" />
-                  <Facebook size={18} className="hover:text-[#892f1a]" />
-                  <Linkedin size={18} className="hover:text-[#892f1a]" />
-                </div>
-             </div>
+            <div className="flex flex-col gap-6">
+              <a href="#" className="hover:text-[#892f1a]">Our Story</a>
+              <a href="#" className="hover:text-[#892f1a]">Work</a>
+            </div>
+            <div className="flex flex-col gap-6">
+              <div className="flex gap-4 text-[#624a41]/60">
+                <Instagram size={18} className="hover:text-[#892f1a]" />
+                <Facebook size={18} className="hover:text-[#892f1a]" />
+                <Linkedin size={18} className="hover:text-[#892f1a]" />
+              </div>
+            </div>
           </div>
+
+
+        </div>
+        <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-2 ring-1 ring-neutral-700/10 dark:bg-neutral-800">
+          <ThreeDMarquee images={images} />
         </div>
       </footer>
     </div>
   );
 };
+
 
 export default HomePage;
