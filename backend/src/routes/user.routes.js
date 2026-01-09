@@ -12,7 +12,7 @@ const router =Router()
 //     registerUser
 // );
 router.route("/login").post(loginUser)
-router.route("/logout").post(verifyJwt,logout)
+router.route("/logout").post(verifyJwt,logout)  
 router.route("/refresh-token").post(refreshAccessToken)
 
 router.route("/change-password").post(verifyJwt, changeCurrentPassword)
