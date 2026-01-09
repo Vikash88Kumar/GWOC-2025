@@ -1,4 +1,4 @@
-import { HomePage } from "../models/HomePage.model";
+import { HomePage } from "../models/HomePage.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
@@ -15,28 +15,43 @@ export const getHomePage=asyncHandler(async(req,res)=>{
     }
 })
 
+
 export const upsertHomePage = async (req, res) => {
   try {
+    const {
+      hero,
+      projects,
+      stats,
+    } = req.body;
+
     const homepage = await HomePage.findOneAndUpdate(
-      {},               // match any document (only one exists)
-      { $set: req.body },
+      {}, // only ONE homepage document
       {
-        new: true,      // return updated doc
-        upsert: true,   // CREATE if not exists
+        hero,
+        projects,
+        stats,
+      },
+      {
+        new: true,        // return updated document
+        upsert: true,     // create if not exists
         runValidators: true,
+        setDefaultsOnInsert: true,
       }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Homepage saved successfully",
       data: homepage,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Homepage Update Error:", error);
+
+    return res.status(500).json({
       success: false,
       message: "Failed to save homepage",
       error: error.message,
     });
   }
 };
+
