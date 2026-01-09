@@ -6,6 +6,7 @@ import { ArrowRight, Instagram, Facebook, Linkedin } from 'lucide-react';
 import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { ThreeDMarquee } from '@/components/ui/3d-marquee';
+import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 const HomePage = () => {
   const projects = [
     { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
@@ -173,7 +174,7 @@ const HomePage = () => {
                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                 className="group"
               >
-                <div className="relative aspect-[16/11] overflow-hidden bg-[#e8e6d8]/5 mb-10">
+                {/* <div className="relative aspect-[16/11] overflow-hidden bg-[#e8e6d8]/5 mb-10">
                   <motion.img
                     whileHover={{ scale: 1.08 }}
                     transition={{ duration: 0.9 }}
@@ -181,7 +182,31 @@ const HomePage = () => {
                     alt={proj.title}
                     className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
                   />
-                </div>
+                </div> */}
+                <CardContainer className="inter-var md:w-full w-auto h-auto perspective-1000px">
+      <CardBody className="bg-tranparent-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-yellow/[0.1] w-auto md:w-full sm:w-[30rem] h-auto rounded-xl p-6 border  ">
+        
+        
+        <CardItem translateZ="100" className="w-full h-64 mt-4">
+          <img
+  src={proj.img}
+  className="
+    h-64
+    sm:h-64
+    md:h-72
+    w-full
+    object-cover
+    rounded-xl
+    group-hover/card:shadow-xl
+  "
+  alt="thumbnail"
+/>
+        </CardItem>
+        <div className="flex justify-between items-center mt-20">
+         mlml
+        </div>
+      </CardBody>
+    </CardContainer>
 
                 <div className="flex flex-col border-l-2 border-[#892f1a] pl-6 transition-all duration-500 group-hover:pl-10">
                   <span className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62] mb-3">{proj.date}</span>
