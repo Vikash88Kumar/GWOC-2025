@@ -78,8 +78,8 @@ const AboutFounder = () => {
     <div className="min-h-screen bg-background font-body scroll-smooth">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
-        <div className="absolute top-20 right-0 w-96 h-96 bg-terracotta/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-0 w-80 h-80 bg-gold/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-0 w-96 h-96 bg-amber-900/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 left-0 w-80 h-80 bg-yellow-300/10 rounded-full blur-3xl" />
 
         <div className="container mx-auto px-6 lg:px-12 py-24">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -93,7 +93,7 @@ const AboutFounder = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
-                className="inline-block text-sm tracking-[0.3em] uppercase text-terracotta mb-6 font-medium"
+                className="inline-block text-sm tracking-[0.3em] uppercase text-amber-900 mb-6 font-medium"
               >
                 Founder & Visionary
               </motion.span>
@@ -105,7 +105,7 @@ const AboutFounder = () => {
                 className="font-display text-5xl md:text-6xl lg:text-7xl font-medium text-foreground leading-[1.1] mb-8"
               >
                 Alexandra
-                <span className="block italic text-terracotta mt-2">Mitchell</span>
+                <span className="block italic text-amber-900 mt-2">Mitchell</span>
               </motion.h1>
 
               <motion.p
@@ -126,7 +126,7 @@ const AboutFounder = () => {
               >
                 <a
                   href="#story"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-body font-medium rounded-full transition-all duration-300 hover:bg-terracotta-dark hover:scale-105"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-body font-medium rounded-full transition-all duration-300 hover:bg-amber-800 hover:scale-105"
                 >
                   Read My Story
                 </a>
@@ -146,8 +146,8 @@ const AboutFounder = () => {
               className="order-1 lg:order-2 relative"
             >
               <div className="relative">
-                <div className="absolute -top-6 -right-6 w-full h-full border-2 border-terracotta rounded-2xl" />
-                <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gold/20 rounded-full" />
+                <div className="absolute -top-6 -right-6 w-full h-full border-2 border-amber-900 rounded-2xl" />
+                <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-yellow-300/20 rounded-full" />
 
                 <img
                   src="https://img.freepik.com/free-vector/rainbow-coloured-hand-painted-watercolour-splatter-design_1048-20680.jpg?semt=ais_hybrid&w=740&q=80"
@@ -160,7 +160,7 @@ const AboutFounder = () => {
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   className="absolute -bottom-4 -right-4 z-20 bg-card px-6 py-4 rounded-xl shadow-lg"
                 >
-                  <span className="block font-display text-2xl font-semibold text-terracotta">10+</span>
+                  <span className="block font-display text-2xl font-semibold text-amber-900">10+</span>
                   <span className="font-body text-sm text-muted-foreground">Years of Impact</span>
                 </motion.div>
               </div>
@@ -170,10 +170,10 @@ const AboutFounder = () => {
       </section>
 
       {/* Story Section */}
-      <section id="story" className="py-24 lg:py-32 bg-cream-dark relative overflow-hidden">
+      <section id="story" className="py-24 lg:py-32 bg-gray-100 relative overflow-hidden">
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-terracotta/30 to-transparent" />
-          <div className="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-terracotta/30 to-transparent" />
+          <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-amber-900/30 to-transparent" />
+          <div className="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-amber-900/30 to-transparent" />
         </div>
 
         <div className="container mx-auto px-6 lg:px-12" ref={storyRef}>
@@ -183,7 +183,7 @@ const AboutFounder = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <span className="inline-block font-body text-sm tracking-[0.3em] uppercase text-terracotta mb-4">
+            <span className="inline-block font-body text-sm tracking-[0.3em] uppercase text-amber-900 mb-4">
               The Journey
             </span>
             <h2 className="font-display text-4xl md:text-5xl font-medium text-foreground">
@@ -198,7 +198,7 @@ const AboutFounder = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <span className="absolute -top-8 -left-4 font-display text-[120px] text-terracotta/20 leading-none">
+              <span className="absolute -top-8 -left-4 font-display text-[120px] text-amber-900/20 leading-none">
                 "
               </span>
 
@@ -215,13 +215,13 @@ const AboutFounder = () => {
               className="grid md:grid-cols-2 gap-12 mt-16"
             >
               <div className="space-y-6">
-                <p className="font-body text-charcoal-light leading-relaxed">
+                <p className="font-body text-gray-600 leading-relaxed">
                   It all started in a small home office with a simple idea: what if we could make
                   technology more human? Fresh out of university with a degree in Computer Science
                   and a minor in Psychology, I was fascinated by the intersection of human behavior
                   and digital experiences.
                 </p>
-                <p className="font-body text-charcoal-light leading-relaxed">
+                <p className="font-body text-gray-600 leading-relaxed">
                   The first few years were challenging. Countless late nights, failed prototypes,
                   and moments of doubt. But each setback taught me something invaluable—resilience
                   isn't about not falling, it's about how you rise.
@@ -229,13 +229,13 @@ const AboutFounder = () => {
               </div>
 
               <div className="space-y-6">
-                <p className="font-body text-charcoal-light leading-relaxed">
+                <p className="font-body text-gray-600 leading-relaxed">
                   Today, our company serves over 10 million users worldwide, but what brings me
                   the most joy isn't the numbers—it's the stories. The small business owner who
                   grew her revenue by 300%. The nonprofit that reached communities they never
                   could before. The student who landed their dream job.
                 </p>
-                <p className="font-body text-charcoal-light leading-relaxed">
+                <p className="font-body text-gray-600 leading-relaxed">
                   Every line of code, every design decision, every strategic pivot has been in
                   service of one goal: making a positive difference in people's lives. And we're
                   just getting started.
@@ -255,7 +255,7 @@ const AboutFounder = () => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <span className="inline-block font-body text-sm tracking-[0.3em] uppercase text-terracotta mb-4">
+            <span className="inline-block font-body text-sm tracking-[0.3em] uppercase text-amber-900 mb-4">
               What Drives Me
             </span>
             <h2 className="font-display text-4xl md:text-5xl font-medium text-foreground">
@@ -272,16 +272,16 @@ const AboutFounder = () => {
                 transition={{ duration: 0.6, delay: index * 0.15 }}
                 className="group"
               >
-                <div className="h-full p-8 bg-card rounded-2xl border border-border transition-all duration-500 hover:border-terracotta hover:shadow-xl hover:-translate-y-2">
-                  <div className="w-14 h-14 rounded-xl bg-terracotta/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-terracotta group-hover:scale-110">
-                    <value.icon className="w-7 h-7 text-terracotta transition-colors duration-300 group-hover:text-primary-foreground" />
+                <div className="h-full p-8 bg-card rounded-2xl border border-border transition-all duration-500 hover:border-amber-900 hover:shadow-xl hover:-translate-y-2">
+                  <div className="w-14 h-14 rounded-xl bg-amber-900/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-amber-900 group-hover:scale-110">
+                    <value.icon className="w-7 h-7 text-amber-900 transition-colors duration-300 group-hover:text-primary-foreground" />
                   </div>
 
                   <h3 className="font-display text-xl font-medium text-foreground mb-3">
                     {value.title}
                   </h3>
 
-                  <p className="font-body text-charcoal-light leading-relaxed">
+                  <p className="font-body text-gray-600 leading-relaxed">
                     {value.description}
                   </p>
                 </div>
@@ -292,24 +292,25 @@ const AboutFounder = () => {
       </section>
 
       {/* Journey Section */}
-      <section className="py-24 lg:py-32 bg-cream-dark relative overflow-hidden">
-        <div className="container mx-auto px-6 lg:px-12" ref={journeyRef}>
+      <section className="py-24 lg:py-32 bg-yellow-50 relative overflow-hidden" ref={journeyRef}>
+  <div className="container mx-auto px-6 lg:px-12">
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={journeyInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <span className="inline-block font-body text-sm tracking-[0.3em] uppercase text-terracotta mb-4">
+            <span className="inline-block font-body text-sm tracking-[0.3em] uppercase text-amber-900 mb-4">
               Milestones
             </span>
-            <h2 className="font-display text-4xl md:text-5xl font-medium text-foreground">
+            <h2 className="font-display text-4xl md:text-5xl font-medium text--900">
               The Journey So Far
             </h2>
           </motion.div>
 
           <div className="max-w-4xl mx-auto relative">
-            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-terracotta via-terracotta/50 to-transparent transform md:-translate-x-1/2" />
+            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-amber-900 via-amber-900/50 to-transparent transform md:-translate-x-1/2" />
 
             {milestones.map((milestone, index) => (
               <motion.div
@@ -321,17 +322,17 @@ const AboutFounder = () => {
                   index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
                 }`}
               >
-                <div className="absolute left-8 md:left-1/2 w-4 h-4 bg-terracotta rounded-full transform -translate-x-1/2 z-10 ring-4 ring-background" />
+                <div className="absolute left-8 md:left-1/2 w-4 h-4 bg-amber-900 rounded-full transform -translate-x-1/2 z-10 ring-4 ring-background" />
 
                 <div className={`ml-20 md:ml-0 md:w-[calc(50%-40px)] ${index % 2 === 0 ? "md:pr-12 md:text-right" : "md:pl-12"}`}>
-                  <div className="bg-card p-6 rounded-xl border border-border hover:border-terracotta transition-all duration-300 hover:shadow-lg">
-                    <span className="inline-block font-display text-3xl font-semibold text-terracotta mb-2">
+                    <div className="bg-blue-500 p-6 rounded-xl border border-border hover:border-amber-900 transition-all duration-300 hover:shadow-lg">
+                    <span className="inline-block font-display text-3xl font-semibold text-white mb-2">
                       {milestone.year}
                     </span>
-                    <h3 className="font-display text-xl font-medium text-foreground mb-2">
+                    <h3 className="font-display text-xl font-medium text-white mb-2">
                       {milestone.title}
                     </h3>
-                    <p className="font-body text-charcoal-light leading-relaxed">
+                    <p className="font-body text-gray-200 leading-relaxed">
                       {milestone.description}
                     </p>
                   </div>
@@ -355,7 +356,7 @@ const AboutFounder = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={connectInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
-              className="inline-block font-body text-sm tracking-[0.3em] uppercase text-terracotta-light mb-4"
+              className="inline-block font-body text-sm tracking-[0.3em] uppercase text-yellow-300 mb-4"
             >
               Get In Touch
             </motion.span>
@@ -367,7 +368,7 @@ const AboutFounder = () => {
               className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-background mb-6"
             >
               Let's Create Something
-              <span className="block italic text-terracotta-light">Extraordinary</span>
+              <span className="block italic text-yellow-300">Extraordinary</span>
             </motion.h2>
 
             <motion.p
@@ -388,7 +389,7 @@ const AboutFounder = () => {
             >
               <a
                 href="mailto:hello@example.com"
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-terracotta text-primary-foreground font-body font-medium rounded-full transition-all duration-300 hover:bg-terracotta-light hover:scale-105"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-amber-900 text-primary-foreground font-body font-medium rounded-full transition-all duration-300 hover:bg-amber-800 hover:scale-105"
               >
                 Send a Message
                 <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />

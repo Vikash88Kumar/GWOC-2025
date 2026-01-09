@@ -1,8 +1,9 @@
-'use client'
+"use client"
 import React, { useState } from 'react';
 import { useAdmin } from '@/contexts/AdminContext';
 import ContentSectionCard from '@/components/admin/ContentSectionCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AdminLayout from '@/components/admin/AdminLayout';
 
 const ContentEditor: React.FC = () => {
   const { contentSections } = useAdmin();
@@ -54,4 +55,10 @@ const ContentEditor: React.FC = () => {
   );
 };
 
-export default ContentEditor;
+export default function Page() {
+  return (
+    <AdminLayout>
+      <ContentEditor />
+    </AdminLayout>
+  );
+}

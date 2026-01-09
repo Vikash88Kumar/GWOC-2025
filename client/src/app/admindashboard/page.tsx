@@ -1,7 +1,8 @@
-'use client'
+"use client"
 import React from 'react';
 import { useAdmin } from '@/contexts/AdminContext';
 import StatCard from '@/components/admin/StatCard';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { FileEdit, MessageSquareQuote, Users, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -159,4 +160,10 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default function Page() {
+  return (
+    <AdminLayout>
+      <Dashboard />
+    </AdminLayout>
+  );
+}

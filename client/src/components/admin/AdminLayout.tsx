@@ -1,19 +1,14 @@
-'use client'
+"use client"
 import React from 'react';
-import { Outlet } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 // import { AdminProvider } from '@/contexts/AdminContext';
 
-const AdminLayout: React.FC = () => {
+const AdminLayout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   return (
-   
-      <div className="min-h-screen bg-background">
-        <AdminSidebar />
-        <main className="ml-64 min-h-screen">
-          <Outlet />
-        </main>
-      </div>
-    
+    <div className="min-h-screen bg-background">
+      <AdminSidebar />
+      <main className="ml-64 min-h-screen">{children}</main>
+    </div>
   );
 };
 

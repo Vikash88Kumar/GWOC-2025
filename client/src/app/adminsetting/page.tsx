@@ -1,4 +1,5 @@
 import React from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -98,4 +99,10 @@ const Settings: React.FC = () => {
   );
 };
 
-export default Settings;
+export default function Page() {
+  return (
+    <AdminLayout>
+      <Settings />
+    </AdminLayout>
+  );
+}
