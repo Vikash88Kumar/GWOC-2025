@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { useAdmin } from '@/contexts/AdminContext';
 import { Client } from '@/types/admin';
 import { Button } from '@/components/ui/button';
@@ -297,4 +298,10 @@ const Clients: React.FC = () => {
   );
 };
 
-export default Clients;
+export default function Page() {
+  return (
+    <AdminLayout>
+      <Clients />
+    </AdminLayout>
+  );
+}

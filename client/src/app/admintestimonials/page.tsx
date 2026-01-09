@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { useAdmin } from '@/contexts/AdminContext';
 import { Testimonial } from '@/types/admin';
 import { Button } from '@/components/ui/button';
@@ -317,4 +318,10 @@ const Testimonials: React.FC = () => {
   );
 };
 
-export default Testimonials;
+export default function Page() {
+  return (
+    <AdminLayout>
+      <Testimonials />
+    </AdminLayout>
+  );
+}

@@ -1,6 +1,7 @@
-'use client'
+"use client"
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   FileEdit, 
@@ -12,11 +13,13 @@ import {
 
 const AdminSidebar: React.FC = () => {
   const navItems = [
-    { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/content', icon: FileEdit, label: 'Content Editor' },
-    { to: '/testimonials', icon: MessageSquareQuote, label: 'Testimonials' },
-    { to: '/clients', icon: Users, label: 'Clients' },
+    { href: '/admindashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { href: '/admincontent', icon: FileEdit, label: 'Content Editor' },
+    { href: '/admintestimonials', icon: MessageSquareQuote, label: 'Testimonials' },
+    { href: '/adminclient', icon: Users, label: 'Clients' },
   ];
+
+  const pathname = usePathname() || '/';
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col">
@@ -35,32 +38,30 @@ const AdminSidebar: React.FC = () => {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.to === '/'}
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <item.icon className="w-5 h-5" />
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Footer */}
       <div className="p-4 border-t border-sidebar-border">
-        <NavLink
-          to="/settings"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? 'active' : ''}`
-          }
+        <Link
+          href="/adminsetting"
+          className={`sidebar-link ${pathname === '/adminsetting' ? 'active' : ''}`}
         >
           <Settings className="w-5 h-5" />
           <span>Settings</span>
-        </NavLink>
+        </Link>
       </div>
     </aside>
   );

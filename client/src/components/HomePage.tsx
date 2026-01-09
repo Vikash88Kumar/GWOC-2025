@@ -7,6 +7,7 @@ import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
+import Link from 'next/link';
 const HomePage = () => {
   const projects = [
     { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
@@ -77,12 +78,14 @@ const HomePage = () => {
           <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#e8e6d8] uppercase">
             We ensure your brand feels like home to those it serves.
           </p>
+          <Link href="/services"> 
           <motion.button
             whileHover={{ scale: 1.05 }}
             className="bg-[#e8e6d8] text-[#624a41] px-10 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] hover:text-white transition-all duration-500 shadow-xl"
           >
             Let's Get Started
           </motion.button>
+          </Link>
         </motion.div>
       </section>
 
@@ -241,9 +244,11 @@ const HomePage = () => {
         <div className="flex flex-col md:flex-row justify-between gap-24 mb-32 max-w-7xl mx-auto">
           <div>
             <h3 className="text-5xl mb-12">Ready to <span className="text-[#892f1a] italic">elevate</span> <br />your brand?</h3>
-            <div className="flex border-b border-[#624a41] pb-4 w-full md:w-96 group">
-              <input type="text" placeholder="Email Address" className="bg-transparent outline-none flex-grow text-xs uppercase tracking-widest" />
-              <ArrowRight className="text-[#892f1a] group-hover:translate-x-2 transition-transform" />
+            <div className="flex  pb-4 w-full md:w-96 group">
+              <Link href="/contact" className="no-underline">
+              <button className="flex items-center gap-4 bg-[#892f1a] text-white px-6 py-3 text-[10px] uppercase tracking-[0.4em] hover:bg-[#624a41] transition-all duration-500 shadow-xl">Contact Us</button>
+              {/* <ArrowRight className="text-[#892f1a] group-hover:translate-x-2 transition-transform" /> */}
+              </Link>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-20 text-[10px] font-sans uppercase tracking-[0.4em]">

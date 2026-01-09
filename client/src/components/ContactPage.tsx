@@ -26,7 +26,7 @@ const services = [
 
 const ContactPage = () => {
   return (
-    <div className="bg-[#624a41] text-[#e8e6d8] min-h-screen font-serif selection:bg-[#bdaf62] selection:text-white">
+    <div className="bg-[#0B1F3B] text-[#e8e6d8] min-h-screen font-serif selection:bg-[#bdaf62] selection:text-white">
 
       {/* ---------------- HEADER ---------------- */}
       <section className="pt-40 pb-24 px-0 text-center">
