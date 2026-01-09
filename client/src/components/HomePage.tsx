@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Instagram, Facebook, Linkedin } from 'lucide-react';
 import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
@@ -8,7 +8,19 @@ import { BackgroundLines } from '@/components/ui/background-lines';
 import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import Link from 'next/link';
+
+import {gethomePage} from "../services/homepage.api.js"
 const HomePage = () => {
+  const [data,setData]=useState({})
+  useEffect(()=>{
+    const fetchdata=async()=>{
+      const res=await gethomePage()
+      setData(res)
+      console.log(res)
+    }
+    fetchdata()
+  },[])
+
   const projects = [
     { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
     { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
@@ -160,9 +172,6 @@ const HomePage = () => {
                 Portfolio — 2026
               </p>
               </BackgroundLines>
-              
-              
-              
             </div>
           </div>
 

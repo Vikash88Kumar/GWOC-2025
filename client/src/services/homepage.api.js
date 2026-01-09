@@ -1,10 +1,10 @@
 import api from "../api/axios.js"
 
-export const homePage=async()=>{
+export const gethomePage=async()=>{
     try {
-        const res=await api.patch("/homepage")
+        const res=await api.get("/homepage")
         return res.data
-    } catch (error) {
+    }catch (error){
         console.log("homepage failed",error?.message)
     }
 }
