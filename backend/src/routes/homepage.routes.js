@@ -4,6 +4,6 @@ import verifyJwt from '../middlewares/auth.middleware.js';
 const router = Router();
 
 router.route('/').get(getHomePage);
-router.route('/').patch(upsertHomePage);
+router.route('/').patch(verifyJwt, upsertHomePage);
 
 export default router;
