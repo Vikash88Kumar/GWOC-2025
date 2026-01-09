@@ -29,7 +29,7 @@ const ContactPage = () => {
     <div className="bg-[#624a41] text-[#e8e6d8] min-h-screen font-serif selection:bg-[#bdaf62] selection:text-white">
 
       {/* ---------------- HEADER ---------------- */}
-      <section className="pt-40 pb-24 px-6 text-center">
+      <section className="pt-40 pb-24 px-0 text-center">
         <motion.h1
           variants={fadeInUp}
           initial="hidden"

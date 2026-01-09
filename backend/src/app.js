@@ -24,11 +24,12 @@ app.get("/",(req,res)=>{
 
 //routes import 
 // import userRouter from "./routes/user.routes.js"
-
+import enquiryRouter from "./routes/enquiryForm.routes.js"
 
 //routes declare
 
 // app.use("/api/v1/users", userRouter)
+app.use("/api/v1/enquiry",enquiryRouter)
 
 
 export {app}

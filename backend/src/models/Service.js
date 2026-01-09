@@ -1,9 +1,4 @@
-import mongoose, { Schema , model } from "mongoose";
-
-
-
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+import mongoose, { Schema } from "mongoose";
 
 const ServiceImpactSchema = new Schema(
   {
@@ -19,7 +14,11 @@ const ServiceSchema = new Schema(
     slug: { type: String, required: true, unique: true, trim: true },
     shortSummary: { type: String, default: "" },
 
-    heroMediaId: { type: Schema.Types.ObjectId, ref: "MediaAsset", default: null },
+    heroMediaId: {
+      type: Schema.Types.ObjectId,
+      ref: "MediaAsset",
+      default: null,
+    },
 
     impacts: { type: [ServiceImpactSchema], default: [] },
 
@@ -29,7 +28,12 @@ const ServiceSchema = new Schema(
   { timestamps: true }
 );
 
-ServiceSchema.index({ slug: 1 }, { unique: true });
+// Keep only compound index
 ServiceSchema.index({ isPublished: 1, displayOrder: 1 });
 
-module.exports = model("Service", ServiceSchema);
+export const ServiceImpact = mongoose.model(
+  "ServiceImpact",
+  ServiceImpactSchema
+);
+
+export const Service = mongoose.model("Service", ServiceSchema);

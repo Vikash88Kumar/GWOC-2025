@@ -1,7 +1,7 @@
 // 1) Imports (sequence)
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiResponse } from "../utils/apiResponse";
-import { ApiError } from "../utils/apiError";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+import { ApiError } from "../utils/apiError.js";
 import {Enquiry} from "../models/Enquiry.js"
 import {Service} from "../models/Service.js"
 
@@ -31,7 +31,7 @@ const ALLOWED_SERVICES = new Set([
  *   "source": "website"
  * }
  */
-exports.submitEnquiryForm = asyncHandler(async (req, res) => {
+const submitEnquiryForm = asyncHandler(async (req, res) => {
   const {
     firstName,
     lastName,
@@ -96,3 +96,4 @@ exports.submitEnquiryForm = asyncHandler(async (req, res) => {
     id: enquiryDoc._id,
   });
 });
+export {submitEnquiryForm}

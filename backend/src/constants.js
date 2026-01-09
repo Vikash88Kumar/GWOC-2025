@@ -1,1 +1,1 @@
-export const DB_NAME="Bloom Branding"
+export const DB_NAME="Bloom_Branding"

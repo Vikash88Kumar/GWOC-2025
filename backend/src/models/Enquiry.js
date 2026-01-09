@@ -1,5 +1,4 @@
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+import mongoose,{Schema,model} from "mongoose";
 
 const EnquirySchema = new Schema(
   {
@@ -37,4 +36,4 @@ const EnquirySchema = new Schema(
 EnquirySchema.index({ status: 1, createdAt: -1 });
 EnquirySchema.index({ email: 1, createdAt: -1 });
 
-module.exports = model("Enquiry", EnquirySchema);
+export const Enquiry=mongoose.model("Enquiry",EnquirySchema)
