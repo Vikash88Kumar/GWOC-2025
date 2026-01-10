@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 type Testimonial = {
   quote: string;
   name: string;
-  designation: string;
-  src: string;
+  designation?: string;
+  src?: string;
 };
 export const AnimatedTestimonials = ({
   testimonials,
@@ -56,7 +56,7 @@ export const AnimatedTestimonials = ({
             <AnimatePresence>
               {testimonials.map((testimonial, index) => (
                 <motion.div
-                  key={testimonial.src}
+                  key={`${testimonial.name}-${index}`}
                   initial={{
                     opacity: "1",
                     scale: 0.9,
@@ -86,7 +86,7 @@ export const AnimatedTestimonials = ({
                   className="absolute inset-0 origin-bottom"
                 >
                   <img
-                    src={testimonial.src}
+                    src={testimonial.src ?? '/placeholder-profile.png'}
                     alt={testimonial.name}
                     width={1000}
                     height={1000}

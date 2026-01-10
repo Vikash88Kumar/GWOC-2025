@@ -64,7 +64,7 @@ const HomePage = () => {
     "/34.png",
     "/35.png",
   ];
-  const testimonials = [
+  const [testimonials, setTestimonials] = useState<Array<{ quote: string; name: string; designation?: string; src?: string }>>([
     {
       quote:
         "The attention to detail and innovative features have completely transformed our workflow. This is exactly what we've been looking for.",
@@ -100,7 +100,37 @@ const HomePage = () => {
       designation: "VP of Technology at FutureNet",
       src: "https://images.unsplash.com/photo-1624561172888-ac93c696e10c?q=80&w=2592&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
-  ];
+  ]);
+
+  const [clientName, setClientName] = useState('');
+  const [role, setRole] = useState('');
+  const [company, setCompany] = useState('');
+  const [message, setMessage] = useState('');
+  const [star, setStar] = useState<number | null>(5);
+  const [reviewSuccess, setReviewSuccess] = useState('');
+
+  const submitReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!clientName.trim() || !message.trim()) {
+      setReviewSuccess('Please add your name and message.');
+      setTimeout(() => setReviewSuccess(''), 3000);
+      return;
+    }
+    const newTestimonial = {
+      quote: message,
+      name: clientName,
+      designation: role ? `${role}${company ? ' at ' + company : ''}` : (company || ''),
+      src: '/placeholder-profile.png',
+    };
+    setTestimonials(prev => [newTestimonial, ...prev]);
+    setClientName('');
+    setRole('');
+    setCompany('');
+    setMessage('');
+    setStar(5);
+    setReviewSuccess('Thanks for your review!');
+    setTimeout(() => setReviewSuccess(''), 3000);
+  };
 
   return (
     <div className="bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
@@ -273,7 +303,54 @@ const HomePage = () => {
       </section>
 
       {/* --- TESTIMONIALS SECTION --- */}
-      <AnimatedTestimonials testimonials={testimonials} />;
+      <AnimatedTestimonials testimonials={testimonials} />
+
+      {/* --- GIVE A REVIEW (FRONTEND ONLY) --- */}
+      <section className="max-w-2xl mx-auto px-4 py-12">
+        <h3 className="text-3xl font-semibold mb-6">Give a Review</h3>
+        <form onSubmit={submitReview} className="grid gap-3">
+          <input
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value)}
+            placeholder="Your name"
+            className="rounded-md border px-4 py-2"
+          />
+          <div className="flex gap-3">
+            <input
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="Role (e.g., Founder)"
+              className="rounded-md border px-4 py-2 flex-1"
+            />
+            <input
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="Company"
+              className="rounded-md border px-4 py-2 flex-1"
+            />
+          </div>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Your message"
+            rows={4}
+            className="rounded-md border px-4 py-2"
+          />
+          <div className="flex items-center gap-2">
+            <div className="text-sm">Rating:</div>
+            {[1,2,3,4,5].map(n => (
+              <button key={n} type="button" onClick={() => setStar(n)} className={`px-2 py-1 rounded ${star === n ? 'bg-[#892f1a] text-white' : 'bg-gray-100'}`}>
+                {n}★
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-4">
+            <button type="submit" className="bg-[#892f1a] text-white px-6 py-2 rounded">Submit Review</button>
+            <div className="text-sm text-green-600">{reviewSuccess}</div>
+          </div>
+        </form>
+      </section>
+
 
       {/* --- NUMBERS SECTION --- */}
       <section className="py-40 px-8 bg-[#e8e6d8] text-center">
