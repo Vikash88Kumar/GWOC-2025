@@ -106,7 +106,7 @@ const Navbar: React.FC = () => {
               </motion.button>
             )}
           </AnimatePresence>
-
+          
           <button
             className={`px-6 h-9 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
               scrolled

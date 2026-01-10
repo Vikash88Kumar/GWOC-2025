@@ -203,12 +203,13 @@ export default function Page() {
                 Creative Branding Studio
               </motion.div>
 
-              <h1 className="text-5xl font-bold leading-tight text-gray-900 md:text-6xl lg:text-7xl">
+              <h1 className="text-5xl font-serif font-bold leading-tight text-[#4A2E1C] md:text-6xl lg:text-7xl">
                 Where brands{' '}
-                <span className="bg-gradient-to-r from-pink-500 to-amber-500 bg-clip-text text-transparent">
-                  bloom
-                </span>{' '}
-                & stories unfold
+                <span className="bg-gradient-to-r from-[#4A2E1C] to-blue-500 bg-clip-text text-transparent">
+                  bloom  &
+                </span>{''}
+                 <br />
+                stories unfold
               </h1>
 
               <p className="mt-6 max-w-lg text-lg text-gray-600 leading-relaxed">
@@ -257,8 +258,8 @@ export default function Page() {
                   transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
                   className="absolute inset-0"
                 >
-                  <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 rounded-full bg-pink-400" />
-                  <div className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-amber-400" />
+                  <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 rounded-full bg-rose-400" />
+                  <div className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-yellow-400" />
                 </motion.div>
 
                 <div className="absolute inset-8 rounded-full border-2 border-dashed border-black/15" />
@@ -267,15 +268,15 @@ export default function Page() {
 
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="rounded-2xl bg-white/90 p-10 shadow-2xl backdrop-blur">
-                    <span className="text-6xl font-bold bg-gradient-to-r from-pink-500 to-amber-500 bg-clip-text text-transparent">
+                    <span className="text-6xl font-bold bg-gradient-to-r from-rose-500 to-yellow-500 bg-clip-text text-transparent">
                       B
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -right-16 top-16 h-72 w-72 rounded-full bg-pink-400/15 blur-3xl" />
-              <div className="absolute -left-10 bottom-16 h-52 w-52 rounded-full bg-amber-400/15 blur-3xl" />
+              <div className="absolute -right-16 top-16 h-72 w-72 rounded-full bg-rose-400/15 blur-3xl" />
+              <div className="absolute -left-10 bottom-16 h-52 w-52 rounded-full bg-yellow-400/15 blur-3xl" />
             </motion.div>
           </div>
         </div>
@@ -313,8 +314,8 @@ export default function Page() {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="relative overflow-hidden rounded-3xl bg-gray-900 p-12 text-center md:p-20"
           >
-            <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-pink-400/20 blur-3xl" />
-            <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-amber-400/15 blur-3xl" />
+            <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-rose-400/20 blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-yellow-400/15 blur-3xl" />
 
             <div className="relative z-10">
               <h2 className="text-4xl font-bold text-white md:text-5xl">

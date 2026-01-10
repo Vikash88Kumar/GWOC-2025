@@ -73,8 +73,8 @@ const ServiceCard = ({ service }: { service: Service }) => (
         transition={{ duration: 0.8, delay: 0.2 }}
         className="flex flex-col space-y-6"
       >
-        <span className="text-4xl font-serif italic text-gray-400">{service.id}</span>
-        <h2 className="text-5xl font-serif text-[#1a1a1a]">{service.title}</h2>
+        <span className="text-4xl font-display italic text-gray-400">{service.id}</span>
+        <h2 className="text-5xl font-display text-[#1a1a1a]">{service.title}</h2>
         <p className="text-lg text-gray-600 leading-relaxed max-w-md">{service.description}</p>
         <ul className="space-y-2">
           {service.items.map((item, idx) => (
@@ -114,7 +114,7 @@ export default function OdeStudioLanding() {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-md"
           >
-            <h2 className="text-4xl font-serif italic leading-tight mb-8">
+            <h2 className="text-4xl font-display italic leading-tight mb-8">
               Confused about where and how to get started? Consider it our problem now.
             </h2>
             <p className="text-sm leading-relaxed text-gray-600">
