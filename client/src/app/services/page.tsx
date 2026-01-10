@@ -1,56 +1,233 @@
 'use client';
-import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, Instagram } from "lucide-react";
-import  Link  from "next/link";
-// import Header from "@/components/Header";
 
-const Index = () => {
+import React, { useMemo, useRef } from 'react';
+import Link from 'next/link';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { ArrowRight, Instagram, Sparkles } from 'lucide-react';
+
+type Service = {
+  id: string;
+  title: string;
+  description: string;
+  items: string[];
+  image: string;
+};
+
+const SERVICES: Service[] = [
+  {
+    id: '01',
+    title: 'Brand Identity',
+    description:
+      'We help you define a clear, cohesive identity — one that reflects your purpose, connects with the right audience, and builds long-term trust.',
+    items: [
+      'Brand Strategy',
+      'Brand Questionnaire',
+      'Creative Direction',
+      'Logo Suite',
+      'Color Palettes',
+      'Typography',
+      'Brand Guidelines',
+    ],
+    image:
+      'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=1200',
+  },
+  {
+    id: '02',
+    title: 'Packaging & Marketing',
+    description:
+      "Your packaging is your first impression. We make sure it's memorable — combining strategy with bold visuals to turn browsers into buyers.",
+    items: [
+      'Custom Product Boxes',
+      'Stickers and Seals',
+      'Butter Paper',
+      'Thank You Cards',
+      'Product Labels',
+      'Business Cards',
+      'Brochures',
+    ],
+    image:
+      'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&q=80&w=1200',
+  },
+  {
+    id: '03',
+    title: 'Website Design',
+    description:
+      'A well-designed website should do more than just exist — it should convert. We build clean, intuitive, and scalable websites.',
+    items: [
+      'Visual Design & Moodboard',
+      'Sitemap',
+      'UI/UX Design',
+      'Up to 15 Product Listings',
+      'SEO Optimization',
+      'Speed Optimization',
+      'Mobile Responsive',
+    ],
+    image:
+      'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=1200',
+  },
+];
+
+// ✅ Plain variants (NO function variants)
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0 },
+};
+
+function ServiceCard({ service }: { service: Service }) {
   return (
-    <div className="min-h-screen bg-background bg-bloom-pattern">
-      {/* <Header /> */}
-      
-      {/* Hero Section */}
+    <>
+    <section className="relative min-w-[100vw] h-screen flex items-center justify-center px-6 md:px-16 bg-[#f9f7f2]">
+      <div className="pointer-events-none absolute inset-0 opacity-[0.25] [background:radial-gradient(circle_at_20%_10%,rgba(0,0,0,0.06),transparent_40%),radial-gradient(circle_at_80%_70%,rgba(0,0,0,0.04),transparent_45%)]" />
+
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 max-w-7xl w-full items-center">
+        {/* image */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="relative aspect-square rounded-full overflow-hidden shadow-2xl"
+        >
+          <motion.img
+            src={service.image}
+            alt={service.title}
+            className="w-full h-full object-cover"
+            initial={{ scale: 1.06 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/10" />
+        </motion.div>
+
+        {/* content */}
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ staggerChildren: 0.08 }}
+          className="flex flex-col space-y-6"
+        >
+          <motion.span
+            variants={fadeUpVariants}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="text-4xl font-serif italic text-gray-400"
+          >
+            {service.id}
+          </motion.span>
+
+          <motion.h2
+            variants={fadeUpVariants}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="text-4xl md:text-5xl font-serif text-[#1a1a1a] leading-tight"
+          >
+            {service.title}
+          </motion.h2>
+
+          <motion.p
+            variants={fadeUpVariants}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="text-base md:text-lg text-gray-600 leading-relaxed max-w-md"
+          >
+            {service.description}
+          </motion.p>
+
+          <motion.ul
+            variants={fadeUpVariants}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="space-y-2"
+          >
+            {service.items.map((item) => (
+              <li
+                key={item}
+                className="flex items-center text-sm text-gray-800 before:content-['•'] before:mr-2 before:text-gray-400"
+              >
+                {item}
+              </li>
+            ))}
+          </motion.ul>
+
+          <motion.div
+            variants={fadeUpVariants}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="pt-2"
+          >
+            <Link
+              href="/services"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 hover:opacity-80 transition"
+            >
+              Explore details <ArrowRight className="h-4 w-4" />
+            </Link>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+    </>
+  );
+}
+
+export default function Page() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const total = SERVICES.length;
+  const endX = useMemo(() => `-${(total - 1) * 100}vw`, [total]);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const xRaw = useTransform(scrollYProgress, [0, 1], ['0vw', endX]);
+  const x = useSpring(xRaw, { stiffness: 80, damping: 22, mass: 0.6 });
+
+  const progressW = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero */}
       <section className="relative flex min-h-screen items-center overflow-hidden pt-20">
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-7xl px-6 w-full">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
+              initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="mb-6 inline-flex items-center gap-2 rounded-full bg-accent/10 px-4 py-2 text-sm font-medium text-accent"
+                transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-6 inline-flex items-center gap-2 rounded-full bg-black/5 px-4 py-2 text-sm font-medium text-gray-900"
               >
                 <Sparkles className="h-4 w-4" />
                 Creative Branding Studio
               </motion.div>
-              
-              <h1 className="font-display text-5xl font-bold leading-tight text-foreground md:text-6xl lg:text-7xl">
-                Where brands{" "}
-                <span className="text-gradient-bloom">bloom</span>
-                {" "}& stories unfold
+
+              <h1 className="text-5xl font-bold leading-tight text-gray-900 md:text-6xl lg:text-7xl">
+                Where brands{' '}
+                <span className="bg-gradient-to-r from-pink-500 to-amber-500 bg-clip-text text-transparent">
+                  bloom
+                </span>{' '}
+                & stories unfold
               </h1>
-              
-              <p className="mt-6 max-w-lg text-lg text-muted-foreground leading-relaxed">
-                We're a creative branding studio that helps ambitious brands grow through 
-                strategic storytelling, stunning visuals, and high-impact digital experiences.
+
+              <p className="mt-6 max-w-lg text-lg text-gray-600 leading-relaxed">
+                We help ambitious brands grow through strategic storytelling, stunning visuals, and
+                high-impact digital experiences.
               </p>
-              
+
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <Link href="/services">
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 font-semibold text-primary-foreground transition-all duration-300 hover:shadow-xl hover:shadow-primary/20"
+                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-8 py-4 font-semibold text-white transition-all duration-300 hover:shadow-xl hover:shadow-black/10"
                   >
                     View Our Services
                     <ArrowRight className="h-5 w-5" />
                   </motion.button>
                 </Link>
-                
+
                 <a
                   href="https://www.instagram.com/bloom.branding_/"
                   target="_blank"
@@ -59,7 +236,7 @@ const Index = () => {
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-8 py-4 font-semibold text-primary transition-all duration-300 hover:bg-primary/5"
+                    className="inline-flex items-center gap-2 rounded-full border-2 border-gray-900 px-8 py-4 font-semibold text-gray-900 transition-all duration-300 hover:bg-black/5"
                   >
                     <Instagram className="h-5 w-5" />
                     Follow Us
@@ -67,148 +244,90 @@ const Index = () => {
                 </a>
               </div>
             </motion.div>
-            
-            {/* Decorative visual */}
+
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, delay: 0.3 }}
+              transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className="relative hidden lg:block"
             >
               <div className="relative aspect-square">
-                {/* Abstract decorative circles */}
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
                   className="absolute inset-0"
                 >
-                  <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 rounded-full bg-accent" />
-                  <div className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-primary" />
+                  <div className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 rounded-full bg-pink-400" />
+                  <div className="absolute bottom-0 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-amber-400" />
                 </motion.div>
-                
-                <div className="absolute inset-8 rounded-full border-2 border-dashed border-primary/20" />
-                <div className="absolute inset-16 rounded-full border-2 border-accent/20" />
-                <div className="absolute inset-24 rounded-full bg-gradient-to-br from-primary/10 to-accent/10" />
-                
+
+                <div className="absolute inset-8 rounded-full border-2 border-dashed border-black/15" />
+                <div className="absolute inset-16 rounded-full border-2 border-black/10" />
+                <div className="absolute inset-24 rounded-full bg-gradient-to-br from-black/5 to-black/0" />
+
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="rounded-2xl bg-card p-8 shadow-2xl">
-                    <span className="font-display text-6xl font-bold text-gradient-bloom">B</span>
+                  <div className="rounded-2xl bg-white/90 p-10 shadow-2xl backdrop-blur">
+                    <span className="text-6xl font-bold bg-gradient-to-r from-pink-500 to-amber-500 bg-clip-text text-transparent">
+                      B
+                    </span>
                   </div>
                 </div>
               </div>
-              
-              {/* Background blurs */}
-              <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
-              <div className="absolute -left-10 bottom-20 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
+
+              <div className="absolute -right-16 top-16 h-72 w-72 rounded-full bg-pink-400/15 blur-3xl" />
+              <div className="absolute -left-10 bottom-16 h-52 w-52 rounded-full bg-amber-400/15 blur-3xl" />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Horizontal services */}
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-6 pt-10 pb-10 text-center">
+          <h2 className="text-4xl font-bold text-gray-900 md:text-5xl">Our Services</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
+            Scroll down — services move horizontally.
+          </p>
+        </div>
+
+        <div ref={containerRef} className="relative" style={{ height: `${SERVICES.length * 100}vh` }}>
+          <div className="sticky top-0 h-screen overflow-hidden">
+            <div className="absolute left-0 right-0 top-0 z-20 h-[2px] bg-black/10">
+              <motion.div style={{ width: progressW }} className="h-full bg-black/60" />
+            </div>
+
+            <motion.div style={{ x }} className="flex h-full will-change-transform">
+              {SERVICES.map((service) => (
+                <ServiceCard key={service.id} service={service} />
+              ))}
             </motion.div>
           </div>
         </div>
         
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="flex flex-col items-center gap-2 text-muted-foreground"
-          >
-            <span className="text-xs font-medium uppercase tracking-widest">Scroll</span>
-            <div className="h-12 w-px bg-gradient-to-b from-muted-foreground to-transparent" />
-          </motion.div>
-        </motion.div>
-      </section>
-      
-      {/* Values Section */}
-      <section className="py-32">
+  <section className="py-20">
         <div className="mx-auto max-w-7xl px-6">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="relative overflow-hidden rounded-3xl bg-gray-900 p-12 text-center md:p-20"
           >
-            <h2 className="font-display text-4xl font-bold text-foreground md:text-5xl">
-              Our Creative Approach
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-              Every brand has a unique story waiting to bloom. We combine strategy, 
-              creativity, and craft to bring your vision to life.
-            </p>
-          </motion.div>
-          
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
-            {[
-              {
-                number: "01",
-                title: "Strategy First",
-                description: "We dive deep into understanding your brand, audience, and market before creating anything."
-              },
-              {
-                number: "02",
-                title: "Bold Creativity",
-                description: "We push boundaries and challenge conventions to create work that truly stands out."
-              },
-              {
-                number: "03",
-                title: "Growth Mindset",
-                description: "Every decision is guided by your brand's growth potential and long-term success."
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={item.number}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.15 }}
-                className="group"
-              >
-                <div className="relative rounded-2xl border border-border bg-card p-8 transition-all duration-500 hover:border-accent/30 hover:shadow-xl">
-                  <span className="font-display text-5xl font-bold text-accent/20 transition-colors group-hover:text-accent/40">
-                    {item.number}
-                  </span>
-                  <h3 className="mt-4 font-display text-2xl font-semibold text-foreground">
-                    {item.title}
-                  </h3>
-                  <p className="mt-3 text-muted-foreground leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative overflow-hidden rounded-3xl bg-primary p-12 text-center md:p-20"
-          >
-            <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-primary-foreground/10 blur-3xl" />
-            
+            <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-pink-400/20 blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-amber-400/15 blur-3xl" />
+
             <div className="relative z-10">
-              <h2 className="font-display text-4xl font-bold text-primary-foreground md:text-5xl">
-                Let's create something extraordinary
+              <h2 className="text-4xl font-bold text-white md:text-5xl">
+                Let’s create something extraordinary
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-lg text-primary-foreground/80">
-                Ready to transform your brand? Let's start a conversation.
+              <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
+                Ready to transform your brand? Let’s start a conversation.
               </p>
               <Link href="/services">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
-                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary-foreground px-8 py-4 font-semibold text-primary transition-all duration-300 hover:shadow-2xl"
+                  className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 font-semibold text-gray-900 transition-all duration-300 hover:shadow-2xl"
                 >
                   Explore Our Services
                   <ArrowRight className="h-5 w-5" />
@@ -218,37 +337,7 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
-      
-      {/* Footer */}
-      <footer className="border-t border-border py-12">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <span className="font-display text-sm font-bold text-primary-foreground">B</span>
-              </div>
-              <span className="font-display text-lg font-semibold text-foreground">
-                Bloom Branding
-              </span>
-            </div>
-            
-            <p className="text-sm text-muted-foreground">
-              © 2024 Bloom Branding. All rights reserved.
-            </p>
-            
-            <a
-              href="https://www.instagram.com/bloom.branding_/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-accent transition-colors hover:text-accent/80"
-            >
-              @bloom.branding_
-            </a>
-          </div>
-        </div>
-      </footer>
+      </section>
     </div>
   );
-};
-
-export default Index;
+}

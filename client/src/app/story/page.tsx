@@ -198,7 +198,7 @@ import Timeline from "@/components/Timeline";
 import Services from "@/components/Services";
 // import Stats from "@/components/Stats";
 // import CTA from "@/components/CTA";
-import Footer from "@/components/Footer";
+// import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -209,7 +209,7 @@ const Index = () => {
       {/* <Services /> */}
       {/* <Stats /> */}
       {/* <CTA /> */}
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

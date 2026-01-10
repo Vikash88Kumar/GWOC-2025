@@ -423,30 +423,7 @@ const AboutFounder = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 border-t border-border">
-        <div className="container mx-auto px-6 lg:px-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="font-body text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Alexandra Mitchell. All rights reserved.
-            </p>
-            <nav className="flex items-center gap-6">
-              <a
-                href="#"
-                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                Privacy Policy
-              </a>
-              <a
-                href="#"
-                className="font-body text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                Terms of Service
-              </a>
-            </nav>
-          </div>
-        </div>
-      </footer>
+
     </div>
   );
 };
