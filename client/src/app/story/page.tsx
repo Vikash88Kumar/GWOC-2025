@@ -14,7 +14,7 @@ const Index = () => {
   useEffect(()=>{
     const fetchStory=async()=>{
       const res=await getStoryPage()
-      console.log(res)
+      setData(res?.data)
     }
     fetchStory()
   },[])

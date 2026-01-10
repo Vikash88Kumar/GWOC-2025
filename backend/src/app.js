@@ -30,6 +30,7 @@ import founderRouter from "./routes/founder.routes.js"
 import serviceRouter from "./routes/service.routes.js"
 import storyRouter from "./routes/story.routes.js"
 import contactRouter from "./routes/contactpage.routes.js"
+import contactmessageRouter from "./routes/contact.routes.js"
 //routes declare
 
 // app.use("/api/v1/users", userRouter)
@@ -39,6 +40,6 @@ app.use("/api/v1/founderpage",founderRouter)
 app.use("/api/v1/service",serviceRouter)
 app.use("/api/v1/story",storyRouter)
 app.use("/api/v1/contact",contactRouter)
-
+app.use("/api/v1/message",contactmessageRouter)
 
 export {app}
