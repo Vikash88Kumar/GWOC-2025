@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2, X, Send, Sparkles } from "lucide-react";
-
+import {submitContactForm} from "../services/contact.api.js"
 /* ------------------ ANIMATION VARIANTS ------------------ */
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -127,6 +127,14 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 
 /* ------------------ PAGE ------------------ */
 const ContactPage = () => {
+  const [formData, setFormData] = useState({
+  firstName: "",
+  lastName: "",
+  email: "",
+  budget: "",
+  timeline: "",
+  message: "",
+});
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -139,16 +147,70 @@ const ContactPage = () => {
     );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   await createTestimonial()
+  //   // Simulate API call
+  //   await new Promise((resolve) => setTimeout(resolve, 2000));
+    
+  //   setIsLoading(false);
+  //   setShowSuccess(true);
+  // };
+
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  if (!formData.email) {
+    alert("Email is required");
+    return;
+  }
+
+  if (selectedServices.length === 0) {
+    alert("Please select at least one service");
+    return;
+  }
+
+  try {
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      budget: formData.budget,
+      timeline: formData.timeline,
+      services: selectedServices,
+      message: formData.message,
+    };
 
-    setIsLoading(false);
+    await submitContactForm(payload);
+
     setShowSuccess(true);
-  };
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      budget: "",
+      timeline: "",
+      message: "",
+    });
+    setSelectedServices([]);
+  } catch (error) {
+    console.error("Failed to submit form:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-white via-sky-50 to-amber-50 relative overflow-hidden">
@@ -236,7 +298,10 @@ const ContactPage = () => {
                     </label>
                     <input
                       type="text"
-                      placeholder="John"
+  name="firstName"
+  value={formData.firstName}
+  onChange={handleChange}
+  placeholder="John"
                       className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                     />
                   </div>
@@ -247,7 +312,10 @@ const ContactPage = () => {
                     </label>
                     <input
                       type="text"
-                      placeholder="Doe"
+  name="lastName"
+  value={formData.lastName}
+  onChange={handleChange}
+  placeholder="Doe"
                       className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                     />
                   </div>
@@ -265,8 +333,11 @@ const ContactPage = () => {
                   </label>
                   <input
                     type="email"
-                    required
-                    placeholder="john@email.com"
+  name="email"
+  value={formData.email}
+  onChange={handleChange}
+  required
+  placeholder="john@email.com"
                     className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                   />
                 </motion.div>
@@ -283,8 +354,11 @@ const ContactPage = () => {
                       Budget
                     </label>
                     <input
-                      type="text"
-                      placeholder="$5,000 - $10,000"
+                       type="text"
+  name="budget"
+  value={formData.budget}
+  onChange={handleChange}
+  placeholder="$5,000 - $10,000"
                       className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                     />
                   </div>
@@ -295,7 +369,10 @@ const ContactPage = () => {
                     </label>
                     <input
                       type="text"
-                      placeholder="2-3 months"
+  name="timeline"
+  value={formData.timeline}
+  onChange={handleChange}
+  placeholder="2–3 months"
                       className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                     />
                   </div>
@@ -350,6 +427,9 @@ const ContactPage = () => {
                   <textarea
                     rows={4}
                     placeholder="Tell us about your project, goals, and vision..."
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
                     className="w-full bg-chocolate/5 rounded-2xl border-2 border-transparent p-4 outline-none focus:border-primary focus:bg-transparent transition-all placeholder:text-chocolate/30 text-chocolate resize-none"
                   />
                 </motion.div>
