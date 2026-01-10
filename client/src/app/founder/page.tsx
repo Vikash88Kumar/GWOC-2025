@@ -273,7 +273,7 @@ const AboutFounder = () => {
                 className="group"
               >
                 <div className="h-full p-8 bg-card rounded-2xl border border-border transition-all duration-500 hover:border-amber-900 hover:shadow-xl hover:-translate-y-2">
-                  <div className="w-14 h-14 rounded-xl bg-amber-900/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-amber-900 group-hover:scale-110">
+                  <div className="w-14 h-14 rounded-xl bg-amber-900/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-amber-100 group-hover:scale-110">
                     <value.icon className="w-7 h-7 text-amber-900 transition-colors duration-300 group-hover:text-primary-foreground" />
                   </div>
 
