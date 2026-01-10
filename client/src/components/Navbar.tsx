@@ -59,16 +59,16 @@ const Navbar: React.FC = () => {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="text-lg font-bold tracking-tighter text-white whitespace-nowrap"
+                className="text-lg font-bold tracking-tighter text-black whitespace-nowrap"
               >
-                Bloom <span className="text-zinc-500">Branding</span>
+                Bloom <span className="text-amber-900">Branding</span>
               </motion.span>
             )}
           </AnimatePresence>
         </Link>
 
         {/* CENTER LINKS (Desktop) */}
-        <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+        <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-900">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -76,7 +76,7 @@ const Navbar: React.FC = () => {
                 key={item.label}
                 href={item.path}
                 className={`relative py-2 transition-colors duration-300 ${
-                  isActive ? 'text-white' : 'hover:text-white'
+                  isActive ? 'text-black' : 'hover:text-black'
                 }`}
               >
                 {item.label}
