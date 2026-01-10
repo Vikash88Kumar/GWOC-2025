@@ -20,8 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Mail, Phone, Building, MessageSquare, Send, Trash2, Clock, CheckCircle, Archive } from 'lucide-react';
+import { 
+  Mail, Phone, Building, MessageSquare, Send, 
+  Trash2, Clock, CheckCircle, Archive, Filter, Search, MoreHorizontal
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 const Clients: React.FC = () => {
   const { clients, updateClient, deleteClient } = useAdmin();
@@ -29,34 +33,28 @@ const Clients: React.FC = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [responseText, setResponseText] = useState('');
   const [filter, setFilter] = useState<'all' | 'new' | 'in-progress' | 'completed' | 'archived'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredClients = filter === 'all'
-    ? clients
-    : clients.filter(c => c.status === filter);
+  const filteredClients = clients
+    .filter(c => filter === 'all' || c.status === filter)
+    .filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || c.company.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const statusColors: Record<string, string> = {
-    new: 'bg-primary/10 text-primary',
-    'in-progress': 'bg-warning/10 text-warning',
-    completed: 'bg-success/10 text-success',
-    archived: 'bg-muted text-muted-foreground',
-  };
-
-  const statusIcons: Record<string, React.ReactNode> = {
-    new: <Clock className="w-3 h-3" />,
-    'in-progress': <Clock className="w-3 h-3" />,
-    completed: <CheckCircle className="w-3 h-3" />,
-    archived: <Archive className="w-3 h-3" />,
+    new: 'bg-blue-500/10 text-blue-600 border-blue-200',
+    'in-progress': 'bg-amber-500/10 text-amber-600 border-amber-200',
+    completed: 'bg-emerald-500/10 text-emerald-600 border-emerald-200',
+    archived: 'bg-slate-500/10 text-slate-600 border-slate-200',
   };
 
   const handleStatusChange = (id: string, status: Client['status']) => {
     updateClient(id, { status });
-    toast({ title: `Client status updated to ${status.replace('-', ' ')}` });
+    toast({ title: `Client status updated to ${status}` });
   };
 
   const handleSendResponse = () => {
     if (selectedClient && responseText.trim()) {
       updateClient(selectedClient.id, { adminResponse: responseText });
-      toast({ title: 'Response saved successfully' });
+      toast({ title: 'Response saved' });
       setResponseText('');
       setSelectedClient(null);
     }
@@ -64,7 +62,7 @@ const Clients: React.FC = () => {
 
   const handleDelete = (id: string) => {
     deleteClient(id);
-    toast({ title: 'Client deleted', variant: 'destructive' });
+    toast({ title: 'Client record removed', variant: 'destructive' });
   };
 
   const openClientDetail = (client: Client) => {
@@ -72,104 +70,109 @@ const Clients: React.FC = () => {
     setResponseText(client.adminResponse || '');
   };
 
+  // Helper for Client Initials
+  const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
+
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-heading font-semibold">Clients</h1>
-        <p className="text-muted-foreground mt-1">Manage client inquiries and responses</p>
+    <div className="p-6 lg:p-10 max-w-[1600px] mx-auto space-y-8">
+      {/* Header & Stats Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight">Client Relations</h1>
+          <p className="text-muted-foreground text-lg mt-2">Oversee incoming leads and manage communications.</p>
+        </div>
+        <div className="flex items-center gap-3">
+            <div className="bg-background border rounded-xl px-4 py-2 shadow-sm text-center">
+                <span className="text-xs text-muted-foreground block uppercase font-bold tracking-wider">Total</span>
+                <span className="text-xl font-semibold">{clients.length}</span>
+            </div>
+            <div className="bg-background border rounded-xl px-4 py-2 shadow-sm text-center border-blue-100">
+                <span className="text-xs text-blue-500 block uppercase font-bold tracking-wider">New</span>
+                <span className="text-xl font-semibold">{clients.filter(c => c.status === 'new').length}</span>
+            </div>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {(['all', 'new', 'in-progress', 'completed', 'archived'] as const).map((status) => (
-          <Button
-            key={status}
-            variant={filter === status ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter(status)}
-            className="capitalize"
-          >
-            {status.replace('-', ' ')}
-            {status !== 'all' && (
-              <span className="ml-2 px-1.5 py-0.5 text-xs bg-background/20 rounded">
-                {clients.filter(c => c.status === status).length}
-              </span>
-            )}
-          </Button>
-        ))}
-      </div>
+      <div className="bg-card border rounded-2xl shadow-sm overflow-hidden bg-white/50 backdrop-blur-sm">
+        {/* Toolbar */}
+        <div className="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-4 bg-muted/20">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search clients..." 
+                className="pl-9 bg-background"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div className="flex gap-1 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto">
+            {(['all', 'new', 'in-progress', 'completed', 'archived'] as const).map((status) => (
+              <Button
+                key={status}
+                variant={filter === status ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setFilter(status)}
+                className={`capitalize whitespace-nowrap ${filter === status ? 'shadow-sm border' : ''}`}
+              >
+                {status.replace('-', ' ')}
+              </Button>
+            ))}
+          </div>
+        </div>
 
-      {/* Clients Table */}
-      <div className="admin-card overflow-hidden">
+        {/* Table Body */}
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-4 px-4 font-medium text-muted-foreground">Client</th>
-                <th className="text-left py-4 px-4 font-medium text-muted-foreground">Contact</th>
-                <th className="text-left py-4 px-4 font-medium text-muted-foreground">Project</th>
-                <th className="text-left py-4 px-4 font-medium text-muted-foreground">Status</th>
-                <th className="text-left py-4 px-4 font-medium text-muted-foreground">Date</th>
-                <th className="text-right py-4 px-4 font-medium text-muted-foreground">Actions</th>
+              <tr className="bg-muted/30">
+                <th className="py-4 px-6 font-semibold text-sm text-muted-foreground border-b">Client Info</th>
+                <th className="py-4 px-6 font-semibold text-sm text-muted-foreground border-b">Project</th>
+                <th className="py-4 px-6 font-semibold text-sm text-muted-foreground border-b">Status</th>
+                <th className="py-4 px-6 font-semibold text-sm text-muted-foreground border-b">Created</th>
+                <th className="py-4 px-6 font-semibold text-sm text-muted-foreground border-b text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y">
               {filteredClients.map((client, index) => (
                 <tr
                   key={client.id}
-                  className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors animate-fade-in cursor-pointer"
-                  style={{ animationDelay: `${index * 0.05}s` }}
+                  className="group hover:bg-blue-50/30 transition-all cursor-pointer"
                   onClick={() => openClientDetail(client)}
                 >
-                  <td className="py-4 px-4">
-                    <div>
-                      <p className="font-medium">{client.name}</p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <Building className="w-3 h-3" />
-                        {client.company}
-                      </p>
+                  <td className="py-5 px-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 border border-slate-200 group-hover:bg-white group-hover:border-blue-200 transition-colors">
+                        {getInitials(client.name)}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-900 leading-none">{client.name}</p>
+                        <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+                          <Building className="w-3 h-3" /> {client.company}
+                        </p>
+                      </div>
                     </div>
                   </td>
-                  <td className="py-4 px-4">
-                    <div className="space-y-1">
-                      <p className="text-sm flex items-center gap-1">
-                        <Mail className="w-3 h-3 text-muted-foreground" />
-                        {client.email}
-                      </p>
-                      <p className="text-sm flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-muted-foreground" />
-                        {client.phone}
-                      </p>
-                    </div>
+                  <td className="py-5 px-6">
+                    <Badge variant="secondary" className="font-medium bg-white border">{client.projectType}</Badge>
                   </td>
-                  <td className="py-4 px-4">
-                    <Badge variant="outline">{client.projectType}</Badge>
-                  </td>
-                  <td className="py-4 px-4">
-                    <Badge className={`gap-1 ${statusColors[client.status]}`}>
-                      {statusIcons[client.status]}
+                  <td className="py-5 px-6">
+                    <Badge variant="outline" className={`rounded-md px-2 py-0.5 border ${statusColors[client.status]}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current mr-2 animate-pulse" />
                       {client.status.replace('-', ' ')}
                     </Badge>
                   </td>
-                  <td className="py-4 px-4 text-sm text-muted-foreground">
+                  <td className="py-5 px-6 text-sm text-muted-foreground font-medium">
                     {client.createdAt}
                   </td>
-                  <td className="py-4 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => openClientDetail(client)}
-                      >
-                        <MessageSquare className="w-4 h-4" />
+                  <td className="py-5 px-6 text-right">
+                    <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full" onClick={() => openClientDetail(client)}>
+                        <MessageSquare className="w-4 h-4 text-slate-500" />
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleDelete(client.id)}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
+                      <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10" onClick={() => handleDelete(client.id)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -181,116 +184,96 @@ const Clients: React.FC = () => {
         </div>
 
         {filteredClients.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            No clients found.
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="bg-muted/50 p-4 rounded-full mb-4">
+                <Search className="w-8 h-8 text-muted-foreground/50" />
+            </div>
+            <h3 className="text-lg font-medium">No records found</h3>
+            <p className="text-muted-foreground">Try adjusting your filters or search query.</p>
           </div>
         )}
       </div>
 
-      {/* Client Detail Dialog */}
+      {/* Modern Detailed Modal */}
       <Dialog open={!!selectedClient} onOpenChange={(open) => !open && setSelectedClient(null)}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden rounded-2xl border-none shadow-2xl">
           {selectedClient && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="font-heading flex items-center justify-between">
-                  <span>{selectedClient.name}</span>
-                  <Badge className={statusColors[selectedClient.status]}>
-                    {selectedClient.status.replace('-', ' ')}
-                  </Badge>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-6 mt-4">
-                {/* Client Info */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Building className="w-4 h-4 text-muted-foreground" />
-                      <span>{selectedClient.company}</span>
+            <div className="flex flex-col">
+              <div className="bg-slate-900 p-8 text-white">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <Badge className="bg-white/20 text-white border-white/30 mb-4">{selectedClient.projectType}</Badge>
+                        <DialogTitle className="text-3xl font-bold">{selectedClient.name}</DialogTitle>
+                        <p className="text-slate-300 mt-1 flex items-center gap-2">
+                           <Building className="w-4 h-4" /> {selectedClient.company}
+                        </p>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <a href={`mailto:${selectedClient.email}`} className="text-primary hover:underline">
-                        {selectedClient.email}
-                      </a>
+                    <Badge className={`${statusColors[selectedClient.status]} border-none px-4 py-1.5 text-sm`}>
+                        {selectedClient.status}
+                    </Badge>
+                </div>
+              </div>
+
+              <div className="p-8 space-y-8 bg-background">
+                <div className="grid grid-cols-2 gap-8 border-b pb-8">
+                    <div className="space-y-4">
+                        <Label className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Contact Info</Label>
+                        <div className="space-y-2">
+                             <a href={`mailto:${selectedClient.email}`} className="flex items-center gap-3 text-sm font-medium hover:text-blue-500 transition-colors">
+                                <Mail className="w-4 h-4 text-muted-foreground" /> {selectedClient.email}
+                             </a>
+                             <a href={`tel:${selectedClient.phone}`} className="flex items-center gap-3 text-sm font-medium hover:text-blue-500 transition-colors">
+                                <Phone className="w-4 h-4 text-muted-foreground" /> {selectedClient.phone}
+                             </a>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="w-4 h-4 text-muted-foreground" />
-                      <a href={`tel:${selectedClient.phone}`} className="text-primary hover:underline">
-                        {selectedClient.phone}
-                      </a>
+                    <div className="space-y-4 text-right">
+                        <Label className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Update Lead Status</Label>
+                        <Select
+                            value={selectedClient.status}
+                            onValueChange={(value: Client['status']) => {
+                            handleStatusChange(selectedClient.id, value);
+                            setSelectedClient({ ...selectedClient, status: value });
+                            }}
+                        >
+                            <SelectTrigger className="w-full ml-auto md:w-40 border-slate-200">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="new">New</SelectItem>
+                                <SelectItem value="in-progress">In Progress</SelectItem>
+                                <SelectItem value="completed">Completed</SelectItem>
+                                <SelectItem value="archived">Archived</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Project Type</Label>
-                    <p className="font-medium">{selectedClient.projectType}</p>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Inquiry Details</Label>
+                  <div className="p-5 bg-slate-50 rounded-xl border border-slate-100 text-slate-700 leading-relaxed italic">
+                    "{selectedClient.message}"
                   </div>
                 </div>
 
-                {/* Client Message */}
-                <div>
-                  <Label className="text-muted-foreground">Client Message</Label>
-                  <div className="mt-2 p-4 bg-muted rounded-lg">
-                    <p className="text-sm">{selectedClient.message}</p>
-                  </div>
-                </div>
-
-                {/* Status Update */}
-                <div>
-                  <Label className="text-muted-foreground">Update Status</Label>
-                  <Select
-                    value={selectedClient.status}
-                    onValueChange={(value: Client['status']) => {
-                      handleStatusChange(selectedClient.id, value);
-                      setSelectedClient({ ...selectedClient, status: value });
-                    }}
-                  >
-                    <SelectTrigger className="mt-2 w-full md:w-48">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Response */}
-                <div>
-                  <Label className="text-muted-foreground">Your Response</Label>
+                <div className="space-y-4">
+                  <Label className="text-xs uppercase tracking-widest text-muted-foreground font-bold">Internal Response</Label>
                   <Textarea
                     value={responseText}
                     onChange={(e) => setResponseText(e.target.value)}
-                    placeholder="Write your response to the client..."
-                    className="mt-2 min-h-[120px]"
+                    placeholder="Type your notes or response here..."
+                    className="min-h-[140px] focus-visible:ring-slate-900 rounded-xl bg-white"
                   />
-                  <div className="flex justify-end mt-3">
-                    <Button onClick={handleSendResponse} disabled={!responseText.trim()}>
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-[10px] text-muted-foreground">Last updated: {selectedClient.updatedAt}</span>
+                    <Button onClick={handleSendResponse} disabled={!responseText.trim()} className="bg-slate-900 hover:bg-slate-800 px-6 rounded-full">
                       <Send className="w-4 h-4 mr-2" />
                       Save Response
                     </Button>
                   </div>
                 </div>
-
-                {/* Existing Response */}
-                {selectedClient.adminResponse && (
-                  <div>
-                    <Label className="text-muted-foreground">Previous Response</Label>
-                    <div className="mt-2 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                      <p className="text-sm">{selectedClient.adminResponse}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Timestamps */}
-                <div className="flex justify-between text-xs text-muted-foreground pt-4 border-t border-border">
-                  <span>Created: {selectedClient.createdAt}</span>
-                  <span>Updated: {selectedClient.updatedAt}</span>
-                </div>
               </div>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>
