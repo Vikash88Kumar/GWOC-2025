@@ -1,10 +1,10 @@
 'use client';
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef,useState,useEffect } from "react";
 import { Heart, Lightbulb, Users, Rocket, Twitter, Linkedin, Instagram, Mail, ArrowRight } from "lucide-react";
 import founderPortrait from "@/assets/founder-portrait.jpg";
 import abstractBg from "@/assets/abstract-bg.jpg";
-
+import {getFounderPage} from "../../services/founder.api.js"
 const values = [
   {
     icon: Heart,
@@ -73,6 +73,15 @@ const AboutFounder = () => {
   const valuesInView = useInView(valuesRef, { once: true, margin: "-100px" });
   const journeyInView = useInView(journeyRef, { once: true, margin: "-100px" });
   const connectInView = useInView(connectRef, { once: true, margin: "-100px" });
+
+  const [data,setData]=useState({})
+  useEffect(()=>{
+    const fetchService=async()=>{
+      const res=await getFounderPage()
+      setData(res?.data)
+    }
+    fetchService()
+  })
 
   return (
     <div className="min-h-screen bg-background font-body scroll-smooth">

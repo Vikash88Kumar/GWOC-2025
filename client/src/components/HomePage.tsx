@@ -16,8 +16,7 @@ const HomePage = () => {
   useEffect(()=>{
     const fetchdata=async()=>{
       const res=await gethomePage()
-      setData(res)
-      console.log(res)
+      setData(res?.data)
     }
     fetchdata()
   },[])

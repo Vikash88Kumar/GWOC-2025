@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, Instagram, Sparkles } from 'lucide-react';
-
+import {service} from "../../services/service.api.js"
 type Service = {
   id: string;
   title: string;
@@ -181,6 +181,16 @@ export default function Page() {
   const x = useSpring(xRaw, { stiffness: 80, damping: 22, mass: 0.6 });
 
   const progressW = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+
+
+  const [data,setData]=useState({})
+  useEffect(()=>{
+    const fetchService=async()=>{
+      const res=await service()
+      setData(res?.data)
+    }
+    fetchService()
+  })
 
   return (
     <div className="min-h-screen bg-background">
