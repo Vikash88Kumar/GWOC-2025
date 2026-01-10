@@ -42,6 +42,12 @@ export const AnimatedTestimonials = ({
   const randomRotateY = () => {
     return Math.floor(Math.random() * 21) - 10;
   };
+
+  // Deterministic rotation based on index to avoid hydration mismatch
+  const getRotationForIndex = (index: number) => {
+    const rotations = [-8, -4, 0, 4, 8, -6, 6, -2, 2, -10, 10];
+    return rotations[index % rotations.length];
+  };
   return (
     <div className="mx-auto max-w-2xl px-4 py-20 font-sans antialiased md:max-w-6xl md:px-8 lg:px-12">
       <div className="relative grid grid-cols-1 gap-24 md:grid-cols-2">
@@ -52,16 +58,16 @@ export const AnimatedTestimonials = ({
                 <motion.div
                   key={testimonial.src}
                   initial={{
-                    opacity: 1,
+                    opacity: "1",
                     scale: 0.9,
                     z: -100,
-                    rotate: randomRotateY(),
+                    rotate: getRotationForIndex(index),
                   }}
                   animate={{
                     opacity: isActive(index) ? 1 : 0.7,
                     scale: isActive(index) ? 1 : 0.95,
                     z: isActive(index) ? 0 : -100,
-                    rotate: isActive(index) ? 0 : randomRotateY(),
+                    rotate: isActive(index) ? 0 : getRotationForIndex(index),
                     zIndex: isActive(index)
                       ? 40
                       : testimonials.length + 2 - index,
@@ -71,7 +77,7 @@ export const AnimatedTestimonials = ({
                     opacity: 0,
                     scale: 0.9,
                     z: 100,
-                    rotate: randomRotateY(),
+                    rotate: getRotationForIndex(index),
                   }}
                   transition={{
                     duration: 0.4,
