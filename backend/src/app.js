@@ -28,6 +28,8 @@ import enquiryRouter from "./routes/enquiryForm.routes.js"
 import homepageRouter from "./routes/homepage.routes.js"
 import founderRouter from "./routes/founder.routes.js"
 import serviceRouter from "./routes/service.routes.js"
+import storyRouter from "./routes/story.routes.js"
+import contactRouter from "./routes/contactpage.routes.js"
 //routes declare
 
 // app.use("/api/v1/users", userRouter)
@@ -35,6 +37,8 @@ app.use("/api/v1/enquiry",enquiryRouter)
 app.use("/api/v1/homepage",homepageRouter)
 app.use("/api/v1/founderpage",founderRouter)
 app.use("/api/v1/service",serviceRouter)
+app.use("/api/v1/story",storyRouter)
+app.use("/api/v1/contact",contactRouter)
 
 
 export {app}

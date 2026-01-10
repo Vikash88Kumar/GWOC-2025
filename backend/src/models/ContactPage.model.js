@@ -43,12 +43,7 @@ const ContactPageSchema = new mongoose.Schema(
       },
     ],
 
-    footer: {
-      text: {
-        type: String,
-        default: "© 2026 BY ODE STUDIO. ALL RIGHTS RESERVED.",
-      },
-    },
+
 
     timeline: {
       lastEditedBy: { type: String },
@@ -58,5 +53,5 @@ const ContactPageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.ContactPage ||
+export const ContactPage= mongoose.models.ContactPage ||
   mongoose.model("ContactPage", ContactPageSchema);

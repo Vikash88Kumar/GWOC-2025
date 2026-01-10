@@ -1,4 +1,4 @@
-import { StoryPage } from "../models/StoryPage.model.js";
+import { StoryPage } from "../models/story.models.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";

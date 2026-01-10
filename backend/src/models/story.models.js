@@ -1,5 +1,4 @@
-// models/StoryPage.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const CtaSchema = new mongoose.Schema(
   {
@@ -122,4 +121,4 @@ const StoryPageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.models.StoryPage || mongoose.model("StoryPage", StoryPageSchema);
+export const StoryPage = mongoose.models.StoryPage || mongoose.model("StoryPage", StoryPageSchema);
