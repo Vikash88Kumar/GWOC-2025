@@ -9,17 +9,17 @@ import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import Link from 'next/link';
 
-import {gethomePage} from "../services/homepage.api.js"
+import { gethomePage } from "../services/homepage.api.js"
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
 const HomePage = () => {
-  const [data,setData]=useState({})
-  useEffect(()=>{
-    const fetchdata=async()=>{
-      const res=await gethomePage()
+  const [data, setData] = useState({})
+  useEffect(() => {
+    const fetchdata = async () => {
+      const res = await gethomePage()
       setData(res?.data)
     }
     fetchdata()
-  },[])
+  }, [])
 
   const projects = [
     { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
@@ -28,37 +28,41 @@ const HomePage = () => {
     { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
   ];
   const images = [
-    "https://assets.aceternity.com/cloudinary_bkp/3d-card.png",
-    "https://assets.aceternity.com/animated-modal.png",
-    "https://assets.aceternity.com/animated-testimonials.webp",
-    "https://assets.aceternity.com/cloudinary_bkp/Tooltip_luwy44.png",
-    "https://assets.aceternity.com/github-globe.png",
-    "https://assets.aceternity.com/glare-card.png",
-    "https://assets.aceternity.com/layout-grid.png",
-    "https://assets.aceternity.com/flip-text.png",
-    "https://assets.aceternity.com/hero-highlight.png",
-    "https://assets.aceternity.com/carousel.webp",
-    "https://assets.aceternity.com/placeholders-and-vanish-input.png",
-    "https://assets.aceternity.com/shooting-stars-and-stars-background.png",
-    "https://assets.aceternity.com/signup-form.png",
-    "https://assets.aceternity.com/cloudinary_bkp/stars_sxle3d.png",
-    "https://assets.aceternity.com/spotlight-new.webp",
-    "https://assets.aceternity.com/cloudinary_bkp/Spotlight_ar5jpr.png",
-    "https://assets.aceternity.com/cloudinary_bkp/Parallax_Scroll_pzlatw_anfkh7.png",
-    "https://assets.aceternity.com/tabs.png",
-    "https://assets.aceternity.com/cloudinary_bkp/Tracing_Beam_npujte.png",
-    "https://assets.aceternity.com/cloudinary_bkp/typewriter-effect.png",
-    "https://assets.aceternity.com/glowing-effect.webp",
-    "https://assets.aceternity.com/hover-border-gradient.png",
-    "https://assets.aceternity.com/cloudinary_bkp/Infinite_Moving_Cards_evhzur.png",
-    "https://assets.aceternity.com/cloudinary_bkp/Lamp_hlq3ln.png",
-    "https://assets.aceternity.com/macbook-scroll.png",
-    "https://assets.aceternity.com/cloudinary_bkp/Meteors_fye3ys.png",
-    "https://assets.aceternity.com/cloudinary_bkp/Moving_Border_yn78lv.png",
-    "https://assets.aceternity.com/multi-step-loader.png",
-    "https://assets.aceternity.com/vortex.png",
-    "https://assets.aceternity.com/wobble-card.png",
-    "https://assets.aceternity.com/world-map.webp",
+    "/1.png",
+    "/2.png",
+    "/3.png",
+    "/4.png",
+    "/5.png",
+    "/6.png",
+    "/7.png",
+    "/8.png",
+    "/9.png",
+    "/10.png",
+    "/11.png",
+    "/12.png",
+    "/13.png",
+    "/14.png",
+    "/15.png",
+    "/16.png",
+    "/17.png",
+    "/18.png",
+    "/19.png",
+    "/20.png",
+    "/21.png",
+    "/22.png",
+    "/23.png",
+    "/24.png",
+    "/25.png",
+    "/26.png",
+    "/27.png",
+    "/28.png",
+    "/29.png",
+    "/30.png",
+    "/31.png",
+    "/32.png",
+    "/33.png",
+    "/34.png",
+    "/35.png",
   ];
   const testimonials = [
     {
@@ -127,13 +131,13 @@ const HomePage = () => {
           <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#e8e6d8] uppercase">
             We ensure your brand feels like home to those it serves.
           </p>
-          <Link href="/services"> 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            className="bg-[#e8e6d8] text-[#624a41] px-10 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] hover:text-white transition-all duration-500 shadow-xl"
-          >
-            Let's Get Started
-          </motion.button>
+          <Link href="/services">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              className="bg-[#e8e6d8] text-[#624a41] px-10 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] hover:text-white transition-all duration-500 shadow-xl"
+            >
+              Let's Get Started
+            </motion.button>
           </Link>
         </motion.div>
       </section>
@@ -200,15 +204,16 @@ const HomePage = () => {
           {/* LEFT SIDE: STICKY HEADER */}
           <div className="md:w-1/3">
             <div className="sticky top-32">
-              <BackgroundLines className="flex items-center justify-center w-full flex-col px-4">
-              <h2 className="text-5xl md:text-7xl italic font-light leading-tight mb-6">
-                Glimpse into our work
-              </h2>
-              <div className="w-20 h-[1px] bg-[#892f1a] mb-8"></div>
-              <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-[#bdaf62]">
-                Portfolio — 2026
-              </p>
-              </BackgroundLines>
+              {/* REMOVE BackgroundLines OR CHANGE TO A DIV */}
+              <div className="flex items-start justify-center w-full flex-col px-4 bg-[#624a41]">
+                <h2 className="text-5xl md:text-7xl italic font-light leading-tight mb-6 text-[#e8e6d8]">
+                  Glimpse into our work
+                </h2>
+                <div className="w-20 h-[1px] bg-[#892f1a] mb-8"></div>
+                <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-[#bdaf62]">
+                  Portfolio — 2026
+                </p>
+              </div>
             </div>
           </div>
 
@@ -233,13 +238,13 @@ const HomePage = () => {
                   />
                 </div> */}
                 <CardContainer className="inter-var md:w-full w-auto h-auto perspective-1000px">
-      <CardBody className="bg-tranparent-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-yellow/[0.1] w-auto md:w-full sm:w-[30rem] h-auto rounded-xl p-6 border  ">
-        
-        
-        <CardItem translateZ="100" className="w-full h-64 mt-4">
-          <img
-  src={proj.img}
-  className="
+                  <CardBody className="bg-tranparent-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:bg-black dark:border-white/[0.2] border-yellow/[0.1] w-auto md:w-full sm:w-[30rem] h-auto rounded-xl p-6 border  ">
+
+
+                    <CardItem translateZ="100" className="w-full h-64 mt-4">
+                      <img
+                        src={proj.img}
+                        className="
     h-64
     sm:h-64
     md:h-72
@@ -248,14 +253,14 @@ const HomePage = () => {
     rounded-xl
     group-hover/card:shadow-xl
   "
-  alt="thumbnail"
-/>
-        </CardItem>
-        <div className="flex justify-between items-center mt-20">
-         mlml
-        </div>
-      </CardBody>
-    </CardContainer>
+                        alt="thumbnail"
+                      />
+                    </CardItem>
+                    <div className="flex justify-between items-center mt-20">
+                      mlml
+                    </div>
+                  </CardBody>
+                </CardContainer>
 
                 <div className="flex flex-col border-l-2 border-[#892f1a] pl-6 transition-all duration-500 group-hover:pl-10">
                   <span className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62] mb-3">{proj.date}</span>
@@ -266,7 +271,7 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-      
+
       {/* --- TESTIMONIALS SECTION --- */}
       <AnimatedTestimonials testimonials={testimonials} />;
 
@@ -287,7 +292,7 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-      
+
 
       {/* --- FOOTER --- */}
       <footer className="bg-white/40 pt-32 pb-12 px-8 md:px-20 border-t border-[#624a41]/10">
@@ -296,8 +301,8 @@ const HomePage = () => {
             <h3 className="text-5xl mb-12">Ready to <span className="text-[#892f1a] italic">elevate</span> <br />your brand?</h3>
             <div className="flex  pb-4 w-full md:w-96 group">
               <Link href="/contact" className="no-underline">
-              <button className="flex items-center gap-4 bg-[#892f1a] text-white px-6 py-3 text-[10px] uppercase tracking-[0.4em] hover:bg-[#624a41] transition-all duration-500 shadow-xl">Contact Us</button>
-              {/* <ArrowRight className="text-[#892f1a] group-hover:translate-x-2 transition-transform" /> */}
+                <button className="flex items-center gap-4 bg-[#892f1a] text-white px-6 py-3 text-[10px] uppercase tracking-[0.4em] hover:bg-[#624a41] transition-all duration-500 shadow-xl">Contact Us</button>
+                {/* <ArrowRight className="text-[#892f1a] group-hover:translate-x-2 transition-transform" /> */}
               </Link>
             </div>
           </div>
