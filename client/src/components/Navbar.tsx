@@ -108,7 +108,7 @@ const Navbar: React.FC = () => {
               </Link>
             )}
           </AnimatePresence>
-          
+          <Link href="/admindashboard">
           <button
             className={`px-6 h-9 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
               scrolled
@@ -118,6 +118,7 @@ const Navbar: React.FC = () => {
           >
             {scrolled ? "Join" : "Book a call"}
           </button>
+          </Link>
         </div>
       </motion.nav>
     </header>
