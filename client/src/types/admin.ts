@@ -7,6 +7,7 @@ export interface ContentSection {
   description?: string;
   image?: string;
   buttonText?: string;
+  items?: Array<{ id: string; title?: string; subtitle?: string; image?: string }>;
 }
 
 export interface Testimonial {

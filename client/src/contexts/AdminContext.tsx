@@ -18,25 +18,106 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 const initialContentSections: ContentSection[] = [
+  // Home: Hero
   {
-    id: '1',
+    id: 'home-hero',
     page: 'home',
     sectionName: 'Hero Section',
     title: 'Creating strategic, confident and timeless designs with you at the centre.',
-    subtitle: 'WE ENSURE YOUR BRAND FEELS LIKE HOME TO THOSE IT SERVES.',
+    subtitle: 'We ensure your brand feels like home to those it serves.',
     buttonText: "LET'S GET STARTED",
-    image: '/placeholder.svg',
+    image: '/front.jpeg',
   },
+  // Home: Intro / CTA
   {
-    id: '2',
+    id: 'home-intro',
     page: 'home',
-    sectionName: 'About Preview',
-    title: 'Who We Are',
-    description: 'We are a creative branding studio dedicated to helping businesses discover their unique voice and visual identity.',
+    sectionName: 'Intro',
+    title: 'Ready to buy Aceternity Pro?',
+    description: 'Unlock premium components, advanced animations, and exclusive templates to build stunning modern interfaces.',
+    buttonText: 'View Pricing',
+  },
+  // Home: Work Heading
+  {
+    id: 'home-work-heading',
+    page: 'home',
+    sectionName: 'Work Heading',
+    title: 'Glimpse into our work',
+    subtitle: 'Portfolio — 2026',
+  },
+  // Home: Projects (single section with items array)
+  {
+    id: 'home-projects',
+    page: 'home',
+    sectionName: 'Projects',
+    title: 'Our Projects',
+    items: [
+      {
+        id: 'p1',
+        title: 'NANDAN COFFEE',
+        subtitle: 'October 2023 - Ongoing',
+        image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000',
+      },
+      {
+        id: 'p2',
+        title: 'PASTEL PATISSERIE',
+        subtitle: 'December 2024',
+        image: 'https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000',
+      },
+      {
+        id: 'p3',
+        title: 'SEEKHO SIKHAO FOUNDATION',
+        subtitle: 'September 2023 - Ongoing',
+        image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000',
+      },
+      {
+        id: 'p4',
+        title: 'MANA',
+        subtitle: 'October 2024',
+        image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000',
+      },
+    ],
+  },
+  // Testimonials header (kept as editable section)
+  {
+    id: 'home-testimonials-heading',
+    page: 'home',
+    sectionName: 'Testimonials Heading',
+    title: 'What People Say',
+    description: 'Real client feedback from our partners and collaborators.',
+  },
+  // Stats / Numbers (single section with items)
+  {
+    id: 'home-stats',
+    page: 'home',
+    sectionName: 'Stats',
+    title: 'Our story in numbers',
+    items: [
+      { id: 's1', title: '15 +', subtitle: 'Industries Served' },
+      { id: 's2', title: '74', subtitle: 'Happy Clients' },
+      { id: 's3', title: '3,700+', subtitle: 'Paper Goods Sold' },
+      { id: 's4', title: '10,000+', subtitle: 'Online Community' },
+    ],
+  },
+  // Footer CTA
+  {
+    id: 'home-footer-cta',
+    page: 'home',
+    sectionName: 'Footer CTA',
+    title: 'Ready to elevate your brand?',
+    buttonText: 'Contact Us',
+  },
+  // Extra placeholder (for any additional text/image you want editable under home)
+  {
+    id: 'home-extra-1',
+    page: 'home',
+    sectionName: 'Extra',
+    title: 'Extra content',
     image: '/placeholder.svg',
   },
+  // Fallback existing pages keepers
   {
-    id: '3',
+    id: 'services-hero',
     page: 'services',
     sectionName: 'Services Hero',
     title: 'Our Services',
@@ -44,7 +125,7 @@ const initialContentSections: ContentSection[] = [
     image: '/placeholder.svg',
   },
   {
-    id: '4',
+    id: 'story-our',
     page: 'story',
     sectionName: 'Our Story',
     title: 'The Bloom Journey',
@@ -52,7 +133,7 @@ const initialContentSections: ContentSection[] = [
     image: '/placeholder.svg',
   },
   {
-    id: '5',
+    id: 'contact-header',
     page: 'contact',
     sectionName: 'Contact Header',
     title: 'Get in Touch',
@@ -62,37 +143,59 @@ const initialContentSections: ContentSection[] = [
 
 const initialTestimonials: Testimonial[] = [
   {
-    id: '1',
-    clientName: 'Sarah Mitchell',
-    clientRole: 'CEO',
-    clientCompany: 'Lumina Studios',
-    clientImage: '/placeholder.svg',
-    content: 'Bloom Branding transformed our entire visual identity. Their attention to detail and understanding of our vision was remarkable.',
-    rating: 5,
-    status: 'approved',
-    createdAt: '2024-01-15',
-  },
-  {
-    id: '2',
-    clientName: 'James Chen',
-    clientRole: 'Founder',
+    id: 't1',
+    clientName: 'Sarah Chen',
+    clientRole: 'Product Manager',
     clientCompany: 'TechFlow',
-    clientImage: '/placeholder.svg',
-    content: 'Working with the Bloom team was an absolute pleasure. They delivered beyond our expectations.',
+    clientImage: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=3560&auto=format&fit=crop',
+    content: "The attention to detail and innovative features have completely transformed our workflow. This is exactly what we've been looking for.",
     rating: 5,
     status: 'approved',
-    createdAt: '2024-02-20',
+    createdAt: '2025-06-01',
   },
   {
-    id: '3',
-    clientName: 'Emma Roberts',
-    clientRole: 'Marketing Director',
-    clientCompany: 'Green Earth Co',
-    clientImage: '/placeholder.svg',
-    content: 'The branding package we received was exactly what we needed to stand out in our market.',
-    rating: 4,
-    status: 'pending',
-    createdAt: '2024-03-10',
+    id: 't2',
+    clientName: 'Michael Rodriguez',
+    clientRole: 'CTO',
+    clientCompany: 'InnovateSphere',
+    clientImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=3540&auto=format&fit=crop',
+    content: "Implementation was seamless and the results exceeded our expectations. The platform's flexibility is remarkable.",
+    rating: 5,
+    status: 'approved',
+    createdAt: '2025-06-05',
+  },
+  {
+    id: 't3',
+    clientName: 'Emily Watson',
+    clientRole: 'Operations Director',
+    clientCompany: 'CloudScale',
+    clientImage: 'https://images.unsplash.com/photo-1623582854588-d60de57fa33f?q=80&w=3540&auto=format&fit=crop',
+    content: "This solution has significantly improved our team's productivity. The intuitive interface makes complex tasks simple.",
+    rating: 5,
+    status: 'approved',
+    createdAt: '2025-06-10',
+  },
+  {
+    id: 't4',
+    clientName: 'James Kim',
+    clientRole: 'Engineering Lead',
+    clientCompany: 'DataPro',
+    clientImage: 'https://images.unsplash.com/photo-1636041293178-808a6762ab39?q=80&w=3464&auto=format&fit=crop',
+    content: "Outstanding support and robust features. It's rare to find a product that delivers on all its promises.",
+    rating: 5,
+    status: 'approved',
+    createdAt: '2025-06-15',
+  },
+  {
+    id: 't5',
+    clientName: 'Lisa Thompson',
+    clientRole: 'VP of Technology',
+    clientCompany: 'FutureNet',
+    clientImage: 'https://images.unsplash.com/photo-1624561172888-ac93c696e10c?q=80&w=2592&auto=format&fit=crop',
+    content: "The scalability and performance have been game-changing for our organization. Highly recommend to any growing business.",
+    rating: 5,
+    status: 'approved',
+    createdAt: '2025-06-20',
   },
 ];
 
