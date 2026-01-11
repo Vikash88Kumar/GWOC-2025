@@ -179,6 +179,45 @@ const initialContentSections: ContentSection[] = [
       },
     ],
   },
+  // Founder: Hero, Values, Milestones (editable)
+  {
+    id: 'founder-hero',
+    page: 'founder',
+    sectionName: 'Founder Hero',
+    title: 'Alexandra Mitchell',
+    subtitle: 'Founder & Visionary',
+    description: 'Building the future of digital experiences, one meaningful connection at a time. With over a decade of experience in transforming ideas into impactful realities.',
+    image: 'https://img.freepik.com/free-vector/rainbow-coloured-hand-painted-watercolour-splatter-design_1048-20680.jpg?semt=ais_hybrid&w=740&q=80',
+    buttonText: 'View Our Services',
+    buttonLink: '/services',
+    secondaryButtonText: 'Follow Us',
+    secondaryButtonLink: 'https://www.instagram.com/bloom.branding_/',
+  },
+  {
+    id: 'founder-values',
+    page: 'founder',
+    sectionName: 'Founder Values',
+    title: 'Core Values',
+    items: [
+      { id: 'v1', title: 'Authenticity', description: 'Being genuine in every interaction, building trust through transparency and honesty.' },
+      { id: 'v2', title: 'Innovation', description: 'Constantly pushing boundaries to find creative solutions that make real impact.' },
+      { id: 'v3', title: 'Community', description: 'Fostering connections and lifting others up. Success is better when shared.' },
+      { id: 'v4', title: 'Excellence', description: 'Never settling for good enough. Every detail matters in the pursuit of greatness.' },
+    ],
+  },
+  {
+    id: 'founder-milestones',
+    page: 'founder',
+    sectionName: 'Founder Milestones',
+    title: 'Milestones',
+    items: [
+      { id: 'fm2014', title: 'The Beginning', subtitle: '2014', description: 'Started with a laptop, a dream, and endless cups of coffee. Founded the company from my apartment.' },
+      { id: 'fm2016', title: 'First Major Client', subtitle: '2016', description: 'Landed our first Fortune 500 client. A pivotal moment that validated our vision.' },
+      { id: 'fm2018', title: 'Series A Funding', subtitle: '2018', description: 'Raised $15M to scale our operations. Grew the team from 5 to 50 incredible people.' },
+      { id: 'fm2020', title: 'Global Expansion', subtitle: '2020', description: 'Opened offices in London, Singapore, and Sydney. Serving customers in 50+ countries.' },
+      { id: 'fm2023', title: '10 Million Users', subtitle: '2023', description: 'Reached a milestone that once seemed impossible. But the mission continues.' },
+    ],
+  },
   {
     id: 'story-our',
     page: 'story',
@@ -186,7 +225,7 @@ const initialContentSections: ContentSection[] = [
     title: 'The Bloom Journey',
     description: 'Founded with a passion for authentic brand storytelling, Bloom Branding has grown to serve clients worldwide.',
     image: '/placeholder.svg',
-  },
+  }, 
   // Story: Timeline (single editable section)
   {
     id: 'story-timeline',

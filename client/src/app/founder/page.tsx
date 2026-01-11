@@ -1,66 +1,67 @@
 'use client';
 import { motion, useInView } from "framer-motion";
-import { useRef,useState,useEffect } from "react";
+import { useRef } from "react";
+import Link from 'next/link';
 import { Heart, Lightbulb, Users, Rocket, Twitter, Linkedin, Instagram, Mail, ArrowRight } from "lucide-react";
 import founderPortrait from "@/assets/founder-portrait.jpg";
 import abstractBg from "@/assets/abstract-bg.jpg";
-import {getFounderPage} from "../../services/founder.api.js"
-const values = [
+import { useAdmin } from '@/contexts/AdminContext';
+const DEFAULT_VALUES = [
   {
     icon: Heart,
-    title: "Authenticity",
-    description: "Being genuine in every interaction, building trust through transparency and honesty.",
+    title: 'Authenticity',
+    description: 'Being genuine in every interaction, building trust through transparency and honesty.',
   },
   {
     icon: Lightbulb,
-    title: "Innovation",
-    description: "Constantly pushing boundaries to find creative solutions that make real impact.",
+    title: 'Innovation',
+    description: 'Constantly pushing boundaries to find creative solutions that make real impact.',
   },
   {
     icon: Users,
-    title: "Community",
-    description: "Fostering connections and lifting others up. Success is better when shared.",
+    title: 'Community',
+    description: 'Fostering connections and lifting others up. Success is better when shared.',
   },
   {
     icon: Rocket,
-    title: "Excellence",
-    description: "Never settling for good enough. Every detail matters in the pursuit of greatness.",
+    title: 'Excellence',
+    description: 'Never settling for good enough. Every detail matters in the pursuit of greatness.',
   },
 ];
 
-const milestones = [
+const DEFAULT_MILESTONES = [
   {
-    year: "2014",
-    title: "The Beginning",
-    description: "Started with a laptop, a dream, and endless cups of coffee. Founded the company from my apartment.",
+    year: '2014',
+    title: 'The Beginning',
+    description: 'Started with a laptop, a dream, and endless cups of coffee. Founded the company from my apartment.',
   },
   {
-    year: "2016",
-    title: "First Major Client",
-    description: "Landed our first Fortune 500 client. A pivotal moment that validated our vision.",
+    year: '2016',
+    title: 'First Major Client',
+    description: 'Landed our first Fortune 500 client. A pivotal moment that validated our vision.',
   },
   {
-    year: "2018",
-    title: "Series A Funding",
-    description: "Raised $15M to scale our operations. Grew the team from 5 to 50 incredible people.",
+    year: '2018',
+    title: 'Series A Funding',
+    description: 'Raised $15M to scale our operations. Grew the team from 5 to 50 incredible people.',
   },
   {
-    year: "2020",
-    title: "Global Expansion",
-    description: "Opened offices in London, Singapore, and Sydney. Serving customers in 50+ countries.",
+    year: '2020',
+    title: 'Global Expansion',
+    description: 'Opened offices in London, Singapore, and Sydney. Serving customers in 50+ countries.',
   },
   {
-    year: "2023",
-    title: "10 Million Users",
-    description: "Reached a milestone that once seemed impossible. But the mission continues.",
+    year: '2023',
+    title: '10 Million Users',
+    description: 'Reached a milestone that once seemed impossible. But the mission continues.',
   },
 ];
 
 const socials = [
-  { icon: Twitter, label: "Twitter", href: "#" },
-  { icon: Linkedin, label: "LinkedIn", href: "#" },
-  { icon: Instagram, label: "Instagram", href: "#" },
-  { icon: Mail, label: "Email", href: "#" },
+  { icon: Twitter, label: 'Twitter', href: '#' },
+  { icon: Linkedin, label: 'LinkedIn', href: '#' },
+  { icon: Instagram, label: 'Instagram', href: '#' },
+  { icon: Mail, label: 'Email', href: '#' },
 ];
 
 const AboutFounder = () => {
@@ -69,19 +70,38 @@ const AboutFounder = () => {
   const journeyRef = useRef(null);
   const connectRef = useRef(null);
 
-  const storyInView = useInView(storyRef, { once: true, margin: "-100px" });
-  const valuesInView = useInView(valuesRef, { once: true, margin: "-100px" });
-  const journeyInView = useInView(journeyRef, { once: true, margin: "-100px" });
-  const connectInView = useInView(connectRef, { once: true, margin: "-100px" });
+  const storyInView = useInView(storyRef, { once: true, margin: '-100px' });
+  const valuesInView = useInView(valuesRef, { once: true, margin: '-100px' });
+  const journeyInView = useInView(journeyRef, { once: true, margin: '-100px' });
+  const connectInView = useInView(connectRef, { once: true, margin: '-100px' });
 
-  const [data,setData]=useState({})
-  useEffect(()=>{
-    const fetchService=async()=>{
-      const res=await getFounderPage()
-      setData(res?.data)
-    }
-    fetchService()
-  })
+  // Pull editable founder content from AdminContext
+  const { contentSections } = useAdmin();
+  const founderHero = contentSections.find(s => s.id === 'founder-hero');
+  const nameParts = (founderHero?.title || 'Alexandra Mitchell').split(' ');
+  const firstName = nameParts[0];
+  const lastName = nameParts.slice(1).join(' ');
+  const heroSubtitle = founderHero?.subtitle || 'Founder & Visionary';
+  const heroDescription = founderHero?.description || 'Building the future of digital experiences, one meaningful connection at a time.';
+  const heroImage = founderHero?.image || 'https://img.freepik.com/free-vector/rainbow-coloured-hand-painted-watercolour-splatter-design_1048-20680.jpg?semt=ais_hybrid&w=740&q=80';
+  const heroButtonText = founderHero?.buttonText || 'View Our Services';
+  const heroButtonLink = founderHero?.buttonLink || '/services';
+  const heroSecondaryText = founderHero?.secondaryButtonText || 'Follow Us';
+  const heroSecondaryLink = founderHero?.secondaryButtonLink || 'https://www.instagram.com/bloom.branding_/';
+
+  const valuesSection = contentSections.find(s => s.id === 'founder-values');
+  const values = valuesSection?.items?.map((it, idx) => ({
+    icon: DEFAULT_VALUES[idx]?.icon || Heart,
+    title: it.title || '',
+    description: it.description || '',
+  })) || DEFAULT_VALUES;
+
+  const milestonesSection = contentSections.find(s => s.id === 'founder-milestones');
+  const milestones = milestonesSection?.items?.map(it => ({
+    year: it.subtitle || '',
+    title: it.title || '',
+    description: it.description || '',
+  })) || DEFAULT_MILESTONES;
 
   return (
     <div className="min-h-screen bg-background font-body scroll-smooth">
@@ -104,7 +124,7 @@ const AboutFounder = () => {
                 transition={{ delay: 0.2, duration: 0.6 }}
                 className="inline-block text-sm tracking-[0.3em] uppercase text-amber-900 mb-6 font-medium"
               >
-                Founder & Visionary
+                {heroSubtitle}
               </motion.span>
 
               <motion.h1
@@ -113,8 +133,8 @@ const AboutFounder = () => {
                 transition={{ delay: 0.3, duration: 0.8 }}
                 className="font-display text-5xl md:text-6xl lg:text-7xl font-medium text-foreground leading-[1.1] mb-8"
               >
-                Alexandra
-                <span className="block italic text-amber-900 mt-2">Mitchell</span>
+                {firstName}
+                <span className="block italic text-amber-900 mt-2">{lastName}</span>
               </motion.h1>
 
               <motion.p
@@ -123,8 +143,7 @@ const AboutFounder = () => {
                 transition={{ delay: 0.5, duration: 0.6 }}
                 className="text-lg text-muted-foreground leading-relaxed max-w-xl mb-10"
               >
-                Building the future of digital experiences, one meaningful connection at a time.
-                With over a decade of experience in transforming ideas into impactful realities.
+                {heroDescription}
               </motion.p>
 
               <motion.div
@@ -145,6 +164,32 @@ const AboutFounder = () => {
                 >
                   Let's Connect
                 </a>
+
+                {/* Admin-configurable extra buttons */}
+                {heroButtonText && (
+                  <Link href={heroButtonLink}>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-8 py-4 font-semibold text-white transition-all duration-300 hover:shadow-xl hover:shadow-black/10"
+                    >
+                      {heroButtonText}
+                      <ArrowRight className="h-5 w-5" />
+                    </motion.button>
+                  </Link>
+                )}
+
+                {heroSecondaryText && (
+                  <a href={heroSecondaryLink} target="_blank" rel="noopener noreferrer">
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex items-center gap-2 rounded-full border-2 border-gray-900 px-8 py-4 font-semibold text-gray-900 transition-all duration-300 hover:bg-black/5"
+                    >
+                      {heroSecondaryText}
+                    </motion.button>
+                  </a>
+                )}
               </motion.div>
             </motion.div>
 
@@ -159,8 +204,8 @@ const AboutFounder = () => {
                 <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-yellow-300/20 rounded-full" />
 
                 <img
-                  src="https://img.freepik.com/free-vector/rainbow-coloured-hand-painted-watercolour-splatter-design_1048-20680.jpg?semt=ais_hybrid&w=740&q=80"
-                  alt="Alexandra Mitchell - Founder"
+                  src={heroImage}
+                  alt={`${firstName} ${lastName} - Founder`}
                   className="relative z-10 w-full max-w-md mx-auto rounded-2xl shadow-2xl object-cover aspect-[3/4]"
                 />
 

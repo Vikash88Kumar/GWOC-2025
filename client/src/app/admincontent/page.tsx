@@ -11,7 +11,7 @@ const ContentEditor: React.FC = () => {
   const { contentSections } = useAdmin();
   const [activeTab, setActiveTab] = useState('all');
 
-  const pages = ['all', 'home', 'services', 'story', 'contact'];
+  const pages = ['all', 'home', 'services', 'story', 'contact','founder'];
 
   const filteredSections = activeTab === 'all'
     ? contentSections

@@ -1,12 +1,15 @@
 export interface ContentSection {
   id: string;
-  page: 'home' | 'services' | 'story' | 'contact';
+  page: 'home' | 'services' | 'story' | 'contact' | 'founder';
   sectionName: string;
   title: string;
   subtitle?: string;
   description?: string;
   image?: string;
   buttonText?: string;
+  buttonLink?: string;
+  secondaryButtonText?: string;
+  secondaryButtonLink?: string;
   // items can represent lists such as projects, stats, or services; extended to support description and list bullets
   items?: Array<{
     id: string;
