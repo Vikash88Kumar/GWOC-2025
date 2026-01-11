@@ -5,13 +5,34 @@ import { ApiResponse } from "../utils/apiResponse.js";
 
 export const toggleTestimonialActive = asyncHandler(async (req, res) => {
   const { id } = req.params;
+   const {status}=req.body 
+  const testimonial = await Testimonial.findById(id);
+  if (!testimonial) {
+    throw new ApiError(404, "Testimonial not found");
+  }
+
+  testimonial.status=status
+  testimonial.isActive = !testimonial.isActive;
+  await testimonial.save();
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      testimonial,
+      `Testimonial is now ${testimonial.isActive ? "active" : "inactive"}`
+    )
+  );
+});
+
+export const rejectTestimonial = asyncHandler(async (req, res) => {
+  const { id } = req.params;
     
   const testimonial = await Testimonial.findById(id);
   if (!testimonial) {
     throw new ApiError(404, "Testimonial not found");
   }
 
-  testimonial.status="approved"
+  testimonial.status="rejected"
   testimonial.isActive = !testimonial.isActive;
   await testimonial.save();
 
@@ -29,7 +50,7 @@ export const createTestimonial = asyncHandler(async (req, res) => {
     clientName,
     role,
     company,
-    message,
+    message,    
     star
   } = req.body;
 

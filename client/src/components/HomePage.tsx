@@ -8,7 +8,7 @@ import { BackgroundLines } from '@/components/ui/background-lines';
 import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import Link from 'next/link';
-
+import {createTestimonial} from "../services/testimonial.api.js"
 import { gethomePage } from "../services/homepage.api.js"
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
 const HomePage = () => {
@@ -109,7 +109,7 @@ const HomePage = () => {
   const [star, setStar] = useState<number | null>(5);
   const [reviewSuccess, setReviewSuccess] = useState('');
 
-  const submitReview = (e: React.FormEvent) => {
+  const submitReview = async(e: React.FormEvent) => {
     e.preventDefault();
     if (!clientName.trim() || !message.trim()) {
       setReviewSuccess('Please add your name and message.');
@@ -117,12 +117,15 @@ const HomePage = () => {
       return;
     }
     const newTestimonial = {
-      quote: message,
-      name: clientName,
-      designation: role ? `${role}${company ? ' at ' + company : ''}` : (company || ''),
-      src: '/placeholder-profile.png',
+      clientName,
+      role,
+      company,
+      message,
+      star
     };
-    setTestimonials(prev => [newTestimonial, ...prev]);
+    await createTestimonial(newTestimonial)
+
+    // setTestimonials(prev => [newTestimonial, ...prev]);
     setClientName('');
     setRole('');
     setCompany('');

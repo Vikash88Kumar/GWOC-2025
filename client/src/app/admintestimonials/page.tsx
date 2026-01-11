@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Plus, Star, Trash2, Edit, Check, X, Sparkles, MessageSquareQuote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
+import {toggleTestimonialActive} from "../../services/testimonial.api.js"
 const Testimonials: React.FC = () => {
   const { testimonials, addTestimonial, updateTestimonial, deleteTestimonial } = useAdmin();
   const { toast } = useToast();
@@ -90,12 +90,8 @@ const Testimonials: React.FC = () => {
     setIsAddDialogOpen(true);
   };
 
-  const handleStatusChange = (id: string, status: 'pending' | 'approved' | 'rejected') => {
-    updateTestimonial(id, { status });
-    toast({
-      title: `Testimonial ${status}`,
-      description: status === 'approved' ? 'This testimonial will now appear on your website.' : undefined,
-    });
+  const handleStatusChange = async(id: string, status: 'pending' | 'approved' | 'rejected') => {
+    return await toggleTestimonialActive(id,status)
   };
 
   const handleDelete = (id: string) => {

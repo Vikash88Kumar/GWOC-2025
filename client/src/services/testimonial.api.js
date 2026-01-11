@@ -21,3 +21,11 @@ export const createTestimonial = async (data) => {
     throw error;
   }
 };
+export const toggleTestimonialActive=async(id,data)=>{
+    try {
+        const res=await api.patch(`/testimonial/${id}`,data)
+        return res.data
+    } catch (error) {
+        console.log("failed to toggle isActive",error?.message)
+    }
+}
