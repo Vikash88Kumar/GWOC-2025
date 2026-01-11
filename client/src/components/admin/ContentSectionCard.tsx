@@ -20,6 +20,8 @@ const pageColors: Record<string, string> = {
 
 const ContentSectionCard: React.FC<ContentSectionCardProps> = ({ section }) => {
   const { updateContentSection } = useAdmin();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<{ title?: string; subtitle?: string; description?: string }>({});
 
   return (
     <div className="admin-card animate-fade-in">
@@ -104,43 +106,56 @@ const ContentSectionCard: React.FC<ContentSectionCardProps> = ({ section }) => {
                 )}
 
                 <div className="flex-1 space-y-2">
-                  <EditableField
-                    label="Title"
-                    value={item.title || ''}
-                    onSave={(title) => {
-                      const newItems = section.items!.map((it, i) => i === idx ? { ...it, title } : it);
-                      updateContentSection(section.id, { items: newItems });
-                    }}
-                  />
-                  <EditableField
-                    label="Subtitle"
-                    value={item.subtitle || ''}
-                    onSave={(subtitle) => {
-                      const newItems = section.items!.map((it, i) => i === idx ? { ...it, subtitle } : it);
-                      updateContentSection(section.id, { items: newItems });
-                    }}
-                  />
-
-                  {/* Description (multi-line) */}
-                  {item.description !== undefined && (
-                    <EditableField
-                      label="Description"
-                      type="textarea"
-                      value={item.description || ''}
-                      onSave={(description) => {
-                        const newItems = section.items!.map((it, i) => i === idx ? { ...it, description } : it);
-                        updateContentSection(section.id, { items: newItems });
-                      }}
-                    />
-                  )}
-
-                  {/* List of bullets */}
-                  {item.list !== undefined && (
-                    <ListEditor
+                  {/* For founder sections, provide a single "Edit" button that opens a unified editor for title/subtitle/description */}
+                  {section.page === 'founder' ? (
+                    <FounderItemEditor
                       section={section}
-                      itemIndex={idx}
                       item={item}
+                      idx={idx}
+                      editingIdState={[editingId, setEditingId]}
+                      draftState={[draft, setDraft]}
                     />
+                  ) : (
+                    <>
+                      <EditableField
+                        label="Title"
+                        value={item.title || ''}
+                        onSave={(title) => {
+                          const newItems = section.items!.map((it, i) => i === idx ? { ...it, title } : it);
+                          updateContentSection(section.id, { items: newItems });
+                        }}
+                      />
+                      <EditableField
+                        label="Subtitle"
+                        value={item.subtitle || ''}
+                        onSave={(subtitle) => {
+                          const newItems = section.items!.map((it, i) => i === idx ? { ...it, subtitle } : it);
+                          updateContentSection(section.id, { items: newItems });
+                        }}
+                      />
+
+                      {/* Description (multi-line) */}
+                      {item.description !== undefined && (
+                        <EditableField
+                          label="Description"
+                          type="textarea"
+                          value={item.description || ''}
+                          onSave={(description) => {
+                            const newItems = section.items!.map((it, i) => i === idx ? { ...it, description } : it);
+                            updateContentSection(section.id, { items: newItems });
+                          }}
+                        />
+                      )}
+
+                      {/* List of bullets */}
+                      {item.list !== undefined && (
+                        <ListEditor
+                          section={section}
+                          itemIndex={idx}
+                          item={item}
+                        />
+                      )}
+                    </>
                   )}
 
                 </div>
@@ -234,6 +249,65 @@ function ListEditor({ section, itemIndex, item }: { section: ContentSection; ite
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+
+// FounderItemEditor: unified per-item editor for founder sections
+function FounderItemEditor({ section, item, idx, editingIdState, draftState }:{ section: ContentSection; item:any; idx:number; editingIdState:[string|null, (id:string|null)=>void]; draftState:[{ title?:string; subtitle?:string; description?:string }, (d:any)=>void] }){
+  const { updateContentSection } = useAdmin();
+  const [editingId, setEditingId] = editingIdState;
+  const [draft, setDraft] = draftState;
+  const id = item.id || idx.toString();
+
+  const startEdit = () => {
+    setDraft({ title: item.title || '', subtitle: item.subtitle || '', description: item.description || '' });
+    setEditingId(id);
+  };
+
+  const save = () => {
+    const newItems = section.items!.map((it, i) => i === idx ? { ...it, title: draft.title, subtitle: draft.subtitle, description: draft.description } : it);
+    updateContentSection(section.id, { items: newItems });
+    setEditingId(null);
+    setDraft({});
+  };
+
+  const cancel = () => {
+    setEditingId(null);
+    setDraft({});
+  };
+
+  if (editingId === id) {
+    return (
+      <div className="space-y-3">
+        <label className="text-sm font-medium text-muted-foreground block">Title</label>
+        <input className="w-full rounded-md border p-2" value={draft.title || ''} onChange={(e)=>setDraft({...draft, title:e.target.value})} />
+
+        <label className="text-sm font-medium text-muted-foreground block">Subtitle</label>
+        <input className="w-full rounded-md border p-2" value={draft.subtitle || ''} onChange={(e)=>setDraft({...draft, subtitle:e.target.value})} />
+
+        <label className="text-sm font-medium text-muted-foreground block">Description</label>
+        <textarea className="w-full rounded-md border p-2" rows={4} value={draft.description || ''} onChange={(e)=>setDraft({...draft, description:e.target.value})} />
+
+        <div className="flex gap-2">
+          <Button onClick={save}>Save</Button>
+          <Button variant="outline" onClick={cancel}>Cancel</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-start justify-between">
+      <div>
+        <div className="font-semibold">{item.title}</div>
+        <div className="text-sm text-muted-foreground">{item.subtitle}</div>
+        {item.description && <div className="text-sm mt-2">{item.description}</div>}
+      </div>
+      <div>
+        <Button onClick={startEdit}>Edit</Button>
+      </div>
     </div>
   );
 }
