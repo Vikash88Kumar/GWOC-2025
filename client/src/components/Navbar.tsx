@@ -96,6 +96,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center gap-3 shrink-0">
           <AnimatePresence>
             {!scrolled && (
+              <Link href="/userRegistration">
               <motion.button
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -104,6 +105,7 @@ const Navbar: React.FC = () => {
               >
                 Login
               </motion.button>
+              </Link>
             )}
           </AnimatePresence>
           
