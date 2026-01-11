@@ -5,7 +5,7 @@ import EditableField from './EditableField';
 import EditableImage from './EditableImage';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Trash, Plus } from 'lucide-react';
+import { Trash, Plus, Edit3 } from 'lucide-react';
 
 interface ContentSectionCardProps {
   section: ContentSection;
@@ -107,7 +107,7 @@ const ContentSectionCard: React.FC<ContentSectionCardProps> = ({ section }) => {
 
                 <div className="flex-1 space-y-2">
                   {/* For founder sections, provide a single "Edit" button that opens a unified editor for title/subtitle/description */}
-                  {section.page === 'founder' ? (
+                  {(section.page === 'founder' || section.id === 'story-timeline') ? (
                     <FounderItemEditor
                       section={section}
                       item={item}
@@ -306,7 +306,9 @@ function FounderItemEditor({ section, item, idx, editingIdState, draftState }:{ 
         {item.description && <div className="text-sm mt-2">{item.description}</div>}
       </div>
       <div>
-        <Button onClick={startEdit}>Edit</Button>
+        <Button variant="ghost" size="icon" onClick={startEdit} aria-label="Edit item" title="Edit">
+          <Edit3 className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );
