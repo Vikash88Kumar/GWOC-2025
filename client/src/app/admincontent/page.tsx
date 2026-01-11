@@ -69,7 +69,10 @@ const ContentEditor: React.FC = () => {
           </div>
         </div>
 
-        {/* ✅ Everything below navbar removed */}
+        <div className="mt-6">
+          <p className="text-muted-foreground mb-4">The new Content Editor is available at <code className="bg-muted/10 px-1 rounded">/admin/content-editor</code>.</p>
+          <Link href="/admin/content-editor/home" className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md">Open Content Editor</Link>
+        </div>
       </div>
     </div>
   );

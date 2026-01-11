@@ -65,7 +65,7 @@ const defaultMilestones: Milestone[] = [
 
 
 
-const Timeline = () => {
+const Timeline = ({ timeline }: { timeline?: any }) => {
   const containerRef = useRef(null);
   
   // Scroll tracking for the line animation
@@ -80,20 +80,31 @@ const Timeline = () => {
     restDelta: 0.001
   });
 
-  // Load timeline content from AdminContext when available
+  // Prefer passed-in timeline data, then AdminContext, then defaults
   let milestones = defaultMilestones;
+  let heading = undefined;
   try {
-    const { contentSections } = useAdmin();
-    const section = contentSections.find(s => s.id === 'story-timeline');
-    if (section && section.items && section.items.length > 0) {
-      milestones = section.items.map(item => ({
-        year: item.subtitle || '',
-        title: item.title || '',
-        description: item.description || '',
-        image: item.image,
-        // keep highlight optional if later added
-        highlight: (item as any).highlight,
+    if (timeline?.milestones && timeline.milestones.length > 0) {
+      milestones = timeline.milestones.map((m: any) => ({
+        year: m.year || '',
+        title: m.title || '',
+        description: m.description || '',
+        image: m.image,
+        highlight: m.highlight,
       }));
+      heading = timeline.heading || timeline.eyebrow;
+    } else {
+      const { contentSections } = useAdmin();
+      const section = contentSections.find(s => s.id === 'story-timeline');
+      if (section && section.items && section.items.length > 0) {
+        milestones = section.items.map(item => ({
+          year: item.subtitle || '',
+          title: item.title || '',
+          description: item.description || '',
+          image: item.image,
+          highlight: (item as any).highlight,
+        }));
+      }
     }
   } catch (e) {
     // AdminProvider might not be present in some contexts - fall back to defaults
@@ -146,7 +157,7 @@ const Timeline = () => {
             className="text-6xl md:text-8xl font-black text-[#3D3735] tracking-tight"
           >
             The Evolution of <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#90CDF4] to-[#F6E05E]">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-[#90CDF4] to-[#F6E05E]">
               Greatness
             </span>
           </motion.h2>
@@ -154,10 +165,10 @@ const Timeline = () => {
 
         <div className="relative">
           {/* --- ANIMATED PROGRESS LINE --- */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-[#3D3735]/10 hidden md:block -translate-x-1/2" />
+          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-[#3D3735]/10 hidden md:block -translate-x-1/2" />
           <motion.div 
             style={{ scaleY, originY: 0 }}
-            className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#90CDF4] to-[#F6E05E] hidden md:block -translate-x-1/2 z-20"
+            className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-linear-to-b from-[#90CDF4] to-[#F6E05E] hidden md:block -translate-x-1/2 z-20"
           />
 
           <div className="space-y-24 md:space-y-40">

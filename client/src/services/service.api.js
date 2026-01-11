@@ -27,7 +27,7 @@ export const updateServiceHero = async (data) => {
 export const updateServicesList = async (servicesArray) => {
   try {
     // Backend expects a raw array of service objects
-    const res = await api.patch("/service/list", servicesArray);
+    const res = await api.patch("/service/lists", servicesArray);
     return res.data;
   } catch (error) {
     console.error("Failed to update services list", error);

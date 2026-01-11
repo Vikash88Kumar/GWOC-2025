@@ -10,19 +10,24 @@ import {getStoryPage } from "../../services/story.api.js"
 // import Footer from "@/components/Footer";
 
 const Index = () => {
-  const [data,setData]=useState({})
+  const [data,setData]=useState<any>(null)
   useEffect(()=>{
     const fetchStory=async()=>{
-      const res=await getStoryPage()
-      setData(res?.data)
+      try{
+        const res=await getStoryPage()
+        // getStoryPage returns ApiResponse-like object: { statusCode, data, message }
+        setData(res?.data ?? res)
+      }catch(e){
+        console.error('Failed to load story page', e)
+      }
     }
     fetchStory()
   },[])
   return (
     <div className="min-h-screen bg-background">
       {/* <Navbar /> */}
-      <Hero />
-      <Timeline />
+      <Hero hero={data?.hero} />
+      <Timeline timeline={data?.timeline} />
       {/* <Services /> */}
       {/* <Stats /> */}
       {/* <CTA /> */}

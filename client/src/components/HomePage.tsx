@@ -13,26 +13,39 @@ import { getHomePage } from "../services/homepage.api.js"
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
 import { useAdmin } from '@/contexts/AdminContext';
 const HomePage = () => {
-  const [data, setData] = useState({})
-  useEffect(() => {
-    const fetchdata = async () => {
-      const res = await getHomePage()
-      setData(res)
-    }
-    fetchdata()
-  }, [])
+  const [data, setData] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  console.log(data);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getHomePage();
+        // getHomePage returns axios res.data by design; normalize to the inner `data` if present
+        setData(res?.data ?? res);
+      } catch (err) {
+        console.error('Failed to fetch homepage:', err);
+        setError(String(err));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
   // Projects will come from AdminContext (editable in Content Editor). Falls back to static projects if not set.
   const { contentSections, testimonials: adminTestimonials, addTestimonial } = useAdmin();
   const projectsSection = contentSections.find(s => s.id === 'home-projects');
-  const projects = projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? [
-    { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
-    { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
-    { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
-    { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
-  ];
-  const images = [
+  const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' }));
+  const projects = apiProjects.length
+    ? apiProjects
+    : (projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? [
+        { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
+        { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
+        { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
+        { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
+      ]);
+  const images =  [
     "/1.png",
     "/2.png",
     "/3.png",
@@ -153,8 +166,8 @@ const HomePage = () => {
         {/* Background Image with Electric Blue Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="./front.jpeg"
-            alt="Studio Interior"
+            src={data?.hero?.backgroundImage ?? './front.jpeg'}
+            alt={data?.hero?.headline ?? 'Studio Interior'}
             className="w-full h-full object-cover"
           />
           {/* Mixing Earl Gray and Electric Blue for a custom tinted overlay */}
@@ -169,17 +182,19 @@ const HomePage = () => {
           className="max-w-5xl z-10"
         >
           <h1 className="text-5xl md:text-[85px] font-light leading-[1.05] mb-10 text-[#e8e6d8]">
-            Creating strategic, <span className="italic text-[#bdaf62]">confident</span> and timeless designs with <span className="italic text-[#892f1a]">you</span> at the centre.
+            {data?.hero?.headline ?? (
+              <>Creating strategic, <span className="italic text-[#bdaf62]">confident</span> and timeless designs with <span className="italic text-[#892f1a]">you</span> at the centre.</>
+            )}
           </h1>
           <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#e8e6d8] uppercase">
-            We ensure your brand feels like home to those it serves.
+            {data?.hero?.subHeadline ?? 'We ensure your brand feels like home to those it serves.'}
           </p>
-          <Link href="/services">
+          <Link href={data?.hero?.ctaLink ?? '/services'}>
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="bg-[#e8e6d8] text-[#624a41] px-10 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] hover:text-white transition-all duration-500 shadow-xl"
             >
-              Let's Get Started
+              {data?.hero?.ctaText ?? "Let's Get Started"}
             </motion.button>
           </Link>
         </motion.div>
@@ -234,7 +249,7 @@ const HomePage = () => {
             className="w-56 h-56 rounded-full border-2 border-[#892f1a] border-dotted flex items-center justify-center p-8 text-center"
           >
             <span className="text-[9px] uppercase tracking-[0.2em] text-[#892f1a] font-bold">
-              Strategy Led • Detail Driven • Keeping You At The Centre
+              {data?.intro?.floatingCircleText ?? 'Strategy Led • Detail Driven • Keeping You At The Centre'}
             </span>
           </motion.div>
         </div>
@@ -245,9 +260,9 @@ const HomePage = () => {
         <div
         className={cn(
           "absolute inset-0",
-          "[background-size:40px_40px]",
-          "[background-image:linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
-          "dark:[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
+          "bg-size-[40px_40px]",
+          "bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
+          "dark:bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
         )}
       />
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
@@ -286,7 +301,7 @@ const HomePage = () => {
 
           {/* RIGHT SIDE: VERTICAL SCROLLING IMAGES */}
           <div className="md:w-2/3 space-y-40">
-            {projects.map((proj, idx) => (
+            {projects.map((proj: any, idx: number) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 80 }}
@@ -407,10 +422,10 @@ const HomePage = () => {
       <footer className="bg-white/40 pt-32 pb-12 px-8 md:px-20 border-t border-[#624a41]/10">
         <div className="flex flex-col md:flex-row justify-between gap-24 mb-32 max-w-7xl mx-auto">
           <div>
-            <h3 className="text-5xl mb-12">Ready to <span className="text-[#892f1a] italic">elevate</span> <br />your brand?</h3>
+            <h3 className="text-5xl mb-12">{data?.footer?.heading ?? (<><span className="text-[#892f1a] italic">Ready to</span> elevate <br />your brand?</>)}</h3>
             <div className="flex  pb-4 w-full md:w-96 group">
-              <Link href="/contact" className="no-underline">
-                <button className="flex items-center gap-4 bg-[#892f1a] text-white px-6 py-3 text-[10px] uppercase tracking-[0.4em] hover:bg-[#624a41] transition-all duration-500 shadow-xl">Contact Us</button>
+              <Link href={data?.footer?.ctaLink ?? '/contact'} className="no-underline">
+                <button className="flex items-center gap-4 bg-[#892f1a] text-white px-6 py-3 text-[10px] uppercase tracking-[0.4em] hover:bg-[#624a41] transition-all duration-500 shadow-xl">{data?.footer?.ctaText ?? 'Contact Us'}</button>
                 {/* <ArrowRight className="text-[#892f1a] group-hover:translate-x-2 transition-transform" /> */}
               </Link>
             </div>
