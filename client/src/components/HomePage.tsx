@@ -1,5 +1,5 @@
 "use client";
-
+import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Instagram, Facebook, Linkedin } from 'lucide-react';
@@ -195,14 +195,14 @@ const HomePage = () => {
           <div className="relative mx-auto flex w-full max-w-7xl items-center justify-center">
             <DottedGlowBackground
               className="pointer-events-none mask-radial-to-90% mask-radial-at-center opacity-20 dark:opacity-100"
-              opacity={60}
+              opacity={0.5}
               gap={10}
               radius={2.5}
               colorLightVar="--color-neutral-500"
               glowColorLightVar="--color-neutral-600"
               colorDarkVar="--color-neutral-500"
               glowColorDarkVar="--color-dark"
-              backgroundOpacity={0}
+              backgroundOpacity={0.01}
               speedMin={0.3}
               speedMax={1.6}
               speedScale={1}
@@ -242,23 +242,47 @@ const HomePage = () => {
 
       {/* --- STICKY WORK SHOWCASE (DARK CHOC) --- */}
       <section className="bg-[#624a41] text-[#e8e6d8] py-32 px-8 md:px-20 relative">
+        <div
+        className={cn(
+          "absolute inset-0",
+          "[background-size:40px_40px]",
+          "[background-image:linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
+          "dark:[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
+        )}
+      />
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
 
           {/* LEFT SIDE: STICKY HEADER */}
-          <div className="md:w-1/3">
-            <div className="sticky top-32">
-              {/* REMOVE BackgroundLines OR CHANGE TO A DIV */}
-              <div className="flex items-start justify-center w-full flex-col px-4 bg-[#624a41]">
-                <h2 className="text-5xl md:text-7xl italic font-light leading-tight mb-6 text-[#e8e6d8]">
-                  Glimpse into our work
-                </h2>
-                <div className="w-20 h-px bg-[#892f1a] mb-8"></div>
-                <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-[#bdaf62]">
-                  Portfolio — 2026
-                </p>
-              </div>
-            </div>
-          </div>
+          <div className="md:w-1/3 pr-8">
+  <div className="sticky top-32 flex justify-center">
+    
+    {/* Circle Container */}
+    <div className="
+      w-64 h-64 md:w-80 md:h-80
+      rounded-full
+      bg-[#624a41]
+      border border-[#bdaf62]/60
+      flex flex-col items-center justify-center
+      text-center
+      px-6
+      shadow-xl
+      hover:scale-105 transition-transform duration-300
+    ">
+      
+      <h2 className="text-3xl md:text-4xl italic font-light leading-tight mb-4 text-[#e8e6d8]">
+        Glimpse into<br />our work
+      </h2>
+
+      <div className="w-12 h-px bg-[#892f1a] mb-4"></div>
+
+      <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-[#bdaf62]">
+        Portfolio — 2026
+      </p>
+    </div>
+
+  </div>
+</div>
+
 
           {/* RIGHT SIDE: VERTICAL SCROLLING IMAGES */}
           <div className="md:w-2/3 space-y-40">

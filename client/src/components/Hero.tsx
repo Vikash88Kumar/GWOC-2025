@@ -1,27 +1,23 @@
 'use client';
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
+import React from "react";
+// This import assumes Hero.tsx is in src/components/
+import { BackgroundBeams } from "./ui/background-beams";
 
 const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
-      {/* Decorative Elements */}
-      <motion.div
-        className="absolute top-20 left-10 w-32 h-32 rounded-full bg-secondary/30 blur-3xl"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-        transition={{ duration: 4, repeat: Infinity }}
-      />
-      <motion.div
-        className="absolute bottom-40 right-20 w-48 h-48 rounded-full bg-primary/20 blur-3xl"
-        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-        transition={{ duration: 5, repeat: Infinity, delay: 1 }}
-      />
-      <motion.div
-        className="absolute top-1/3 right-1/4 w-24 h-24 rounded-full bg-secondary/40"
-        animate={{ y: [0, -20, 0] }}
-        transition={{ duration: 3, repeat: Infinity }}
-      />
+      
+      {/* ANIMATION LAYER 
+          We use a CSS filter to turn the default white/blue beams into 
+          a Dark Chocolate color to match your branding.
+      */}
+      <div className="absolute inset-0 z-0 pointer-events-none brightness-[0.2] sepia-[1] hue-rotate-[330deg] saturate-[2] opacity-60">
+        <BackgroundBeams />
+      </div>
 
+      {/* Content Layer - relative z-10 ensures it stays above the beams */}
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -82,7 +78,7 @@ const Hero = () => {
 
       {/* Scroll Indicator */}
       <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
