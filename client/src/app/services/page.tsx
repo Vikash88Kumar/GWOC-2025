@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, Instagram, Sparkles } from 'lucide-react';
-import {service} from "../../services/service.api.js"
+import {getServicePage} from "../../services/service.api.js"
 type Service = {
   id: string;
   title: string;
@@ -186,7 +186,7 @@ export default function Page() {
   const [data,setData]=useState({})
   useEffect(()=>{
     const fetchService=async()=>{
-      const res=await service()
+      const res=await getServicePage()
       setData(res?.data)
     }
     fetchService()
