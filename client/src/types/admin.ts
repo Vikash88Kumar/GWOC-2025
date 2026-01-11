@@ -7,7 +7,15 @@ export interface ContentSection {
   description?: string;
   image?: string;
   buttonText?: string;
-  items?: Array<{ id: string; title?: string; subtitle?: string; image?: string }>;
+  // items can represent lists such as projects, stats, or services; extended to support description and list bullets
+  items?: Array<{
+    id: string;
+    title?: string;
+    subtitle?: string;
+    image?: string;
+    description?: string;
+    list?: string[];
+  }>;
 }
 
 export interface Testimonial {

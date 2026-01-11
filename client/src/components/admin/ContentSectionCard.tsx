@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ContentSection } from '@/types/admin';
 import { useAdmin } from '@/contexts/AdminContext';
 import EditableField from './EditableField';
@@ -120,6 +120,29 @@ const ContentSectionCard: React.FC<ContentSectionCardProps> = ({ section }) => {
                       updateContentSection(section.id, { items: newItems });
                     }}
                   />
+
+                  {/* Description (multi-line) */}
+                  {item.description !== undefined && (
+                    <EditableField
+                      label="Description"
+                      type="textarea"
+                      value={item.description || ''}
+                      onSave={(description) => {
+                        const newItems = section.items!.map((it, i) => i === idx ? { ...it, description } : it);
+                        updateContentSection(section.id, { items: newItems });
+                      }}
+                    />
+                  )}
+
+                  {/* List of bullets */}
+                  {item.list !== undefined && (
+                    <ListEditor
+                      section={section}
+                      itemIndex={idx}
+                      item={item}
+                    />
+                  )}
+
                 </div>
                 <div className="flex flex-col gap-2">
                   <Button
@@ -156,5 +179,63 @@ const ContentSectionCard: React.FC<ContentSectionCardProps> = ({ section }) => {
     </div>
   );
 };
+
+
+// Inline ListEditor component to provide single-textarea list editing per-item
+function ListEditor({ section, itemIndex, item }: { section: ContentSection; itemIndex: number; item: any }) {
+  const { updateContentSection } = useAdmin();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [listText, setListText] = useState('');
+
+  const startEdit = () => {
+    setEditingId(item.id || itemIndex.toString());
+    setListText((item.list || []).join('\n'));
+  };
+
+  const save = () => {
+    const newList = listText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const newItems = section.items!.map((it, i) => (i === itemIndex ? { ...it, list: newList } : it));
+    updateContentSection(section.id, { items: newItems });
+    setEditingId(null);
+  };
+
+  const cancel = () => {
+    setEditingId(null);
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-muted-foreground block">List Items</label>
+      {editingId === (item.id || itemIndex.toString()) ? (
+        <div className="space-y-2">
+          <textarea
+            className="w-full rounded-md border p-3 font-sans text-sm"
+            rows={6}
+            value={listText}
+            onChange={(e) => setListText(e.target.value)}
+          />
+          <div className="flex gap-2">
+            <Button onClick={save}>Save</Button>
+            <Button variant="outline" onClick={cancel}>Cancel</Button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <ul className="list-disc ml-6 space-y-1">
+            {(item.list || []).map((li: string, i: number) => (
+              <li key={i} className="text-sm text-muted-foreground">{li}</li>
+            ))}
+          </ul>
+          <div className="mt-2">
+            <Button onClick={startEdit}>Edit List</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default ContentSectionCard;
