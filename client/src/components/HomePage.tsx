@@ -11,6 +11,7 @@ import Link from 'next/link';
 import {createTestimonial} from "../services/testimonial.api.js"
 import { gethomePage } from "../services/homepage.api.js"
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
+import { useAdmin } from '@/contexts/AdminContext';
 const HomePage = () => {
   const [data, setData] = useState({})
   useEffect(() => {
@@ -21,7 +22,10 @@ const HomePage = () => {
     fetchdata()
   }, [])
 
-  const projects = [
+  // Projects will come from AdminContext (editable in Content Editor). Falls back to static projects if not set.
+  const { contentSections, testimonials: adminTestimonials, addTestimonial } = useAdmin();
+  const projectsSection = contentSections.find(s => s.id === 'home-projects');
+  const projects = projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? [
     { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
     { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
     { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
@@ -64,43 +68,13 @@ const HomePage = () => {
     "/34.png",
     "/35.png",
   ];
-  const [testimonials, setTestimonials] = useState<Array<{ quote: string; name: string; designation?: string; src?: string }>>([
-    {
-      quote:
-        "The attention to detail and innovative features have completely transformed our workflow. This is exactly what we've been looking for.",
-      name: "Sarah Chen",
-      designation: "Product Manager at TechFlow",
-      src: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=3560&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      quote:
-        "Implementation was seamless and the results exceeded our expectations. The platform's flexibility is remarkable.",
-      name: "Michael Rodriguez",
-      designation: "CTO at InnovateSphere",
-      src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      quote:
-        "This solution has significantly improved our team's productivity. The intuitive interface makes complex tasks simple.",
-      name: "Emily Watson",
-      designation: "Operations Director at CloudScale",
-      src: "https://images.unsplash.com/photo-1623582854588-d60de57fa33f?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      quote:
-        "Outstanding support and robust features. It's rare to find a product that delivers on all its promises.",
-      name: "James Kim",
-      designation: "Engineering Lead at DataPro",
-      src: "https://images.unsplash.com/photo-1636041293178-808a6762ab39?q=80&w=3464&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      quote:
-        "The scalability and performance have been game-changing for our organization. Highly recommend to any growing business.",
-      name: "Lisa Thompson",
-      designation: "VP of Technology at FutureNet",
-      src: "https://images.unsplash.com/photo-1624561172888-ac93c696e10c?q=80&w=2592&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ]);
+  // Animated testimonials are derived from AdminContext testimonials so changes sync immediately
+  const animatedTestimonials = adminTestimonials.map(t => ({
+    quote: t.content,
+    name: t.clientName,
+    designation: `${t.clientRole}${t.clientCompany ? ' at ' + t.clientCompany : ''}`,
+    src: t.clientImage
+  }));
 
   const [clientName, setClientName] = useState('');
   const [role, setRole] = useState('');
@@ -116,22 +90,57 @@ const HomePage = () => {
       setTimeout(() => setReviewSuccess(''), 3000);
       return;
     }
-    const newTestimonial = {
-      clientName,
-      role,
-      company,
-      message,
-      star
-    };
-    await createTestimonial(newTestimonial)
 
-    // setTestimonials(prev => [newTestimonial, ...prev]);
+    const payload = { clientName, role, company, message, star };
+    try {
+      const res = await createTestimonial(payload);
+
+      if (res?.data) {
+        const t = res.data;
+        addTestimonial({
+          clientName: t.clientName || clientName,
+          clientRole: t.role || role || '',
+          clientCompany: t.company || company || '',
+          clientImage: '/placeholder-profile.png',
+          content: t.message || message,
+          rating: t.star || star || 5,
+          status: t.status || 'pending',
+          createdAt: t.createdAt || new Date().toISOString().split('T')[0],
+        });
+      } else {
+        // Fallback to local add if response not in expected shape
+        addTestimonial({
+          clientName,
+          clientRole: role || '',
+          clientCompany: company || '',
+          clientImage: '/placeholder-profile.png',
+          content: message,
+          rating: star || 5,
+          status: 'pending',
+          createdAt: new Date().toISOString().split('T')[0],
+        });
+      }
+    } catch (err) {
+      // Network or server error: still add locally so user sees immediate feedback
+      console.error('Failed to submit testimonial to server', err);
+      addTestimonial({
+        clientName,
+        clientRole: role || '',
+        clientCompany: company || '',
+        clientImage: '/placeholder-profile.png',
+        content: message,
+        rating: star || 5,
+        status: 'pending',
+        createdAt: new Date().toISOString().split('T')[0],
+      });
+    }
+
     setClientName('');
     setRole('');
     setCompany('');
     setMessage('');
     setStar(5);
-    setReviewSuccess('Thanks for your review!');
+    setReviewSuccess('Thanks for your review! It will appear after approval.');
     setTimeout(() => setReviewSuccess(''), 3000);
   };
 
@@ -306,7 +315,7 @@ const HomePage = () => {
       </section>
 
       {/* --- TESTIMONIALS SECTION --- */}
-      <AnimatedTestimonials testimonials={testimonials} />
+      <AnimatedTestimonials testimonials={animatedTestimonials} />
 
       {/* --- GIVE A REVIEW (FRONTEND ONLY) --- */}
       <section className="max-w-2xl mx-auto px-4 py-12">
@@ -359,15 +368,10 @@ const HomePage = () => {
       <section className="py-40 px-8 bg-[#e8e6d8] text-center">
         <h2 className="text-3xl italic mb-24 text-[#892f1a]">Our story in numbers</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
-          {[
-            { v: "15 +", l: "Industries Served" },
-            { v: "74", l: "Happy Clients" },
-            { v: "3,700+", l: "Paper Goods Sold" },
-            { v: "10,000+", l: "Online Community" }
-          ].map((stat, i) => (
-            <div key={i}>
-              <div className="text-6xl font-light mb-4 text-[#624a41]">{stat.v}</div>
-              <p className="font-sans text-[10px] uppercase tracking-[0.4em] font-black text-[#bdaf62]">{stat.l}</p>
+          {(contentSections.find(s => s.id === 'home-stats')?.items ?? []).map((stat, i) => (
+            <div key={stat.id || i}>
+              <div className="text-6xl font-light mb-4 text-[#624a41]">{stat.title}</div>
+              <p className="font-sans text-[10px] uppercase tracking-[0.4em] font-black text-[#bdaf62]">{stat.subtitle}</p>
             </div>
           ))}
         </div>
