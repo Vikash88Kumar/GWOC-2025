@@ -121,13 +121,39 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Map */}
+          {/* Map Section - Updated with your new link */}
           <div className="lg:col-span-4">
             <h3 className="font-display text-lg text-footer-heading mb-6">
               Find Us
             </h3>
-            <div className="h-48 lg:h-56 rounded-lg overflow-hidden">
-              {/* <FooterMap /> */}
+            <div className="block h-48 lg:h-56 rounded-lg overflow-hidden relative group border border-footer-border hover:border-footer-accent transition-colors bg-zinc-800">
+              
+              {/* Overlay link for full redirection */}
+              <a 
+                href="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7441.398740801756!2d72.79031357032989!3d21.164359014865383!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1768156130814!5m2!1sen!2sin" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="absolute inset-0 z-20 cursor-pointer"
+                title="Open in Google Maps"
+              ></a>
+
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7441.398740801756!2d72.79031357032989!3d21.164359014865383!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1768156130814!5m2!1sen!2sin" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen={true} 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                className="relative z-10"
+              ></iframe>
+
+              <div className="absolute bottom-3 right-3 z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="bg-zinc-900/90 px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-lg">
+                  <span className="text-[10px] font-medium uppercase text-white tracking-wider">Open Full Map</span>
+                  <ArrowUpRight className="w-3 h-3 text-footer-accent" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
