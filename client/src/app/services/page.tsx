@@ -4,7 +4,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, Instagram, Sparkles } from 'lucide-react';
-import {service} from "../../services/service.api.js"
+import { useAdmin } from '@/contexts/AdminContext';
+
 type Service = {
   id: string;
   title: string;
@@ -13,7 +14,7 @@ type Service = {
   image: string;
 };
 
-const SERVICES: Service[] = [
+const DEFAULT_SERVICES: Service[] = [
   {
     id: '01',
     title: 'Brand Identity',
@@ -169,7 +170,23 @@ function ServiceCard({ service }: { service: Service }) {
 export default function Page() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const total = SERVICES.length;
+  // Use services from AdminContext ('services-list'), fallback to DEFAULT_SERVICES
+  const { contentSections } = useAdmin();
+  const services = useMemo(() => {
+    const section = contentSections.find((s) => s.id === 'services-list');
+    if (section && section.items && section.items.length > 0) {
+      return section.items.map((it) => ({
+        id: it.id,
+        title: it.title || '',
+        description: it.description || '',
+        items: it.list || [],
+        image: it.image || '',
+      })) as Service[];
+    }
+    return DEFAULT_SERVICES;
+  }, [contentSections]);
+
+  const total = services.length;
   const endX = useMemo(() => `-${(total - 1) * 100}vw`, [total]);
 
   const { scrollYProgress } = useScroll({
@@ -183,14 +200,7 @@ export default function Page() {
   const progressW = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
 
 
-  const [data,setData]=useState({})
-  useEffect(()=>{
-    const fetchService=async()=>{
-      const res=await service()
-      setData(res?.data)
-    }
-    fetchService()
-  })
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -301,14 +311,14 @@ export default function Page() {
           </p>
         </div>
 
-        <div ref={containerRef} className="relative" style={{ height: `${SERVICES.length * 100}vh` }}>
+        <div ref={containerRef} className="relative" style={{ height: `${services.length * 100}vh` }}>
           <div className="sticky top-0 h-screen overflow-hidden">
             <div className="absolute left-0 right-0 top-0 z-20 h-[2px] bg-black/10">
               <motion.div style={{ width: progressW }} className="h-full bg-black/60" />
             </div>
 
             <motion.div style={{ x }} className="flex h-full will-change-transform">
-              {SERVICES.map((service) => (
+              {services.map((service) => (
                 <ServiceCard key={service.id} service={service} />
               ))}
             </motion.div>
