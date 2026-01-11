@@ -13,7 +13,7 @@ const Hero = () => {
           We use a CSS filter to turn the default white/blue beams into 
           a Dark Chocolate color to match your branding.
       */}
-      <div className="absolute inset-0 z-0 pointer-events-none brightness-[0.2] sepia-[1] hue-rotate-[330deg] saturate-[2] opacity-60">
+      <div className="absolute inset-0 z-0 pointer-events-none brightness-[0.2] sepia-[1] hue-rotate-[330deg] saturate-[2] opacity 200">
         <BackgroundBeams />
       </div>
 

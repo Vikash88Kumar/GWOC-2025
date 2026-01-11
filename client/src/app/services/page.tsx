@@ -207,7 +207,7 @@ export default function Page() {
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-                className="mb-6 inline-flex items-center gap-2 rounded-full bg-black/5 px-4 py-2 text-sm font-medium text-gray-900"
+                className="mb-6 inline-flex items-center gap-2 rounded-full bg-black/5 px-4 py-2 text-sm font-medium text-gray-900 bg-blue-400"
               >
                 <Sparkles className="h-4 w-4" />
                 Creative Branding Studio
@@ -232,7 +232,7 @@ export default function Page() {
                   <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-8 py-4 font-semibold text-white transition-all duration-300 hover:shadow-xl hover:shadow-black/10"
+                    className="inline-flex items-center gap-2 rounded-full bg-blue-400 px-8 py-4 font-semibold text-amber-950 transition-all duration-300 hover:shadow-xl hover:shadow-black/10"
                   >
                     View Our Services
                     <ArrowRight className="h-5 w-5" />
