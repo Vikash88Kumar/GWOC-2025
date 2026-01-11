@@ -12,6 +12,6 @@ router.post("/", submitContactForm);
 
 /* Admin */
 router.get("/", getAllMessages);
-router.post("/:id/respond", respondToMessage);
+router.patch("/:id/respond", respondToMessage);
 
 export default router;

@@ -1,81 +1,74 @@
 import mongoose from "mongoose";
 
-/* ---------------- HERO SECTION ---------------- */
-const HeroSchema = new mongoose.Schema(
-  {
-    videoUrl: { type: String, required: true },
-    imageUrl: { type: String, required: true},
-    headline: { type: String, required: true },
-    subText: { type: String },
-  },
-  { _id: false }
-);
+// Sub-schema for Project Items (e.g., Nandan Coffee, Mana)
+const ProjectItemSchema = new mongoose.Schema({
+  title: { type: String, required: true }, // e.g., "NANDAN COFFEE"
+  subtitle: { type: String, default: "" }, // e.g., "October 2023 - Ongoing"
+  image: { type: String, required: true }, // URL
+  order: { type: Number, default: 0 }
+});
 
-/* ---------------- INTRO SECTION ---------------- */
-// const IntroSchema = new mongoose.Schema(
-//   {
-//     title: { type: String, required: true },
-//     description: { type: String, required: true },
-//     rotatingText: { type: String },
-//   },
-//   { _id: false }
-// );
+// Sub-schema for Statistics (e.g., 50+ Clients)
+const StatItemSchema = new mongoose.Schema({
+  title: { type: String, required: true }, // e.g., "50+"
+  subtitle: { type: String, required: true }, // e.g., "HAPPY CLIENTS"
+  order: { type: Number, default: 0 }
+});
 
-/* ---------------- PROJECT / PORTFOLIO ---------------- */
-const ProjectSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    date: { type: String },
-    imageUrl: { type: String, required: true },
-    description: { type: String, required: true },
-    isActive: { type: Boolean, default: true },
-  },
-  { timestamps: true }
-);
-
-/* ---------------- STATS / NUMBERS ---------------- */
-const StatSchema = new mongoose.Schema(
-  {
-    value: { type: String, required: true },
-    label: { type: String, required: true },
-    order: { type: Number, default: 0 },
-  },
-  { _id: false }
-);
-
-/* ---------------- FOOTER ---------------- */
-// const FooterSchema = new mongoose.Schema(
-//   {
-//     heading: { type: String },
-//     emailPlaceholder: { type: String },
-//     instagramUrl: { type: String },
-//     facebookUrl: { type: String },
-//     linkedinUrl: { type: String },
-//   },
-//   { _id: false }
-// );
-
-/* ---------------- GALLERY / MARQUEE ---------------- */
-// const GalleryImageSchema = new mongoose.Schema(
-//   {
-//     imageUrl: { type: String, required: true },
-//     order: { type: Number, default: 0 },
-//     isActive: { type: Boolean, default: true },
-//   },
-//   { timestamps: true }
-// );
-
-/* ---------------- MAIN HOMEPAGE ---------------- */
 const HomePageSchema = new mongoose.Schema(
   {
-    hero: HeroSchema,
-    // intro: IntroSchema,
-    projects: [ProjectSchema],
-    stats: [StatSchema],
-    // footer: FooterSchema,
-    // galleryImages: [GalleryImageSchema],
+    // --- 1. HERO SECTION ---
+    hero: {
+      headline: { 
+        type: String, 
+        default: "Creating strategic, confident and timeless designs with you at the centre." 
+      },
+      subHeadline: { 
+        type: String, 
+        default: "We ensure your brand feels like home to those it serves." 
+      },
+      ctaText: { type: String, default: "Let's Get Started" },
+      ctaLink: { type: String, default: "/services" },
+      backgroundImage: { type: String, default: "" } // Optional: to make the main image dynamic
+    },
+
+    // --- 2. INTRO SECTION (Aceternity / Dotted BG area) ---
+    intro: {
+      heading: { type: String, default: "Ready to buy Aceternity Pro?" },
+      description: { type: String, default: "Unlock premium components..." },
+      floatingCircleText: { 
+        type: String, 
+        default: "Strategy Led • Detail Driven • Keeping You At The Centre" 
+      }
+    },
+
+    // --- 3. PROJECTS SECTION ---
+    projects: {
+      heading: { type: String, default: "Glimpse into our work" },
+      subHeading: { type: String, default: "Portfolio — 2026" },
+      items: [ProjectItemSchema]
+    },
+
+    // --- 4. STATS SECTION (Numbers) ---
+    stats: {
+      heading: { type: String, default: "Our story in numbers" },
+      items: [StatItemSchema]
+    },
+
+    // --- 5. FOOTER / MARQUEE SECTION ---
+    footer: {
+      heading: { type: String, default: "Ready to elevate your brand?" },
+      ctaText: { type: String, default: "Contact Us" },
+      // Array of image URLs for the 3D Marquee
+      marqueeImages: {
+        type: [String],
+        default: [
+          "/1.png", "/2.png", "/3.png", "/4.png", "/5.png"
+        ]
+      }
+    }
   },
   { timestamps: true }
 );
 
-export const HomePage = mongoose.model("HomePage", HomePageSchema);
+export const HomePage = mongoose.models.HomePage || mongoose.model("HomePage", HomePageSchema);

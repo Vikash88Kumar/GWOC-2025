@@ -1,8 +1,7 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
-import { useAdmin } from '@/contexts/AdminContext'
-import { Client } from '@/types/admin'
+import { Client } from '@/types/admin' // Ensure this type allows for optional fields if backend misses them
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
@@ -23,13 +22,19 @@ import {
   Send,
   Trash2,
   Search,
+  Loader2
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { Input } from '@/components/ui/input'
+// Import your API functions
+import { respondToMessage, getAllMessages } from "../../services/contact.api.js"
 
 const Clients: React.FC = () => {
-  const { clients, updateClient, deleteClient } = useAdmin()
   const { toast } = useToast()
+
+  // State for storing API data
+  const [clients, setClients] = useState<Client[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [responseText, setResponseText] = useState('')
@@ -38,15 +43,67 @@ const Clients: React.FC = () => {
   >('all')
   const [searchQuery, setSearchQuery] = useState('')
 
+  // 1. Fetch and Map Data from API
+  const fetchMessages = async () => {
+    setIsLoading(true)
+    try {
+      const res = await getAllMessages()
+      if (res && res.data && res.data.data) {
+        
+        // Map Backend MongoDB data to Frontend Client Interface
+        const mappedClients: Client[] = res.data.data.map((item: any) => ({
+          id: item._id,
+          name: `${item.firstName} ${item.lastName}`.trim(),
+          company: "Private Client", // Backend doesn't have company field, using default
+          email: item.email,
+          phone: "Not Provided", // Backend doesn't have phone field, using default
+          projectType: Array.isArray(item.services) ? item.services.join(", ") : "General",
+          // Infer status based on available data (since backend only has isRead)
+          status: item.adminResponse?.message ? 'completed' : (item.isRead ? 'in-progress' : 'new'),
+          createdAt: new Date(item.createdAt).toLocaleDateString("en-US", {
+             year: 'numeric', month: 'short', day: 'numeric' 
+          }),
+          message: item.message,
+          adminResponse: item.adminResponse?.message || "",
+          updatedAt: new Date(item.updatedAt).toLocaleTimeString(),
+          budget: item.budget, // Extra field
+          timeline: item.timeline // Extra field
+        }))
+
+        setClients(mappedClients)
+      }
+    } catch (error) {
+      console.error("Failed to fetch messages", error)
+      toast({ 
+        title: "Error fetching messages", 
+        description: "Could not load client data.",
+        variant: "destructive" 
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchMessages()
+  }, [])
+
+  // Sync response text when modal opens
+  useEffect(() => {
+    if (!selectedClient) return;
+    setResponseText(selectedClient.adminResponse || "");
+  }, [selectedClient]);
+
   const filteredClients = clients
     .filter((c) => filter === 'all' || c.status === filter)
     .filter(
       (c) =>
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.company.toLowerCase().includes(searchQuery.toLowerCase())
+        c.email.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-  // ✅ table badge colors (light background)
+  // Colors
   const statusColors: Record<string, string> = {
     new: 'bg-sky-500/10 text-sky-700 border-sky-200',
     'in-progress': 'bg-amber-500/10 text-amber-700 border-amber-200',
@@ -54,45 +111,65 @@ const Clients: React.FC = () => {
     archived: 'bg-slate-500/10 text-slate-700 border-slate-200',
   }
 
-  // ✅ modal header badge colors (dark background)
   const statusHeaderColors: Record<string, string> = {
     new: 'bg-sky-400/15 text-sky-100 border border-sky-300/25',
     'in-progress': 'bg-amber-400/15 text-amber-100 border border-amber-300/25',
-    completed:
-      'bg-emerald-400/15 text-emerald-100 border border-emerald-300/25',
+    completed: 'bg-emerald-400/15 text-emerald-100 border border-emerald-300/25',
     archived: 'bg-slate-300/10 text-slate-100 border border-slate-200/20',
   }
 
-  const handleStatusChange = (id: string, status: Client['status']) => {
-    updateClient(id, { status })
-    toast({ title: `Client status updated to ${status.replace('-', ' ')}` })
-  }
+  // 2. Handle Sending Response via API
+  const handleSendResponse = async () => {
+    if (!selectedClient || !responseText.trim()) return;
 
-  const handleSendResponse = () => {
-    if (selectedClient && responseText.trim()) {
-      updateClient(selectedClient.id, { adminResponse: responseText })
-      toast({ title: 'Response saved' })
-      setResponseText('')
-      setSelectedClient(null)
+    try {
+      // Call the API
+      // Note: Ensure your api function accepts (id, messageString) or adjust logic below
+      await respondToMessage(
+        selectedClient.id, 
+        responseText.trim() // Passing the message directly
+      );
+
+      toast({ title: 'Response sent successfully' });
+      
+      // Close modal
+      setSelectedClient(null);
+      setResponseText('');
+      
+      // Refresh list to show updated data
+      fetchMessages(); 
+
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: 'Failed to send response',
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
+  // Note: Delete API wasn't provided in snippet, keeping UI only or add logic later
   const handleDelete = (id: string) => {
-    deleteClient(id)
+    // await deleteMessage(id); 
+    setClients(clients.filter(c => c.id !== id))
     toast({ title: 'Client record removed', variant: 'destructive' })
   }
 
   const openClientDetail = (client: Client) => {
     setSelectedClient(client)
-    setResponseText(client.adminResponse || '')
   }
 
   const getInitials = (name: string) =>
     name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
+      ? name.split(' ').map((n) => n[0]).join('').toUpperCase().substring(0, 2)
+      : '??'
+
+  // Handling Status Change (Local update for now, unless backend supports status patch)
+  const handleStatusChange = (id: string, status: Client['status']) => {
+    setClients(prev => prev.map(c => c.id === id ? { ...c, status } : c))
+    // Add API call here if backend supports specific status updates
+    toast({ title: `Client status updated to ${status.replace('-', ' ')}` })
+  }
 
   return (
     <div className="p-6 lg:p-10 max-w-[1600px] mx-auto space-y-8">
@@ -160,6 +237,11 @@ const Clients: React.FC = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : (
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-muted/30">
@@ -198,25 +280,27 @@ const Clients: React.FC = () => {
                           {client.name}
                         </p>
                         <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
-                          <Building className="w-3 h-3" /> {client.company}
+                          <Mail className="w-3 h-3" /> {client.email}
                         </p>
                       </div>
                     </div>
                   </td>
 
                   <td className="py-5 px-6">
-                    <Badge
-                      variant="secondary"
-                      className="font-medium bg-white border border-border"
-                    >
-                      {client.projectType}
-                    </Badge>
+                    <div className='flex flex-col gap-1'>
+                        <Badge variant="secondary" className="font-medium bg-white border border-border w-fit">
+                        {client.projectType}
+                        </Badge>
+                        {(client as any).budget && (
+                             <span className='text-xs text-muted-foreground'>Budget: {(client as any).budget}</span>
+                        )}
+                    </div>
                   </td>
 
                   <td className="py-5 px-6">
                     <Badge
                       variant="outline"
-                      className={`rounded-md px-2 py-0.5 border ${statusColors[client.status]}`}
+                      className={`rounded-md px-2 py-0.5 border ${statusColors[client.status] || statusColors['new']}`}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-current mr-2" />
                       {client.status.replace('-', ' ')}
@@ -255,9 +339,10 @@ const Clients: React.FC = () => {
               ))}
             </tbody>
           </table>
+          )}
         </div>
 
-        {filteredClients.length === 0 && (
+        {!isLoading && filteredClients.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="bg-muted/50 p-4 rounded-full mb-4">
               <Search className="w-8 h-8 text-muted-foreground/50" />
@@ -270,7 +355,7 @@ const Clients: React.FC = () => {
         )}
       </div>
 
-      {/* ✅ Modal (FIXED: scrollable + fits viewport) */}
+      {/* Modal */}
       <Dialog
         open={!!selectedClient}
         onOpenChange={(open) => {
@@ -294,13 +379,14 @@ const Clients: React.FC = () => {
                     </DialogTitle>
 
                     <p className="text-slate-300 mt-2 flex items-center gap-2">
-                      <Building className="w-4 h-4" />
-                      <span className="truncate">{selectedClient.company}</span>
+                       <span className='text-sm opacity-80'>Budget: {(selectedClient as any).budget}</span>
+                       <span className='text-slate-500'>|</span>
+                       <span className='text-sm opacity-80'>Timeline: {(selectedClient as any).timeline}</span>
                     </p>
                   </div>
 
                   <Badge
-                    className={`px-4 py-1.5 text-sm capitalize ${statusHeaderColors[selectedClient.status]}`}
+                    className={`px-4 py-1.5 text-sm capitalize ${statusHeaderColors[selectedClient.status] || statusHeaderColors['new']}`}
                   >
                     {selectedClient.status.replace('-', ' ')}
                   </Badge>
@@ -328,13 +414,16 @@ const Clients: React.FC = () => {
                           <span className="truncate">{selectedClient.email}</span>
                         </a>
 
-                        <a
-                          href={`tel:${selectedClient.phone}`}
-                          className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/40 transition-colors"
-                        >
-                          <Phone className="w-4 h-4 text-muted-foreground" />
-                          <span className="truncate">{selectedClient.phone}</span>
-                        </a>
+                         {/* Only show phone if it exists and isn't the default */}
+                        {selectedClient.phone !== "Not Provided" && (
+                            <a
+                            href={`tel:${selectedClient.phone}`}
+                            className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/40 transition-colors"
+                            >
+                            <Phone className="w-4 h-4 text-muted-foreground" />
+                            <span className="truncate">{selectedClient.phone}</span>
+                            </a>
+                        )}
                       </div>
                     </div>
 
@@ -390,7 +479,7 @@ const Clients: React.FC = () => {
 
                     <div className="flex items-center justify-between pt-2">
                       <span className="text-[10px] text-muted-foreground">
-                        Last updated: {selectedClient.updatedAt}
+                        Last updated: {selectedClient.updatedAt || "Just now"}
                       </span>
 
                       <Button

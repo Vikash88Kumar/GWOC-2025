@@ -9,14 +9,14 @@ import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import Link from 'next/link';
 import {createTestimonial} from "../services/testimonial.api.js"
-import { gethomePage } from "../services/homepage.api.js"
+import { getHomePage } from "../services/homepage.api.js"
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
 import { useAdmin } from '@/contexts/AdminContext';
 const HomePage = () => {
   const [data, setData] = useState({})
   useEffect(() => {
     const fetchdata = async () => {
-      const res = await gethomePage()
+      const res = await getHomePage()
       setData(res)
     }
     fetchdata()

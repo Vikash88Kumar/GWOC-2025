@@ -46,19 +46,23 @@ export const updateServiceHero = asyncHandler(async (req, res) => {
 });
 
 export const updateServicesList = asyncHandler(async (req, res) => {
+  // 1. Validation
   if (!Array.isArray(req.body)) {
     throw new ApiError(400, "Services must be an array");
   }
 
+  // 2. Update logic
   const page = await ServicePage.findOneAndUpdate(
     {},
-    { $set: { services: req.body } },
+    // CHANGE THIS: 'services' -> 'servicesList'
+    { $set: { servicesList: req.body } }, 
     { new: true, runValidators: true, upsert: true }
   );
 
+  // 3. Return correct field
   return res
     .status(200)
-    .json(new ApiResponse(200, page.services, "Services updated"));
+    .json(new ApiResponse(200, page.servicesList, "Services updated"));
 });
 
 export const updateServiceProcess = asyncHandler(async (req, res) => {

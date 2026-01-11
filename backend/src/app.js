@@ -23,7 +23,7 @@ app.get("/",(req,res)=>{
 })
 
 //routes import 
-// import userRouter from "./routes/user.routes.js"
+import userRouter from "./routes/user.routes.js"
 import enquiryRouter from "./routes/enquiryForm.routes.js"
 import homepageRouter from "./routes/homepage.routes.js"
 import founderRouter from "./routes/founder.routes.js"
@@ -34,7 +34,7 @@ import contactmessageRouter from "./routes/contact.routes.js"
 import testimonialRouter from "./routes/testimonial.routes.js"
 //routes declare
 
-// app.use("/api/v1/users", userRouter)
+app.use("/api/v1/users", userRouter)
 app.use("/api/v1/enquiry",enquiryRouter)
 app.use("/api/v1/homepage",homepageRouter)
 app.use("/api/v1/founderpage",founderRouter)

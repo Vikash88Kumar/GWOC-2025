@@ -2,15 +2,17 @@ import mongoose from "mongoose";
 
 const TestimonialSchema = new mongoose.Schema(
   {
-    // user: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "User",
-    //   required: true
-    // },
+    // --- 1. JOIN WITH USER TABLE ---
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Must match the model name "User" exactly
+      required: false // False allows Admin to manually add testimonials without a User ID
+    },
 
+    // --- 2. REVIEW CONTENT ---
     clientName: {
       type: String,
-      required: true,
+      required: true, // We still require this as a fallback or snapshot
       trim: true
     },
 
@@ -22,6 +24,11 @@ const TestimonialSchema = new mongoose.Schema(
     company: {
       type: String,
       default: ""
+    },
+
+    clientImage: {
+      type: String,
+      default: "" // Can store a manual URL or be populated from user.avatar
     },
 
     message: {
@@ -37,6 +44,7 @@ const TestimonialSchema = new mongoose.Schema(
       required: true
     },
 
+    // --- 3. ADMIN CONTROLS ---
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

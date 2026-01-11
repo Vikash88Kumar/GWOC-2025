@@ -1,18 +1,17 @@
 import { Testimonial } from "../models/Testimonial.model.js";
+import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 export const toggleTestimonialActive = asyncHandler(async (req, res) => {
   const { id } = req.params;
-   const {status}=req.body 
   const testimonial = await Testimonial.findById(id);
   if (!testimonial) {
     throw new ApiError(404, "Testimonial not found");
   }
-
-  testimonial.status=status
-  testimonial.isActive = !testimonial.isActive;
+  testimonial.status==="rejected"? testimonial.status="approved": testimonial.status="rejected"
+  testimonial.isActive =  !testimonial.isActive;
   await testimonial.save();
 
   return res.status(200).json(
@@ -33,7 +32,7 @@ export const rejectTestimonial = asyncHandler(async (req, res) => {
   }
 
   testimonial.status="rejected"
-  testimonial.isActive = !testimonial.isActive;
+  testimonial.isActive = "false";
   await testimonial.save();
 
   return res.status(200).json(
@@ -46,48 +45,29 @@ export const rejectTestimonial = asyncHandler(async (req, res) => {
 });
 
 export const createTestimonial = asyncHandler(async (req, res) => {
-  const {
-    clientName,
-    role,
-    company,
-    message,    
-    star
-  } = req.body;
+  const { clientName, role, company, message, star } = req.body;
 
-  if ( !clientName || !message || !star) {
-    throw new ApiError(400, "Required fields are missing");
-  }
-
-  const testimonial = await Testimonial.create({
-    clientName,
+  const newTestimonial = await Testimonial.create({
+    user: req.user?._id, // Save the User ID if they are logged in
+    clientName: clientName || req.user?.fullName, // Use input or fallback to User profile
     role,
-    company,
+    company: company || req.user?.companyName,
     message,
-    star,
-    status: "pending",
-    isActive: false
+    star
   });
 
   return res.status(201).json(
-    new ApiResponse(
-      201,
-      testimonial,
-      "Testimonial created successfully"
-    )
+    new ApiResponse(201, newTestimonial, "Review submitted successfully")
   );
 });
 
-export const getAllTestimonials = asyncHandler(async (req, res) => {
+export const getTestimonials = asyncHandler(async (req, res) => {
   const testimonials = await Testimonial.find()
-    .populate("user", "name email")
-    .sort({ createdAt: -1 });
+    .populate("user", "fullName avatar companyName") // <--- THE JOIN
+    .sort({ order: 1, createdAt: -1 });
 
   return res.status(200).json(
-    new ApiResponse(
-      200,
-      testimonials,
-      "Testimonials fetched successfully"
-    )
+    new ApiResponse(200, testimonials, "Fetched successfully")
   );
 });
 

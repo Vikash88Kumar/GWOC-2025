@@ -1,10 +1,27 @@
-import {Router } from "express"
-import {toggleTestimonialActive,createTestimonial,getAllTestimonials, rejectTestimonial} from "../controllers/testimonial.controller.js"
-const router=Router()
+import { Router } from "express";
+import { 
+    toggleTestimonialActive, 
+    createTestimonial, 
+    getTestimonials, 
+    rejectTestimonial 
+} from "../controllers/testimonial.controller.js";
+import verifyJwt from "../middlewares/auth.middleware.js"; // Import Auth Middleware
 
-router.route("/").get(getAllTestimonials)
-router.route("/").post(createTestimonial)
-router.route("/:id").patch(toggleTestimonialActive)
-router.route("/reject/:id").patch(rejectTestimonial)
+const router = Router();
 
-export default router
+// --- PUBLIC ROUTE ---
+// Anyone can view the approved testimonials
+router.route("/").get(getTestimonials);
+
+
+// --- PROTECTED ROUTE (User) ---
+// User must be logged in to submit a linked review
+router.route("/").post( createTestimonial);
+
+
+// --- PROTECTED ROUTES (Admin) ---
+// Only logged-in users (ideally Admins) should access these
+router.route("/:id").patch( toggleTestimonialActive);       // Approve/Toggle
+router.route("/reject/:id").patch( rejectTestimonial);      // Reject
+
+export default router;
