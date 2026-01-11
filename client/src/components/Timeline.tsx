@@ -1,52 +1,69 @@
 'use client';
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { Rocket, Users, Award, Globe, Sparkles, TrendingUp } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useRef } from "react";
+import { useAdmin } from "@/contexts/AdminContext";
 
-const milestones = [
+interface Milestone {
+  year: string;
+  title: string;
+  description: string;
+  image?: string;
+  highlight?: string;
+}
+
+const defaultMilestones: Milestone[] = [
   {
     year: "2018",
     title: "The Beginning",
     description: "Founded with a vision to revolutionize brand storytelling. Started with just 3 passionate creatives.",
-    icon: Rocket,
+    image: undefined,
     highlight: "butter",
   },
+
   {
     year: "2019",
     title: "First Major Client",
     description: "Landed our first enterprise client, delivering a complete brand transformation that increased their market presence by 200%.",
-    icon: Award,
+    image: undefined,
     highlight: "electric",
   },
+
   {
     year: "2020",
     title: "Team Expansion",
     description: "Grew to 15 team members. Pivoted to remote-first culture, expanding our talent pool globally.",
-    icon: Users,
+    image: undefined,
     highlight: "butter",
   },
+
   {
     year: "2021",
     title: "Going Global",
     description: "Opened virtual offices across 3 continents. Served clients in 12+ countries with localized marketing strategies.",
-    icon: Globe,
+    image: undefined,
     highlight: "electric",
   },
+
   {
     year: "2023",
     title: "Innovation Award",
     description: "Recognized as 'Most Innovative Marketing Agency' for our AI-powered design solutions.",
-    icon: Sparkles,
+    image: undefined,
     highlight: "butter",
   },
+
   {
     year: "2024",
     title: "New Horizons",
     description: "Launching new service verticals and partnerships. 50+ happy clients and counting.",
-    icon: TrendingUp,
+    image: undefined,
     highlight: "electric",
   },
+
 ];
+
+
 
 const Timeline = () => {
   const containerRef = useRef(null);
@@ -62,6 +79,25 @@ const Timeline = () => {
     damping: 30,
     restDelta: 0.001
   });
+
+  // Load timeline content from AdminContext when available
+  let milestones = defaultMilestones;
+  try {
+    const { contentSections } = useAdmin();
+    const section = contentSections.find(s => s.id === 'story-timeline');
+    if (section && section.items && section.items.length > 0) {
+      milestones = section.items.map(item => ({
+        year: item.subtitle || '',
+        title: item.title || '',
+        description: item.description || '',
+        image: item.image,
+        // keep highlight optional if later added
+        highlight: (item as any).highlight,
+      }));
+    }
+  } catch (e) {
+    // AdminProvider might not be present in some contexts - fall back to defaults
+  }
 
   return (
     <section
@@ -127,7 +163,7 @@ const Timeline = () => {
           <div className="space-y-24 md:space-y-40">
             {milestones.map((milestone, index) => (
               <motion.div
-                key={milestone.year}
+                key={`${milestone.year}-${index}`}
                 initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
@@ -140,15 +176,22 @@ const Timeline = () => {
                 <div className={`md:w-1/2 ${index % 2 === 0 ? "md:pr-20 md:text-right" : "md:pl-20 text-left"}`}>
                   <div className="group relative p-10 rounded-[2.5rem] bg-[#3D3735] shadow-2xl transition-transform hover:scale-[1.02] duration-500 overflow-hidden">
                     {/* Subtle Overlay Glow */}
-                    <div className={`absolute -right-10 -top-10 w-32 h-32 blur-[50px] opacity-20 group-hover:opacity-40 transition-opacity
-                      ${milestone.highlight === 'butter' ? 'bg-[#FAF089]' : 'bg-[#BEE3F8]'}`} 
-                    />
+                    {(() => {
+                      const highlight = milestone.highlight || (index % 2 === 0 ? 'butter' : 'electric');
+                      return (
+                        <>
+                          <div className={`absolute -right-10 -top-10 w-32 h-32 blur-[50px] opacity-20 group-hover:opacity-40 transition-opacity
+                            ${highlight === 'butter' ? 'bg-[#FAF089]' : 'bg-[#BEE3F8]'}`} 
+                          />
 
-                    <span className={`text-5xl font-black tracking-tighter ${
-                      milestone.highlight === 'butter' ? 'text-[#FAF089]' : 'text-[#BEE3F8]'
-                    }`}>
-                      {milestone.year}
-                    </span>
+                          <span className={`text-5xl font-black tracking-tighter ${
+                            highlight === 'butter' ? 'text-[#FAF089]' : 'text-[#BEE3F8]'
+                          }`}>
+                            {milestone.year}
+                          </span>
+                        </>
+                      );
+                    })()}
                     <h3 className="mt-4 mb-4 text-2xl font-bold text-white tracking-tight">
                       {milestone.title}
                     </h3>
@@ -166,9 +209,13 @@ const Timeline = () => {
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
                     className={`w-16 h-16 rounded-full flex items-center justify-center bg-white shadow-xl border-[3px]
-                    ${milestone.highlight === 'butter' ? 'border-[#FAF089] text-[#3D3735]' : 'border-[#90CDF4] text-[#3D3735]'}`}
+                    ${ (milestone.highlight || (index % 2 === 0 ? 'butter' : 'electric')) === 'butter' ? 'border-[#FAF089] text-[#3D3735]' : 'border-[#90CDF4] text-[#3D3735]'}`}
                   >
-                    <milestone.icon className="w-7 h-7" />
+                    {milestone.image ? (
+                      <img src={milestone.image} alt={milestone.title} className="w-8 h-8 object-cover rounded-full" />
+                    ) : (
+                      <Sparkles className="w-7 h-7" />
+                    )}
                   </motion.div>
                 </div>
 
