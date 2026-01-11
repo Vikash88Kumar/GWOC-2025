@@ -16,11 +16,11 @@ const HomePage = () => {
   useEffect(() => {
     const fetchdata = async () => {
       const res = await gethomePage()
-      setData(res?.data)
+      setData(res)
     }
     fetchdata()
   }, [])
-
+  console.log(data)
   const projects = [
     { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
     { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
