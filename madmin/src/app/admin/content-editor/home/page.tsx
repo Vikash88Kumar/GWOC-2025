@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Plus, Trash2, Edit2, Image as ImageIcon, ArrowRight } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit2, Image as ImageIcon } from 'lucide-react';
 
 export default function HomeAdminView() {
   const { toast } = useToast();
@@ -27,16 +27,22 @@ export default function HomeAdminView() {
   const refreshData = async () => {
     try {
       const res = await getHomePage();
-      // Ensure safe defaults
+      
+      // The backend response structure is { data: { hero: ..., intro: ... } }
+      // We need to access res.data to get to the inner object
+      const backendData = res.data || {};
+
       const cleanData = {
-          hero: res.data?.hero || {},
-          intro: res.data?.intro || {},
-          projects: res.data?.projects || { items: [] },
-          stats: res.data?.stats || { items: [] },
-          footer: res.data?.footer || { marqueeImages: [] }
+          hero: backendData.hero || {},
+          intro: backendData.intro || {},
+          projects: backendData.projects || { items: [] },
+          stats: backendData.stats || { items: [] },
+          footer: backendData.footer || { marqueeImages: [] }
       };
+      
       setData(cleanData);
     } catch (e) {
+      console.error(e);
       toast({ title: "Error loading data", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -45,7 +51,8 @@ export default function HomeAdminView() {
 
   useEffect(() => { refreshData(); }, []);
 
-  if (loading || !data) return <div className="flex justify-center p-20"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
+  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
+  if (!data) return <div className="p-20 text-center">No data found. Check API connection.</div>;
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 pb-20 p-6 bg-slate-50/50">
@@ -122,11 +129,22 @@ function HeroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
     setSaving(true);
     try {
       await updateHomeHero(form);
-      toast({ title: "Hero updated" });
+      toast({ title: "Hero updated successfully" });
       onRefresh();
-    } catch (e) { toast({ title: "Failed", variant: "destructive" }); }
+    } catch (e) { toast({ title: "Failed to update Hero", variant: "destructive" }); }
     finally { setSaving(false); }
   };
+
+  // Helper to handle Array <-> String conversion for images
+  const handleImageChange = (val: string) => {
+    // Split by comma and trim whitespace to create array
+    const arr = val.split(',').map(s => s.trim()).filter(Boolean);
+    setForm({ ...form, backgroundImage: arr });
+  };
+
+  const displayImages = Array.isArray(form.backgroundImage) 
+    ? form.backgroundImage.join(', ') 
+    : form.backgroundImage;
 
   return (
     <div className="space-y-6">
@@ -135,7 +153,7 @@ function HeroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
              <div className="space-y-2">
                 <Label>Main Headline</Label>
                 <Textarea 
-                   value={form.headline} 
+                   value={form.headline || ''} 
                    onChange={e => setForm({...form, headline: e.target.value})} 
                    className="font-bold text-2xl"
                    rows={3}
@@ -144,24 +162,30 @@ function HeroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
              <div className="space-y-2">
                 <Label>Sub Headline</Label>
                 <Textarea 
-                   value={form.subHeadline} 
+                   value={form.subHeadline || ''} 
                    onChange={e => setForm({...form, subHeadline: e.target.value})} 
                 />
              </div>
           </div>
           <div className="space-y-4">
              <div className="space-y-2">
-                <Label>Background Image URL</Label>
-                <Input value={form.backgroundImage} onChange={e => setForm({...form, backgroundImage: e.target.value})} placeholder="https://..." />
+                <Label>Background Image URLs (Comma separated)</Label>
+                <Textarea 
+                  value={displayImages || ''} 
+                  onChange={e => handleImageChange(e.target.value)} 
+                  placeholder="https://img1.com, https://img2.com" 
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground">The backend expects multiple images. Separate URLs with commas.</p>
              </div>
              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                    <Label>CTA Text</Label>
-                   <Input value={form.ctaText} onChange={e => setForm({...form, ctaText: e.target.value})} />
+                   <Input value={form.ctaText || ''} onChange={e => setForm({...form, ctaText: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                    <Label>CTA Link</Label>
-                   <Input value={form.ctaLink} onChange={e => setForm({...form, ctaLink: e.target.value})} />
+                   <Input value={form.ctaLink || ''} onChange={e => setForm({...form, ctaLink: e.target.value})} />
                 </div>
              </div>
           </div>
@@ -199,21 +223,21 @@ function IntroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) 
           <div className="space-y-4">
              <div className="space-y-2">
                 <Label>Heading</Label>
-                <Input value={form.heading} onChange={e => setForm({...form, heading: e.target.value})} className="font-bold text-lg"/>
+                <Input value={form.heading || ''} onChange={e => setForm({...form, heading: e.target.value})} className="font-bold text-lg"/>
              </div>
              <div className="space-y-2">
                 <Label>Description</Label>
-                <Textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={4}/>
+                <Textarea value={form.description || ''} onChange={e => setForm({...form, description: e.target.value})} rows={4}/>
              </div>
           </div>
           <div className="space-y-2">
              <Label>Floating Circle Text</Label>
              <div className="p-8 border rounded-xl flex items-center justify-center bg-muted/20">
-                <div className="w-32 h-32 border-2 border-dashed rounded-full flex items-center justify-center p-2 text-center text-xs">
-                   {form.floatingCircleText}
+                <div className="w-32 h-32 border-2 border-dashed rounded-full flex items-center justify-center p-4 text-center text-xs font-mono">
+                   {form.floatingCircleText || 'Preview'}
                 </div>
              </div>
-             <Input value={form.floatingCircleText} onChange={e => setForm({...form, floatingCircleText: e.target.value})} />
+             <Input value={form.floatingCircleText || ''} onChange={e => setForm({...form, floatingCircleText: e.target.value})} />
           </div>
        </div>
        <div className="flex justify-end">
@@ -246,29 +270,26 @@ function ProjectsEditor({ data, onRefresh }: { data: any, onRefresh: () => void 
   };
 
   const saveItem = () => {
-     let newItems = [...(form.items || [])];
-     if(editingItem._tempId) { // New Item
-        const { _tempId, ...rest } = editingItem;
-        newItems.push(rest);
-     } else { // Update existing
-        // Simple replace logic based on index if no IDs, or update logic
-        // For simplicity, if we are editing an index, we need to track it
-        // Ideally backend provides _id. Assuming editingItem has _id if existing.
-        if (editingItem._id) {
-            newItems = newItems.map(i => i._id === editingItem._id ? editingItem : i);
-        } else {
-            // Fallback: If we opened via index tracking (requires state change), 
-            // easier to push new for now in this snippet or use ID from DB.
-            newItems.push(editingItem); // This might duplicate if logic isn't perfect without IDs
-        }
-     }
-     setForm({ ...form, items: newItems });
-     setIsModalOpen(false);
+      let newItems = [...(form.items || [])];
+      
+      // If we are updating an existing item (has _id)
+      if (editingItem._id) {
+         newItems = newItems.map(i => i._id === editingItem._id ? editingItem : i);
+      } 
+      // If it's a new item (has _tempId but no _id from DB)
+      else if (editingItem._tempId) {
+         const { _tempId, ...rest } = editingItem;
+         newItems.push(rest);
+      }
+
+      setForm({ ...form, items: newItems });
+      setIsModalOpen(false);
   };
 
-  // Helper to open edit
   const openEdit = (item: any) => { setEditingItem({...item}); setIsModalOpen(true); };
-  const openAdd = () => { setEditingItem({ _tempId: Date.now(), title: "", subtitle: "", image: "" }); setIsModalOpen(true); };
+  
+  // Use a tempId for new items so React lists don't break before DB assigns _id
+  const openAdd = () => { setEditingItem({ _tempId: Date.now(), title: "", subtitle: "", image: "", order: form.items.length + 1 }); setIsModalOpen(true); };
   
   const removeItem = (idx: number) => {
       const newItems = form.items.filter((_:any, i:number) => i !== idx);
@@ -280,17 +301,17 @@ function ProjectsEditor({ data, onRefresh }: { data: any, onRefresh: () => void 
        <div className="grid md:grid-cols-2 gap-4 bg-muted/20 p-4 rounded-lg">
           <div className="space-y-1">
              <Label>Section Heading</Label>
-             <Input value={form.heading} onChange={e => setForm({...form, heading: e.target.value})} />
+             <Input value={form.heading || ''} onChange={e => setForm({...form, heading: e.target.value})} />
           </div>
           <div className="space-y-1">
              <Label>Sub Heading</Label>
-             <Input value={form.subHeading} onChange={e => setForm({...form, subHeading: e.target.value})} />
+             <Input value={form.subHeading || ''} onChange={e => setForm({...form, subHeading: e.target.value})} />
           </div>
        </div>
 
        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {form.items?.map((item: any, idx: number) => (
-             <div key={idx} className="relative group border rounded-lg overflow-hidden bg-slate-50">
+             <div key={item._id || idx} className="relative group border rounded-lg overflow-hidden bg-slate-50">
                 <div className="h-32 bg-slate-200 relative">
                    {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover"/> : <div className="h-full flex items-center justify-center text-muted-foreground"><ImageIcon/></div>}
                    <div className="absolute top-1 right-1 flex gap-1">
@@ -318,10 +339,23 @@ function ProjectsEditor({ data, onRefresh }: { data: any, onRefresh: () => void 
           <DialogContent>
              <DialogHeader><DialogTitle>Edit Project</DialogTitle></DialogHeader>
              <div className="space-y-3 py-2">
-                <Input placeholder="Title (e.g. Nandan Coffee)" value={editingItem?.title || ''} onChange={e => setEditingItem({...editingItem, title: e.target.value})} />
-                <Input placeholder="Subtitle (e.g. Date/Type)" value={editingItem?.subtitle || ''} onChange={e => setEditingItem({...editingItem, subtitle: e.target.value})} />
-                <Input placeholder="Image URL" value={editingItem?.image || ''} onChange={e => setEditingItem({...editingItem, image: e.target.value})} />
-                <Button onClick={saveItem} className="w-full">Update List (Click Save Projects to Commit)</Button>
+                <div>
+                    <Label>Title</Label>
+                    <Input placeholder="e.g. Nandan Coffee" value={editingItem?.title || ''} onChange={e => setEditingItem({...editingItem, title: e.target.value})} />
+                </div>
+                <div>
+                    <Label>Subtitle/Category</Label>
+                    <Input placeholder="e.g. Brand Identity" value={editingItem?.subtitle || ''} onChange={e => setEditingItem({...editingItem, subtitle: e.target.value})} />
+                </div>
+                <div>
+                    <Label>Image URL</Label>
+                    <Input placeholder="https://..." value={editingItem?.image || ''} onChange={e => setEditingItem({...editingItem, image: e.target.value})} />
+                </div>
+                <div>
+                    <Label>Order</Label>
+                    <Input type="number" value={editingItem?.order || 0} onChange={e => setEditingItem({...editingItem, order: parseInt(e.target.value)})} />
+                </div>
+                <Button onClick={saveItem} className="w-full mt-4">Update List</Button>
              </div>
           </DialogContent>
        </Dialog>
@@ -350,31 +384,37 @@ function StatsEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) 
   };
 
   const handleItemChange = (idx: number, field: string, val: string) => {
-     const newItems = [...form.items];
-     newItems[idx] = { ...newItems[idx], [field]: val };
-     setForm({ ...form, items: newItems });
+      const newItems = [...form.items];
+      newItems[idx] = { ...newItems[idx], [field]: val };
+      setForm({ ...form, items: newItems });
   };
 
-  const addItem = () => setForm({ ...form, items: [...form.items, { title: "00", subtitle: "LABEL" }] });
+  const addItem = () => setForm({ ...form, items: [...form.items, { title: "00", subtitle: "LABEL", order: form.items.length + 1 }] });
   const removeItem = (idx: number) => setForm({ ...form, items: form.items.filter((_:any, i:number) => i !== idx) });
 
   return (
     <div className="space-y-6">
        <div className="space-y-2">
           <Label>Section Heading</Label>
-          <Input value={form.heading} onChange={e => setForm({...form, heading: e.target.value})} />
+          <Input value={form.heading || ''} onChange={e => setForm({...form, heading: e.target.value})} />
        </div>
        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {form.items?.map((item: any, idx: number) => (
-             <div key={idx} className="border p-4 rounded-lg relative bg-slate-50">
+             <div key={item._id || idx} className="border p-4 rounded-lg relative bg-slate-50">
                 <Button size="icon" variant="ghost" className="absolute top-1 right-1 h-6 w-6 text-destructive" onClick={() => removeItem(idx)}><Trash2 className="w-3 h-3"/></Button>
                 <div className="space-y-2 mt-2">
-                   <Input placeholder="Value (e.g. 50+)" value={item.title} onChange={e => handleItemChange(idx, 'title', e.target.value)} className="font-bold text-lg"/>
-                   <Input placeholder="Label (e.g. CLIENTS)" value={item.subtitle} onChange={e => handleItemChange(idx, 'subtitle', e.target.value)} className="text-xs uppercase"/>
+                   <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Value</Label>
+                        <Input placeholder="e.g. 50+" value={item.title} onChange={e => handleItemChange(idx, 'title', e.target.value)} className="font-bold text-lg"/>
+                   </div>
+                   <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Label</Label>
+                        <Input placeholder="e.g. CLIENTS" value={item.subtitle} onChange={e => handleItemChange(idx, 'subtitle', e.target.value)} className="text-xs uppercase"/>
+                   </div>
                 </div>
              </div>
           ))}
-          <Button variant="outline" className="h-full min-h-[120px] border-dashed" onClick={addItem}><Plus className="w-6 h-6 mr-2"/> Add Stat</Button>
+          <Button variant="outline" className="h-full min-h-[140px] border-dashed" onClick={addItem}><Plus className="w-6 h-6 mr-2"/> Add Stat</Button>
        </div>
        <div className="flex justify-end">
           <Button onClick={handleSave} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>} Save Stats</Button>
@@ -404,8 +444,8 @@ function FooterEditor({ data, onRefresh }: { data: any, onRefresh: () => void })
   };
 
   const handleImagesChange = (val: string) => {
-     const urls = val.split('\n').map(s => s.trim()).filter(Boolean);
-     setForm({ ...form, marqueeImages: urls });
+      const urls = val.split('\n').map(s => s.trim()).filter(Boolean);
+      setForm({ ...form, marqueeImages: urls });
   };
 
   return (
@@ -414,18 +454,18 @@ function FooterEditor({ data, onRefresh }: { data: any, onRefresh: () => void })
           <div className="space-y-4">
              <div className="space-y-2">
                 <Label className="text-slate-300">Heading</Label>
-                <Input value={form.heading} onChange={e => setForm({...form, heading: e.target.value})} className="bg-slate-800 border-slate-700 text-white font-bold text-2xl" />
+                <Input value={form.heading || ''} onChange={e => setForm({...form, heading: e.target.value})} className="bg-slate-800 border-slate-700 text-white font-bold text-2xl" />
              </div>
              <div className="space-y-2">
                 <Label className="text-slate-300">CTA Button Text</Label>
-                <Input value={form.ctaText} onChange={e => setForm({...form, ctaText: e.target.value})} className="bg-slate-800 border-slate-700 text-white" />
+                <Input value={form.ctaText || ''} onChange={e => setForm({...form, ctaText: e.target.value})} className="bg-slate-800 border-slate-700 text-white" />
              </div>
           </div>
           <div className="space-y-2">
              <Label className="text-slate-300">Marquee Images (One URL per line)</Label>
              <Textarea 
                 rows={6}
-                value={form.marqueeImages?.join('\n')} 
+                value={form.marqueeImages?.join('\n') || ''} 
                 onChange={e => handleImagesChange(e.target.value)}
                 className="bg-slate-800 border-slate-700 text-white font-mono text-xs"
                 placeholder="https://..."
