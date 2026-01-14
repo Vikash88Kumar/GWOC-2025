@@ -7,7 +7,8 @@ import {
     changeCurrentPassword, 
     getCurrentUser, 
     updateAccountDetails, 
-    updateUserAvatar 
+    updateUserAvatar, 
+    verifyOTP
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import verifyJwt from "../middlewares/auth.middleware.js";
@@ -23,7 +24,7 @@ router.route("/register").post(
     ]),
     registerUser
 );
-
+router.route("/verify-otp").post(verifyOTP)
 router.route("/login").post(loginUser);
 router.route("/refresh-token").post(refreshAccessToken);
 

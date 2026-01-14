@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
         {/* LOGO SECTION */}
         <Link href="/" className="flex items-center gap-3 shrink-0 pointer-events-auto">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black font-black text-sm overflow-hidden">
-            <img src="https://media.istockphoto.com/id/1421948749/vector/simple-star-vector-black-line-icon-isolated.jpg?s=612x612&w=0&k=20&c=EKleOC6kVhNH7qh2S6ZcVZ4jb7zdrRnCAMtoPfgPdWQ=" alt="Logo" width={20} height={20} />
+            <img src="./mark logo.png" alt="Logo" width={20} height={20} />
           </div>
           <AnimatePresence mode="popLayout">
             {!scrolled && (
@@ -75,9 +75,8 @@ const Navbar: React.FC = () => {
               <Link
                 key={item.label}
                 href={item.path}
-                className={`relative py-2 transition-colors duration-300 ${
-                  isActive ? 'text-black' : 'hover:text-black'
-                }`}
+                className={`relative py-2 transition-colors duration-300 ${isActive ? 'text-black' : 'hover:text-black'
+                  }`}
               >
                 {item.label}
                 {isActive && (
@@ -97,27 +96,26 @@ const Navbar: React.FC = () => {
           <AnimatePresence>
             {!scrolled && (
               <Link href="/userRegistration">
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="hidden sm:block text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white px-4"
-              >
-                Login
-              </motion.button>
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="hidden sm:block text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white px-4"
+                >
+                  Login
+                </motion.button>
               </Link>
             )}
           </AnimatePresence>
           <Link href="/admindashboard">
-          <button
-            className={`px-6 h-9 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${
-              scrolled
-                ? 'bg-zinc-800 text-white border border-white/10 hover:bg-white hover:text-black'
-                : 'bg-white text-black hover:bg-zinc-200'
-            }`}
-          >
-            {scrolled ? "Join" : "Book a call"}
-          </button>
+            <button
+              className={`px-6 h-9 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${scrolled
+                  ? 'bg-zinc-800 text-white border border-white/10 hover:bg-white hover:text-black'
+                  : 'bg-white text-black hover:bg-zinc-200'
+                }`}
+            >
+              {scrolled ? "Join" : "Book a call"}
+            </button>
           </Link>
         </div>
       </motion.nav>

@@ -3,7 +3,40 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { sendEmail } from "../utils/sendEmail.js"; // Importing your email utility
 import jwt from "jsonwebtoken";
+
+// --- HELPER: Generate Numeric OTP ---
+const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// --- HELPER: Send OTP Email ---
+const sendOTPEmail = async (email, otp) => {
+    try {
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                <h2 style="color: #2563eb;">Verify Your Account</h2>
+                <p>Thanks for joining ODE Studio! To complete your registration, please use the following verification code:</p>
+                <div style="background: #f4f4f4; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                    <h1 style="margin: 0; color: #333; letter-spacing: 5px;">${otp}</h1>
+                </div>
+                <p>This code will expire in 10 minutes.</p>
+                <p style="font-size: 12px; color: #666;">If you didn't request this, please ignore this email.</p>
+            </div>
+        `;
+
+        await sendEmail({
+            to: email,
+            subject: "Your Verification Code - ODE Studio",
+            html: htmlContent
+        });
+    } catch (error) {
+        console.error("Email send failed:", error);
+        // We log but don't crash the app here, though you might want to throw if email is critical
+        throw new ApiError(500, "Failed to send verification email.");
+    }
+};
 
 // --- HELPER: Generate Tokens ---
 const generateAccessRefreshToken = async (userId) => {
@@ -21,29 +54,25 @@ const generateAccessRefreshToken = async (userId) => {
     }
 };
 
-// --- REGISTER USER ---
+// --- 1. REGISTER USER ---
 const registerUser = asyncHandler(async (req, res) => {
-    // 1. Get data from body (Matching new Model)
     const { firstName, lastName, email, password, companyName, website, phone, industry } = req.body;
 
-    // 2. Validation
     if ([firstName, email, password].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "First Name, Email, and Password are required");
     }
 
-    // 3. Check if user exists
     const existedUser = await User.findOne({ email });
     if (existedUser) {
         throw new ApiError(409, "User with this email already exists");
     }
 
-    // 4. Handle Avatar Upload (Optional)
     let avatarLocalPath;
     if (req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
         avatarLocalPath = req.files.avatar[0].path;
     }
 
-    let avatarUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // Default
+    let avatarUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
     if (avatarLocalPath) {
         const avatar = await uploadOnCloudinary(avatarLocalPath);
         if (avatar) {
@@ -51,7 +80,10 @@ const registerUser = asyncHandler(async (req, res) => {
         }
     }
 
-    // 5. Create User
+    // Generate OTP
+    const otp = generateOTP();
+    const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+
     const user = await User.create({
         firstName,
         lastName: lastName || "",
@@ -62,22 +94,109 @@ const registerUser = asyncHandler(async (req, res) => {
         website: website || "",
         industry: industry || "",
         phone: phone || "",
-        role: "USER" // Default role
+        role: "USER",
+        otp,
+        otpExpiry
     });
 
-    // 6. Return Response (exclude sensitive data)
-    const createdUser = await User.findById(user._id).select("-password -refreshToken");
+    const createdUser = await User.findById(user._id).select("-password -refreshToken -otp");
 
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering the user");
     }
 
+    // Send Email
+    await sendOTPEmail(email, otp);
+
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered successfully")
+        new ApiResponse(200, createdUser, "User registered successfully. Please check your email for verification code.")
     );
 });
 
-// --- LOGIN USER ---
+// --- 2. VERIFY OTP ---
+const verifyOTP = asyncHandler(async (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        throw new ApiError(400, "Email and OTP are required");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (user.isVerified) {
+         throw new ApiError(400, "User is already verified");
+    }
+
+    if (user.otp !== otp) {
+        throw new ApiError(400, "Invalid OTP");
+    }
+
+    if (Date.now() > user.otpExpiry) {
+        throw new ApiError(400, "OTP has expired");
+    }
+
+    // Success: Clear OTP and verify
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    // Auto-login
+    const { accessToken, refreshToken } = await generateAccessRefreshToken(user._id);
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken -otp");
+
+    const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    };
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                { user: loggedInUser, accessToken, refreshToken },
+                "Account verified and logged in successfully"
+            )
+        );
+});
+
+// --- 3. RESEND OTP ---
+const resendOTP = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        throw new ApiError(400, "Email is required");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (user.isVerified) {
+        throw new ApiError(400, "Account is already verified");
+    }
+
+    const otp = generateOTP();
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 10 * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    await sendOTPEmail(email, otp);
+
+    return res.status(200).json(new ApiResponse(200, {}, "OTP sent successfully"));
+});
+
+// --- 4. LOGIN USER ---
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -85,28 +204,28 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Email and Password are required");
     }
 
-    // 1. Find User by Email
-    const user = await User.findOne({ email }).select("+password"); // explicitly select password for check
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
         throw new ApiError(404, "User does not exist");
     }
 
-    // 2. Check Password
     const isPasswordValid = await user.isPasswordCorrect(password);
     if (!isPasswordValid) {
         throw new ApiError(401, "Invalid user credentials");
     }
 
-    // 3. Generate Tokens
-    const { accessToken, refreshToken } = await generateAccessRefreshToken(user._id);
+    if (!user.isVerified) {
+        throw new ApiError(403, "Account is not verified. Please verify your email.");
+    }
 
+    const { accessToken, refreshToken } = await generateAccessRefreshToken(user._id);
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     const options = {
         httpOnly: true,
         secure: true,
-        sameSite: "none", // Adjust based on your environment (dev vs prod)
+        sameSite: "none",
     };
 
     return res
@@ -126,12 +245,12 @@ const loginUser = asyncHandler(async (req, res) => {
         );
 });
 
-// --- LOGOUT USER ---
+// --- 5. STANDARD LOGOUT ---
 const logout = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: { refreshToken: undefined } // or null
+            $set: { refreshToken: undefined }
         },
         { new: true }
     );
@@ -149,7 +268,7 @@ const logout = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "User logged out"));
 });
 
-// --- REFRESH TOKEN ---
+// --- 6. REFRESH TOKEN ---
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
@@ -192,7 +311,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 });
 
-// --- CHANGE PASSWORD ---
+// --- 7. ACCOUNT MANAGEMENT ---
 const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
@@ -213,14 +332,12 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
-// --- GET CURRENT USER ---
 const getCurrentUser = asyncHandler(async (req, res) => {
     return res.status(200).json(
         new ApiResponse(200, req.user, "Current user fetched successfully")
     );
 });
 
-// --- UPDATE ACCOUNT DETAILS (Profile + Business) ---
 const updateAccountDetails = asyncHandler(async (req, res) => {
     const { firstName, lastName, email, companyName, website, industry, phone } = req.body;
 
@@ -249,7 +366,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user, "Account details updated successfully"));
 });
 
-// --- UPDATE AVATAR ---
 const updateUserAvatar = asyncHandler(async (req, res) => {
     const avatarLocalPath = req.file?.path;
 
@@ -281,6 +397,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 export {
     registerUser,
     loginUser,
+    verifyOTP,
+    resendOTP,
     logout,
     refreshAccessToken,
     changeCurrentPassword,

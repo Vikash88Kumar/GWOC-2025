@@ -12,7 +12,7 @@ export const sendEmail = async ({ to, subject, html }) => {
   });
 
   await transporter.sendMail({
-    from: `"ODE Studio" <${process.env.SMTP_USER}>`,
+    from: `"BLOOM BRANDING" <${process.env.SMTP_USER}>`,
     to,
     subject,
     html

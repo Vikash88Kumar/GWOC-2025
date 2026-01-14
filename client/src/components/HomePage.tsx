@@ -8,23 +8,41 @@ import { BackgroundLines } from '@/components/ui/background-lines';
 import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import Link from 'next/link';
-import {createTestimonial} from "../services/testimonial.api.js"
+// IMPORT getTestimonials HERE
+import { createTestimonial, getAllTestimonials } from "../services/testimonial.api.js"
 import { getHomePage } from "../services/homepage.api.js"
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
-import { useAdmin } from '@/contexts/AdminContext';
+import { useAdmin } from "@/contexts/AdminContext";
+
 const HomePage = () => {
   const [data, setData] = useState<any>({});
+  // State to store testimonials fetched from Backend
+  const [dbTestimonials, setDbTestimonials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getHomePage();
-        // getHomePage returns axios res.data by design; normalize to the inner `data` if present
-        setData(res?.data ?? res);
+        // Run both fetches in parallel
+        const [homeRes, testimonialRes] = await Promise.all([
+          getHomePage(),
+          getAllTestimonials()
+        ]);
+
+        // 1. Handle Homepage Data
+        setData(homeRes?.data ?? homeRes);
+
+        // 2. Handle Testimonial Data
+        // specific to your backend: res.status(200).json(new ApiResponse(..., data, ...))
+        if (testimonialRes?.data?.data) {
+           setDbTestimonials(testimonialRes.data.data);
+        } else if (Array.isArray(testimonialRes?.data)) {
+           setDbTestimonials(testimonialRes.data);
+        }
+
       } catch (err) {
-        console.error('Failed to fetch homepage:', err);
+        console.error('Failed to fetch data:', err);
         setError(String(err));
       } finally {
         setLoading(false);
@@ -33,7 +51,8 @@ const HomePage = () => {
 
     fetchData();
   }, []);
-  // Projects will come from AdminContext (editable in Content Editor). Falls back to static projects if not set.
+
+  // Projects from AdminContext
   const { contentSections, testimonials: adminTestimonials, addTestimonial } = useAdmin();
   const projectsSection = contentSections.find(s => s.id === 'home-projects');
   const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' }));
@@ -45,50 +64,35 @@ const HomePage = () => {
         { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
         { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
       ]);
+  
   const images =  [
-    "/1.png",
-    "/2.png",
-    "/3.png",
-    "/4.png",
-    "/5.png",
-    "/6.png",
-    "/7.png",
-    "/8.png",
-    "/9.png",
-    "/10.png",
-    "/11.png",
-    "/12.png",
-    "/13.png",
-    "/14.png",
-    "/15.png",
-    "/16.png",
-    "/17.png",
-    "/18.png",
-    "/19.png",
-    "/20.png",
-    "/21.png",
-    "/22.png",
-    "/23.png",
-    "/24.png",
-    "/25.png",
-    "/26.png",
-    "/27.png",
-    "/28.png",
-    "/29.png",
-    "/30.png",
-    "/31.png",
-    "/32.png",
-    "/33.png",
-    "/34.png",
-    "/35.png",
+    "/1.png", "/2.png", "/3.png", "/4.png", "/5.png", "/6.png", "/7.png", "/8.png", "/9.png", "/10.png",
+    "/11.png", "/12.png", "/13.png", "/14.png", "/15.png", "/16.png", "/17.png", "/18.png", "/19.png", "/20.png",
+    "/21.png", "/22.png", "/23.png", "/24.png", "/25.png", "/26.png", "/27.png", "/28.png", "/29.png", "/30.png",
+    "/31.png", "/32.png", "/33.png", "/34.png", "/35.png",
   ];
-  // Animated testimonials are derived from AdminContext testimonials so changes sync immediately
-  const animatedTestimonials = adminTestimonials.map(t => ({
-    quote: t.content,
-    name: t.clientName,
-    designation: `${t.clientRole}${t.clientCompany ? ' at ' + t.clientCompany : ''}`,
-    src: t.clientImage
-  }));
+
+  // --- MERGE LOGIC ---
+  // Prioritize DB testimonials. If DB is empty (loading or no data), fall back to Admin Context.
+  const sourceTestimonials = dbTestimonials.length > 0 ? dbTestimonials : adminTestimonials;
+
+  // Map backend data to UI component structure
+  const animatedTestimonials = sourceTestimonials.map(t => {
+    // 1. Check for populated User object (from backend: .populate("user"))
+    // 2. Fallback to flat fields (e.g., clientName) if user object doesn't exist or for anonymous reviews
+    const name = t.user?.fullName || t.clientName || "Client";
+    const company = t.user?.companyName || t.company || t.clientCompany || "";
+    const role = t.role || t.clientRole || "";
+    const content = t.message || t.content || ""; 
+    const image = t.user?.avatar || t.clientImage || '/placeholder-profile.png';
+
+    return {
+      quote: content,
+      name: name,
+      designation: `${role}${company ? ' at ' + company : ''}`,
+      src: image
+    };
+  });
 
   const [clientName, setClientName] = useState('');
   const [role, setRole] = useState('');
@@ -111,6 +115,7 @@ const HomePage = () => {
 
       if (res?.data) {
         const t = res.data;
+        // Optimistically add to UI via Context (optional, since we now fetch from DB)
         addTestimonial({
           clientName: t.clientName || clientName,
           clientRole: t.role || role || '',
@@ -121,8 +126,12 @@ const HomePage = () => {
           status: t.status || 'pending',
           createdAt: t.createdAt || new Date().toISOString().split('T')[0],
         });
+        
+        // Optionally refresh DB list
+        // const newDetails = await getTestimonials();
+        // setDbTestimonials(newDetails.data.data);
+
       } else {
-        // Fallback to local add if response not in expected shape
         addTestimonial({
           clientName,
           clientRole: role || '',
@@ -135,7 +144,6 @@ const HomePage = () => {
         });
       }
     } catch (err) {
-      // Network or server error: still add locally so user sees immediate feedback
       console.error('Failed to submit testimonial to server', err);
       addTestimonial({
         clientName,
@@ -269,34 +277,10 @@ const HomePage = () => {
 
           {/* LEFT SIDE: STICKY HEADER */}
           <div className="md:w-1/3 pr-8">
-  <div className="sticky top-32 flex justify-center">
-    
-    {/* Circle Container */}
-    /*<div className="
-      w-64 h-64 md:w-80 md:h-80
-      rounded-full
-      bg-[#624a41]
-      border border-[#bdaf62]/60
-      flex flex-col items-center justify-center
-      text-center
-      px-6
-      shadow-xl
-      hover:scale-105 transition-transform duration-300
-    ">
-      
-      <h2 className="text-3xl md:text-4xl italic font-light leading-tight mb-4 text-[#e8e6d8]">
-        Glimpse into<br />our work
-      </h2>
-
-      <div className="w-12 h-px bg-[#892f1a] mb-4"></div>
-
-      <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-[#bdaf62]">
-        Portfolio — 2026
-      </p>
-    </div>
-
-  </div>
-</div>
+            <div className="sticky top-32 flex justify-center">
+             {/* Sticky Header Content (Commented out in original) */}
+            </div>
+        </div>
 
 
           {/* RIGHT SIDE: VERTICAL SCROLLING IMAGES */}
@@ -310,15 +294,6 @@ const HomePage = () => {
                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                 className="group"
               >
-                {/* <div className="relative aspect-16/11 overflow-hidden bg-[#e8e6d8]/5 mb-10">
-                  <motion.img
-                    whileHover={{ scale: 1.08 }}
-                    transition={{ duration: 0.9 }}
-                    src={proj.img}
-                    alt={proj.title}
-                    className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
-                  />
-                </div> */}
                 <CardContainer className="inter-var md:w-full w-auto h-auto perspective-1000px">
                   <CardBody className="bg-tranparent-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/10 dark:bg-black dark:border-white/[0.20rder-yellow/[0.1] w-auto md:w-full sm:w-[30rem120o rounded-xl p-6 border  ">
 
@@ -326,15 +301,7 @@ const HomePage = () => {
                     <CardItem translateZ="100" className="w-full h-64 mt-4">
                       <img
                         src={proj.img}
-                        className="
-    h-64
-    sm:h-64
-    md:h-72
-    w-full
-    object-cover
-    rounded-xl
-    group-hover/card:shadow-xl
-  "
+                        className="h-64 sm:h-64 md:h-72 w-full object-cover rounded-xl group-hover/card:shadow-xl"
                         alt="thumbnail"
                       />
                     </CardItem>

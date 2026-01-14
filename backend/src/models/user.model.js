@@ -21,61 +21,68 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true, 
+      index: true,
     },
     avatar: {
       type: String, // Cloudinary URL
       default: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
     },
 
-    // --- 2. BUSINESS IDENTITY (Crucial for Services) ---
+    // --- 2. BUSINESS IDENTITY ---
     companyName: {
       type: String,
       trim: true,
-      default: "", // Can be empty if they are an individual
+      default: "",
     },
     website: {
       type: String,
       trim: true,
     },
     industry: {
-      type: String, // e.g., "Fashion", "Tech", "F&B"
+      type: String,
       trim: true,
     },
     phone: {
       type: String,
       trim: true,
     },
-    
+
     // --- 3. SECURITY & ROLES ---
     password: {
       type: String,
       required: [true, "Password is required"],
       minlength: 6,
-      select: false, // Never return password in API responses by default
+      select: false,
     },
     role: {
       type: String,
-      enum: ["USER", "ADMIN", "CLIENT"], 
+      enum: ["USER", "ADMIN", "CLIENT"],
       default: "USER",
     },
     isVerified: {
       type: Boolean,
-      default: false, // For email verification logic
+      default: false,
     },
     refreshToken: {
       type: String,
     },
 
-    // --- 4. OPTIONAL: PAYMENT INFO ---
-    // Never store card details directly. Store the Stripe/Razorpay Customer ID.
+    // --- 4. OTP FIELDS (New) ---
+    otp: {
+      type: String, 
+    },
+    otpExpiry: {
+      type: Date,
+    },
+
+    // --- 5. OPTIONAL: PAYMENT INFO ---
     paymentCustomerId: {
       type: String,
       select: false,
     }
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt
+    timestamps: true,
   }
 );
 
@@ -83,9 +90,9 @@ const userSchema = new mongoose.Schema(
 
 // 1. Encrypt password before saving
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) return;
+  if (!this.isModified("password")) return ;
   this.password = await bcrypt.hash(this.password, 10);
-  ;
+  
 });
 
 // 2. Method to check password
@@ -93,7 +100,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-// 3. Generate Access Token (Short lived)
+// 3. Generate Access Token
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
@@ -108,7 +115,7 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
-// 4. Generate Refresh Token (Long lived)
+// 4. Generate Refresh Token
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
