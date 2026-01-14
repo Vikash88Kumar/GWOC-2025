@@ -68,15 +68,16 @@ const Navbar: React.FC = () => {
         </Link>
 
         {/* CENTER LINKS (Desktop) */}
-        <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-900">
+        <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-[0.2em] text-gray-500">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             return (
               <Link
                 key={item.label}
                 href={item.path}
-                className={`relative py-2 transition-colors duration-300 ${isActive ? 'text-black' : 'hover:text-black'
-                  }`}
+                className={`relative py-2 transition-colors duration-300 ${
+                  isActive ? 'text-white' : 'hover:text-gray-500'
+                }`}
               >
                 {item.label}
                 {isActive && (
@@ -92,7 +93,7 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* ACTION BUTTONS */}
-        <div className="flex items-center gap-3 shrink-0">
+         <div className="flex items-center gap-3 shrink-0">
           <AnimatePresence>
             {!scrolled && (
               <Link href="/userRegistration">
@@ -107,17 +108,8 @@ const Navbar: React.FC = () => {
               </Link>
             )}
           </AnimatePresence>
-          <Link href="/admindashboard">
-            <button
-              className={`px-6 h-9 text-[11px] font-bold uppercase tracking-widest rounded-full transition-all duration-300 ${scrolled
-                  ? 'bg-zinc-800 text-white border border-white/10 hover:bg-white hover:text-black'
-                  : 'bg-white text-black hover:bg-zinc-200'
-                }`}
-            >
-              {scrolled ? "Join" : "Book a call"}
-            </button>
-          </Link>
-        </div>
+          
+        </div> 
       </motion.nav>
     </header>
   );
