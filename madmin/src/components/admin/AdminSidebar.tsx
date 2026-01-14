@@ -11,6 +11,7 @@ import {
   Settings,
   Star,
 } from "lucide-react";
+import { logout } from "@/services/user.api";
 
 const AdminSidebar: React.FC = () => {
   const navItems = [
@@ -26,6 +27,14 @@ const AdminSidebar: React.FC = () => {
   ];
 
   const pathname = usePathname() || "/";
+  const handelLogout=async()=>{
+   try {
+     const res=await logout()
+     return res
+   } catch (error) {
+    console.log("logout failed",error)
+   }
+  }
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-72 border-r border-border bg-gradient-to-b from-background via-background to-muted/30">
@@ -146,7 +155,7 @@ const AdminSidebar: React.FC = () => {
         </div>
       </nav>
       <div className="absolute bottom-0 left-0 w-full p-4 border-t border-border bg-background/60 backdrop-blur">
-      
+      <button onClick={handelLogout}>logout</button>
         <Link
           href="/adminsetting"
           className={[
@@ -167,6 +176,7 @@ const AdminSidebar: React.FC = () => {
           />
           <span className="font-medium">Settings</span>
         </Link>
+        
       </div>
     </aside>
   );

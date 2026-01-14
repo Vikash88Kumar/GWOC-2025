@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import {useDispatch} from "react-redux"
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -33,8 +34,8 @@ import AnimatedInput from "./AnimatedInput";
 
 // --- SERVICES (The file from the previous step) ---
 // Adjust this path if your file is in a different folder
-import { register, login, verifyOTP, resendOTP } from "../../services/user.api.js"; 
-
+import { register, login , verifyOTP, resendOTP } from "../../services/user.api.js"; 
+import {login as authlogin} from "../../contextapi/authSlice"
 interface FormData {
   firstName: string;
   lastName: string;
@@ -88,6 +89,7 @@ const AuthPage = () => {
   // --- API ACTIONS ---
 
   // 1. LOGIN
+  const dispatch=useDispatch()
   const handleLogin = async () => {
     setIsLoading(true);
     try {
@@ -105,7 +107,8 @@ const AuthPage = () => {
       console.log("Logged in user:", response.data);
       
       // Redirect to dashboard
-      router.push("/dashboard");
+      dispatch(authlogin(response.data.data))
+      router.push("/");
 
     } catch (error: any) {
       toast({

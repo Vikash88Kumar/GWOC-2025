@@ -2,9 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import {useDispatch } from "react-redux"
+import {useRouter} from "next/navigation"
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, Transition } from 'framer-motion';
-
+import {logout as authlogout} from "../contextapi/authSlice"
+import { logout } from '@/services/user.api';
 interface NavItem {
   path: string;
   label: string;
@@ -31,6 +34,18 @@ const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  const router=useRouter()
+    const dispatch=useDispatch()
+    const handelLogout=async()=>{
+    try {
+     const res=await logout()
+     dispatch(authlogout())
+     router.push("/login")
+     return res
+   } catch (error) {
+    console.log("logout failed",error)
+   }
+  }
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex justify-center pointer-events-none">
@@ -96,7 +111,7 @@ const Navbar: React.FC = () => {
          <div className="flex items-center gap-3 shrink-0">
           <AnimatePresence>
             {!scrolled && (
-              <Link href="/userRegistration">
+              <Link href="/login">
                 <motion.button
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -108,7 +123,7 @@ const Navbar: React.FC = () => {
               </Link>
             )}
           </AnimatePresence>
-          
+          <button onClick={handelLogout}>logout</button>
         </div> 
       </motion.nav>
     </header>

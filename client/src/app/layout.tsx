@@ -1,10 +1,12 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer";
 import { AdminProvider } from "@/contexts/AdminContext";
-
+import StoreProvider from "./StoreProvider";
+import AuthWrapper from "@/components/AuthWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,16 +41,24 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${interFont.variable} antialiased`}
       >
+        <StoreProvider>
         <AdminProvider>
+          <AuthWrapper>
           <Navbar/>
         {children}
         <Footer/>
+        </AuthWrapper>
         </AdminProvider>
+        
+        </StoreProvider>
       </body>
     </html>
   );
