@@ -7,7 +7,8 @@ import {
   updateFounderStory, 
   updateFounderValues, 
   updateFounderMilestones, 
-  updateFounderConnect 
+  updateFounderConnect,
+  updateFounderAwards 
 } from '../../../../services/founder.api.js';
 
 import { Button } from '@/components/ui/button';
@@ -15,10 +16,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Plus, Trash2, Heart, Lightbulb, Users, Rocket, Twitter, Linkedin, Instagram, Mail } from 'lucide-react';
-
-// Icon mapping for preview
-const IconMap: Record<string, any> = { Heart, Lightbulb, Users, Rocket, Twitter, Linkedin, Instagram, Mail };
+import { 
+  Loader2, Save, Plus, Trash2, Heart, Lightbulb, Users, Rocket, 
+  Twitter, Linkedin, Instagram, Mail, Trophy, Sparkles 
+} from 'lucide-react';
 
 export default function FounderAdminView() {
   const { toast } = useToast();
@@ -68,6 +69,14 @@ export default function FounderAdminView() {
       <section className="relative border-2 border-dashed border-primary/20 rounded-xl p-8 bg-white">
         <div className="absolute top-4 left-4 bg-primary/10 text-primary px-2 py-1 text-xs font-mono uppercase rounded">Core Values</div>
         <ValuesEditor data={data.values} onRefresh={refreshData} />
+      </section>
+
+      {/* ================= AWARDS SECTION ================= */}
+      <section className="relative border-2 border-dashed border-primary/20 rounded-xl p-8 bg-white">
+        <div className="absolute top-4 left-4 bg-primary/10 text-primary px-2 py-1 text-xs font-mono uppercase rounded flex items-center gap-2">
+           <Trophy className="w-3 h-3" /> Awards & Recognition
+        </div>
+        <AwardsEditor data={data.awards} onRefresh={refreshData} />
       </section>
 
       {/* ================= MILESTONES SECTION ================= */}
@@ -276,7 +285,7 @@ function ValuesEditor({ data, onRefresh }: { data: any[], onRefresh: () => void 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateFounderValues(items); // Sending array directly based on controller
+      await updateFounderValues(items);
       toast({ title: "Values updated" });
       onRefresh();
     } catch (e) { toast({ title: "Failed", variant: "destructive" }); }
@@ -324,7 +333,105 @@ function ValuesEditor({ data, onRefresh }: { data: any[], onRefresh: () => void 
 }
 
 // ------------------------------------------------------------------
-// 4. MILESTONES EDITOR
+// 4. AWARDS EDITOR
+// ------------------------------------------------------------------
+function AwardsEditor({ data, onRefresh }: { data: any[], onRefresh: () => void }) {
+  const { toast } = useToast();
+  const [items, setItems] = useState(data || []);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { setItems(data || []) }, [data]);
+
+  const handleChange = (index: number, field: string, value: string) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
+  };
+
+  const addItem = () => setItems([...items, { year: new Date().getFullYear().toString(), title: "New Award", description: "Award description..." }]);
+  const removeItem = (index: number) => setItems(items.filter((_, i) => i !== index));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await updateFounderAwards(items); 
+      toast({ title: "Awards updated successfully" });
+      onRefresh();
+    } catch (e) { 
+      toast({ title: "Failed to update awards", variant: "destructive" }); 
+    } finally { 
+      setSaving(false); 
+    }
+  };
+
+  return (
+    <div className="pt-8 space-y-6">
+      <div className="grid md:grid-cols-2 gap-6">
+        {items.map((item, idx) => (
+          <div key={idx} className="relative group p-6 border rounded-xl bg-slate-50/50 hover:bg-white hover:shadow-sm transition-all">
+             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => removeItem(idx)}>
+                   <Trash2 className="w-4 h-4" />
+                </Button>
+             </div>
+
+             <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="w-1/3 space-y-1.5">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">Year</Label>
+                    <Input 
+                      className="font-mono font-bold text-amber-900 bg-white" 
+                      value={item.year} 
+                      onChange={e => handleChange(idx, 'year', e.target.value)} 
+                    />
+                  </div>
+                  <div className="w-2/3 space-y-1.5">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider">Award Title</Label>
+                    <Input 
+                      className="font-bold bg-white" 
+                      value={item.title} 
+                      onChange={e => handleChange(idx, 'title', e.target.value)} 
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                   <Label className="text-xs text-muted-foreground uppercase tracking-wider">Description</Label>
+                   <Textarea 
+                      rows={2} 
+                      className="resize-none bg-white text-sm" 
+                      value={item.description} 
+                      onChange={e => handleChange(idx, 'description', e.target.value)} 
+                   />
+                </div>
+             </div>
+          </div>
+        ))}
+
+        <Button 
+          variant="outline" 
+          className="h-full min-h-[200px] border-dashed flex flex-col gap-2 text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5" 
+          onClick={addItem}
+        >
+           <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center mb-2">
+             <Plus className="w-6 h-6" />
+           </div>
+           <span>Add New Award</span>
+        </Button>
+      </div>
+
+      <div className="flex justify-end pt-4 border-t">
+        <Button onClick={handleSave} disabled={saving} className="bg-amber-900 hover:bg-amber-800">
+          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} 
+          <Save className="mr-2 h-4 w-4" /> Save Awards Section
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------
+// 5. MILESTONES EDITOR
 // ------------------------------------------------------------------
 function MilestonesEditor({ data, onRefresh }: { data: any[], onRefresh: () => void }) {
   const { toast } = useToast();
@@ -387,7 +494,7 @@ function MilestonesEditor({ data, onRefresh }: { data: any[], onRefresh: () => v
 }
 
 // ------------------------------------------------------------------
-// 5. CONNECT EDITOR
+// 6. CONNECT EDITOR
 // ------------------------------------------------------------------
 function ConnectEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
   const { toast } = useToast();

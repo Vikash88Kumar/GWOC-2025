@@ -2,45 +2,93 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import Link from 'next/link';
-import { Heart, Lightbulb, Users, Rocket, Twitter, Linkedin, Instagram, Mail, ArrowRight, Trophy, Star, Sparkles } from "lucide-react";
+import { 
+  Heart, Lightbulb, Users, Rocket, Twitter, Linkedin, Instagram, Mail, 
+  ArrowRight, Trophy, Star, Sparkles, Brain 
+} from "lucide-react";
 
-const DEFAULT_VALUES = [
-  {
-    icon: Heart,
-    title: 'Authenticity',
-    description: 'Being genuine in every interaction, building trust through transparency and honesty.',
-  },
-  {
-    icon: Lightbulb,
-    title: 'Innovation',
-    description: 'Constantly pushing boundaries to find creative solutions that make real impact.',
-  },
-  {
-    icon: Users,
-    title: 'Community',
-    description: 'Fostering connections and lifting others up. Success is better when shared.',
-  },
-  {
-    icon: Rocket,
-    title: 'Excellence',
-    description: 'Never settling for good enough. Every detail matters in the pursuit of greatness.',
-  },
-];
+// --- 1. YOUR BACKEND DATA (Simulating the API response) ---
+const BACKEND_DATA = {
+    "statusCode": 200,
+    "data": {
+        "hero": {
+            "role": "Founder & Creative Director",
+            "firstName": "Elena",
+            "lastName": "Vance",
+            "tagline": "Crafting narratives that bridge the gap between strategic thinking and artistic expression.",
+            "experienceYears": 8,
+            "profileImage": "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1000&auto=format&fit=crop"
+        },
+        "story": {
+            "quote": "Design is not just about how it looks, but how it works and how it makes people feel.",
+            "paragraphs": [
+                "My journey began not in a design studio, but with a sketchbook and a fascination for how colors influence emotions. Over the last decade, I have honed my craft working with global agencies, learning that great design is 10% inspiration and 90% problem-solving.",
+                "I founded this studio with a singular mission: to strip away the noise and focus on the essence of a brand. I believe that in a crowded digital landscape, clarity is the ultimate sophistication.",
+                "We don't just build websites or logos; we build digital homes for businesses. My approach is deeply collaborative, ensuring that every pixel serves a purpose and every interaction tells a part of your story.",
+                "When I am not designing, you can find me exploring modern art galleries, brewing the perfect cup of coffee, or mentoring young designers to help them find their unique voice."
+            ]
+        },
+        "connect": {
+            "headline": "Let's build something timeless.",
+            "subHeadline": "I am currently open for collaborations, speaking engagements, and coffee chats.",
+            "email": "hello@elenavance.com",
+            "socials": [
+                { "label": "LinkedIn", "url": "https://linkedin.com" },
+                { "label": "Twitter", "url": "https://twitter.com" },
+                { "label": "Instagram", "url": "https://instagram.com" }
+            ]
+        },
+        "_id": "6961fa96cdfce056790da331",
+        "values": [
+            {
+                "title": "Authenticity First",
+                "description": "We believe in honest design that accurately reflects the soul of the brand, avoiding trends for the sake of trends.",
+                "icon": "Heart"
+            },
+            {
+                "title": "Strategic Depth",
+                "description": "Every creative decision is backed by research and strategy. We design for results, not just for applause.",
+                "icon": "Brain"
+            },
+            {
+                "title": "Collaborative Spirit",
+                "description": "We view our clients as partners. The best work happens when we build together.",
+                "icon": "Users"
+            }
+        ],
+        "awards": [
+            {
+                "title": "Best Visual Identity",
+                "description": "Awarded by the Digital Design Council for the rebranding of EcoLife.",
+                "year": 2021
+            },
+            {
+                "title": "Web Excellence Award",
+                "description": "Recognition for outstanding UI/UX design in the e-commerce sector.",
+                "year": 2023
+            }
+        ]
+    },
+    "message": "Founder page created/updated successfully",
+    "success": true
+};
 
-const DEFAULT_AWARDS = [
-  { year: '2014', title: 'Best Startup Award', description: 'Recognized as the most innovative startup of the year.' },
-  { year: '2016', title: 'Design Excellence', description: 'Won first place for outstanding visual design.' },
-  { year: '2018', title: 'Innovation Leader', description: 'Awarded for breakthrough technology solutions.' },
-  { year: '2020', title: 'Global Impact', description: 'Recognized for worldwide positive influence.' },
-  { year: '2023', title: 'Industry Pioneer', description: 'Leading the industry with cutting-edge solutions.' },
-];
-
-const socials = [
-  { icon: Twitter, label: 'Twitter', href: '#' },
-  { icon: Linkedin, label: 'LinkedIn', href: '#' },
-  { icon: Instagram, label: 'Instagram', href: '#' },
-  { icon: Mail, label: 'Email', href: '#' },
-];
+// --- 2. ICON MAPPER ---
+// Helper to convert backend string names to React Components
+const getIcon = (iconName: string) => {
+  const map: { [key: string]: any } = {
+    Heart: Heart,
+    Brain: Brain,
+    Users: Users,
+    Lightbulb: Lightbulb,
+    Rocket: Rocket,
+    Twitter: Twitter,
+    LinkedIn: Linkedin,
+    Instagram: Instagram,
+    Mail: Mail
+  };
+  return map[iconName] || Lightbulb; // Default to Lightbulb if not found
+};
 
 const FloatingParticle = ({ delay, x, duration }: { delay: number; x: number; duration: number }) => (
   <motion.div
@@ -63,18 +111,15 @@ const AboutFounder = () => {
   const awardsInView = useInView(awardsRef, { once: true, margin: '-100px' });
   const connectInView = useInView(connectRef, { once: true, margin: '-100px' });
 
-  // Default content (replace with your AdminContext if needed)
-  const firstName = 'Alexandra';
-  const lastName = 'Mitchell';
-  const heroSubtitle = 'Founder & Visionary';
-  const heroDescription = 'Building the future of digital experiences, one meaningful connection at a time.';
-  const heroImage = 'https://img.freepik.com/free-vector/rainbow-coloured-hand-painted-watercolour-splatter-design_1048-20680.jpg?semt=ais_hybrid&w=740&q=80';
+  // --- 3. EXTRACT DATA FROM RESPONSE ---
+  const { hero, story, connect, values, awards } = BACKEND_DATA.data;
+
+  // Constants that weren't in JSON but needed for UI
   const heroButtonText = 'View Our Services';
   const heroButtonLink = '/services';
   const heroSecondaryText = 'Follow Us';
-  const heroSecondaryLink = 'https://www.instagram.com/bloom.branding_/';
-  const values = DEFAULT_VALUES;
-  const awards = DEFAULT_AWARDS;
+  // Use first social link or default
+  const heroSecondaryLink = connect.socials[0]?.url || '#';
 
   return (
     <div className="min-h-screen bg-white scroll-smooth">
@@ -87,16 +132,16 @@ const AboutFounder = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="order-2 lg:order-1">
               <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }} className="inline-block text-sm tracking-[0.3em] uppercase text-amber-900 mb-6 font-medium">
-                {heroSubtitle}
+                {hero.role}
               </motion.span>
 
               <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }} className="text-5xl md:text-6xl lg:text-7xl font-medium text-gray-900 leading-[1.1] mb-8">
-                {firstName}
-                <span className="block italic text-amber-900 mt-2">{lastName}</span>
+                {hero.firstName}
+                <span className="block italic text-amber-900 mt-2">{hero.lastName}</span>
               </motion.h1>
 
               <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.6 }} className="text-lg text-gray-600 leading-relaxed max-w-xl mb-10">
-                {heroDescription}
+                {hero.tagline}
               </motion.p>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="flex flex-wrap gap-4">
@@ -124,9 +169,9 @@ const AboutFounder = () => {
               <div className="relative">
                 <div className="absolute -top-6 -right-6 w-full h-full border-2 border-amber-900 rounded-2xl" />
                 <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-yellow-300/20 rounded-full" />
-                <img src={heroImage} alt={`${firstName} ${lastName}`} className="relative z-10 w-full max-w-md mx-auto rounded-2xl shadow-2xl object-cover aspect-[3/4]" />
+                <img src={hero.profileImage} alt={`${hero.firstName} ${hero.lastName}`} className="relative z-10 w-full max-w-md mx-auto rounded-2xl shadow-2xl object-cover aspect-[3/4]" />
                 <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-4 -right-4 z-20 bg-white px-6 py-4 rounded-xl shadow-lg">
-                  <span className="block text-2xl font-semibold text-amber-900">10+</span>
+                  <span className="block text-2xl font-semibold text-amber-900">{hero.experienceYears}+</span>
                   <span className="text-sm text-gray-500">Years of Impact</span>
                 </motion.div>
               </div>
@@ -144,11 +189,13 @@ const AboutFounder = () => {
           </motion.div>
           <div className="max-w-4xl mx-auto">
             <motion.blockquote initial={{ opacity: 0, y: 40 }} animate={storyInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }} className="text-2xl md:text-3xl italic text-gray-900 leading-relaxed mb-12 pl-8 border-l-4 border-amber-900">
-              I believe that every challenge is an opportunity to create something extraordinary.
+              {story.quote}
             </motion.blockquote>
             <motion.div initial={{ opacity: 0, y: 40 }} animate={storyInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.4 }} className="grid md:grid-cols-2 gap-12">
-              <p className="text-gray-600 leading-relaxed">It all started in a small home office with a simple idea: what if we could make technology more human? Fresh out of university, I was fascinated by the intersection of human behavior and digital experiences.</p>
-              <p className="text-gray-600 leading-relaxed">Today, our company serves over 10 million users worldwide, but what brings me the most joy isn't the numbers—it's the stories of real impact we've made.</p>
+              {/* Dynamically Map Story Paragraphs */}
+              {story.paragraphs.map((para, idx) => (
+                 <p key={idx} className="text-gray-600 leading-relaxed">{para}</p>
+              ))}
             </motion.div>
           </div>
         </div>
@@ -162,22 +209,25 @@ const AboutFounder = () => {
             <h2 className="text-4xl md:text-5xl font-medium text-gray-900">Core Values</h2>
           </motion.div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <motion.div key={value.title} initial={{ opacity: 0, y: 40 }} animate={valuesInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: index * 0.15 }} className="group">
-                <div className="h-full p-8 bg-white rounded-2xl border border-gray-200 transition-all duration-500 hover:border-amber-900 hover:shadow-xl hover:-translate-y-2">
-                  <div className="w-14 h-14 rounded-xl bg-amber-900/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-amber-100 group-hover:scale-110">
-                    <value.icon className="w-7 h-7 text-amber-900" />
+            {values.map((value, index) => {
+              const IconComponent = getIcon(value.icon);
+              return (
+                <motion.div key={value.title} initial={{ opacity: 0, y: 40 }} animate={valuesInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: index * 0.15 }} className="group">
+                  <div className="h-full p-8 bg-white rounded-2xl border border-gray-200 transition-all duration-500 hover:border-amber-900 hover:shadow-xl hover:-translate-y-2">
+                    <div className="w-14 h-14 rounded-xl bg-amber-900/10 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-amber-100 group-hover:scale-110">
+                      <IconComponent className="w-7 h-7 text-amber-900" />
+                    </div>
+                    <h3 className="text-xl font-medium text-gray-900 mb-3">{value.title}</h3>
+                    <p className="text-gray-600 leading-relaxed">{value.description}</p>
                   </div>
-                  <h3 className="text-xl font-medium text-gray-900 mb-3">{value.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{value.description}</p>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Awards Section - NEW */}
+      {/* Awards Section */}
       <section className="py-24 lg:py-32 relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" ref={awardsRef}>
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(20)].map((_, i) => (
@@ -245,14 +295,14 @@ const AboutFounder = () => {
               Get In Touch
             </motion.span>
             <motion.h2 initial={{ opacity: 0, y: 30 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.1 }} className="text-4xl md:text-5xl lg:text-6xl font-medium text-white mb-6">
-              Let's Create Something
+              {connect.headline}
               <span className="block italic text-yellow-300">Extraordinary</span>
             </motion.h2>
             <motion.p initial={{ opacity: 0, y: 20 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.3 }} className="text-lg text-white/70 mb-12 max-w-xl mx-auto">
-              Whether you have a project in mind, want to collaborate, or just want to say hello—I'd love to hear from you.
+              {connect.subHeadline}
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.5 }} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <a href="mailto:hello@example.com" className="group inline-flex items-center gap-3 px-8 py-4 bg-amber-900 text-white font-medium rounded-full transition-all duration-300 hover:bg-amber-800 hover:scale-105">
+              <a href={`mailto:${connect.email}`} className="group inline-flex items-center gap-3 px-8 py-4 bg-amber-900 text-white font-medium rounded-full transition-all duration-300 hover:bg-amber-800 hover:scale-105">
                 Send a Message
                 <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
               </a>
@@ -261,11 +311,19 @@ const AboutFounder = () => {
               </a>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.7 }} className="flex items-center justify-center gap-6">
-              {socials.map((social) => (
-                <a key={social.label} href={social.href} aria-label={social.label} className="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center text-white/70 transition-all duration-300 hover:bg-white hover:text-gray-900 hover:scale-110">
-                  <social.icon className="w-5 h-5" />
-                </a>
-              ))}
+              {/* Combine Socials with Email Icon if needed, or just list Socials */}
+              {connect.socials.map((social) => {
+                const IconComponent = getIcon(social.label);
+                return (
+                  <a key={social.label} href={social.url} aria-label={social.label} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center text-white/70 transition-all duration-300 hover:bg-white hover:text-gray-900 hover:scale-110">
+                    <IconComponent className="w-5 h-5" />
+                  </a>
+                );
+              })}
+              {/* Manual Email Icon for Social List */}
+              <a href={`mailto:${connect.email}`} aria-label="Email" className="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center text-white/70 transition-all duration-300 hover:bg-white hover:text-gray-900 hover:scale-110">
+                <Mail className="w-5 h-5" />
+              </a>
             </motion.div>
           </div>
         </div>

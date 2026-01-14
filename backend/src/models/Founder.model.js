@@ -9,6 +9,14 @@ const ValueSchema = new mongoose.Schema(
   },
   { _id: false }
 );
+const awardSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    year: { type: Number, required: true }, 
+  },
+  { _id: false }
+);
 
 /* ---------------- MILESTONES ---------------- */
 const MilestoneSchema = new mongoose.Schema(
@@ -53,6 +61,7 @@ const AboutFounderSchema = new mongoose.Schema(
 
     /* Journey Section */
     milestones: [MilestoneSchema],
+    awards:[awardSchema],
 
     /* Connect Section */
     connect: {

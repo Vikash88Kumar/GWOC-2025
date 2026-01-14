@@ -8,7 +8,8 @@ import {
     getCurrentUser, 
     updateAccountDetails, 
     updateUserAvatar, 
-    verifyOTP
+    verifyOTP,
+    resendOTP // <--- ADDED IMPORT
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import verifyJwt from "../middlewares/auth.middleware.js";
@@ -20,12 +21,13 @@ const router = Router();
 router.route("/register").post(
     upload.fields([
         { name: "avatar", maxCount: 1 }
-        // Removed coverImage to match new model
     ]),
     registerUser
 );
-router.route("/verify-otp").post(verifyOTP)
+
 router.route("/login").post(loginUser);
+router.route("/verify-otp").post(verifyOTP);
+router.route("/resend-otp").post(resendOTP); // <--- ADDED ROUTE
 router.route("/refresh-token").post(refreshAccessToken);
 
 // --- SECURED ROUTES (Require JWT) ---
@@ -33,9 +35,9 @@ router.route("/refresh-token").post(refreshAccessToken);
 router.route("/logout").post(verifyJwt, logout);
 router.route("/change-password").post(verifyJwt, changeCurrentPassword);
 router.route("/current-user").get(verifyJwt, getCurrentUser);
-router.route("/update-account").patch(verifyJwt, updateAccountDetails);
 
-// Only avatar update remains
+// Profile Updates
+router.route("/update-account").patch(verifyJwt, updateAccountDetails);
 router.route("/avatar").patch(verifyJwt, upload.single("avatar"), updateUserAvatar);
 
 export default router;

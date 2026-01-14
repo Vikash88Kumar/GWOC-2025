@@ -70,3 +70,5 @@ export const updateFounderConnect = async (data) => {
         throw error;
     }
 }
+
+

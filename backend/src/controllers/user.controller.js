@@ -338,8 +338,21 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     );
 });
 
+
+
+// --- 7. ACCOUNT MANAGEMENT ---
+
 const updateAccountDetails = asyncHandler(async (req, res) => {
-    const { firstName, lastName, email, companyName, website, industry, phone } = req.body;
+    const { 
+        firstName, 
+        lastName, 
+        email, 
+        companyName, 
+        website, 
+        industry, 
+        phone,
+        avatar // <--- ADDED: Accept avatar URL string from frontend
+    } = req.body;
 
     if (!firstName || !email) {
         throw new ApiError(400, "First Name and Email are required");
@@ -355,7 +368,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
                 companyName: companyName || "",
                 website: website || "",
                 industry: industry || "",
-                phone: phone || ""
+                phone: phone || "",
+                avatar: avatar || "" // <--- ADDED: Update avatar if URL is provided
             }
         },
         { new: true }
@@ -367,6 +381,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
+    // This handles the FILE upload version
     const avatarLocalPath = req.file?.path;
 
     if (!avatarLocalPath) {
@@ -391,9 +406,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, user, "Avatar updated successfully"));
+        .json(new ApiResponse(200, user, "Avatar image updated successfully"));
 });
-
 export {
     registerUser,
     loginUser,

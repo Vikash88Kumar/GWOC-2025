@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // Added AnimatePresence
 import { ArrowRight, Instagram, Facebook, Linkedin } from 'lucide-react';
 import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
 import { BackgroundLines } from '@/components/ui/background-lines';
@@ -20,6 +20,9 @@ const HomePage = () => {
   const [dbTestimonials, setDbTestimonials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // --- ADDED: SLIDER STATE ---
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,10 +55,33 @@ const HomePage = () => {
     fetchData();
   }, []);
 
+  // --- ADDED: SLIDER LOGIC ---
+  // Ensure we have an array. If backend sends a string or null, fallback to array or default.
+  const heroImages = Array.isArray(data?.hero?.backgroundImage) 
+    ? data.hero.backgroundImage 
+    : [data?.hero?.backgroundImage ];
+
+  useEffect(() => {
+    if (heroImages.length <= 1) return; // Don't slide if only 1 image
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000); // Change every 5 seconds
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
+
   // Projects from AdminContext
   const { contentSections, testimonials: adminTestimonials, addTestimonial } = useAdmin();
   const projectsSection = contentSections.find(s => s.id === 'home-projects');
-  const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' }));
+  
+  // Updated project mapping to match your Backend response structure (_id, subtitle, etc)
+  const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({ 
+    title: it.title || '', 
+    date: it.subtitle || '', 
+    img: it.image || '',
+    id: it._id 
+  }));
+  
   const projects = apiProjects.length
     ? apiProjects
     : (projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? [
@@ -65,6 +91,7 @@ const HomePage = () => {
         { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
       ]);
   
+  // Use backend marquee images if available
   const images =  [
     "/1.png", "/2.png", "/3.png", "/4.png", "/5.png", "/6.png", "/7.png", "/8.png", "/9.png", "/10.png",
     "/11.png", "/12.png", "/13.png", "/14.png", "/15.png", "/16.png", "/17.png", "/18.png", "/19.png", "/20.png",
@@ -169,18 +196,27 @@ const HomePage = () => {
   return (
     <div className="bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
 
-      {/* --- HERO SECTION WITH BG IMAGE & ELECTRIC BLUE --- */}
+      {/* --- HERO SECTION WITH BG IMAGE SLIDER & ELECTRIC BLUE --- */}
       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-20 overflow-hidden">
-        {/* Background Image with Electric Blue Overlay */}
+        
+        {/* UPDATED: Background Image Slider */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={data?.hero?.backgroundImage ?? './front.jpeg'}
-            alt={data?.hero?.headline ?? 'Studio Interior'}
-            className="w-full h-full object-cover"
-          />
+          <AnimatePresence mode="popLayout">
+            <motion.img
+              key={currentSlide}
+              src={heroImages[currentSlide]}
+              alt={data?.hero?.headline ?? 'Studio Interior'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </AnimatePresence>
+
           {/* Mixing Earl Gray and Electric Blue for a custom tinted overlay */}
-          <div className="absolute inset-0 bg-[#892f1a]/40 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-linear-to-b from-[#624a41]/60 via-transparent to-[#e8e6d8]"></div>
+          <div className="absolute inset-0 bg-[#892f1a]/40 mix-blend-multiply z-[1]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#624a41]/60 via-transparent to-[#e8e6d8] z-[2]"></div>
         </div>
 
         <motion.div
@@ -234,18 +270,16 @@ const HomePage = () => {
             <div className="relative z-10 flex w-full flex-col items-center justify-between space-y-6 px-8 py-16 text-center md:flex-row">
               <div>
                 <h2 className="text-center text-4xl font-normal tracking-tight text-neutral-900 sm:text-5xl md:text-left dark:text-neutral-400">
-                  Ready to buy{" "}
-                  <span className="font-bold dark:text-white">Aceternity Pro</span>?
+                  {data?.intro?.heading ?? (
+                    <>Ready to buy <span className="font-bold dark:text-white">Aceternity Pro</span>?</>
+                  )}
                 </h2>
                 <p className="mt-4 max-w-lg text-center text-base text-neutral-600 md:text-left dark:text-neutral-300">
-                  Unlock premium components, advanced animations, and exclusive
-                  templates to build stunning modern interfaces.
+                  {data?.intro?.description ?? "Unlock premium components, advanced animations, and exclusive templates to build stunning modern interfaces."}
                 </p>
               </div>
               <div className="flex flex-col gap-4 sm:flex-row">
-                <button className="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-8 py-3 text-sm font-medium text-neutral-700 shadow-sm transition-all duration-200 hover:bg-neutral-50 hover:shadow-md dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700">
-                  View Pricing
-                </button>
+                {/* Optional Buttons here if needed */}
               </div>
             </div>
           </div>
@@ -277,8 +311,9 @@ const HomePage = () => {
 
           {/* LEFT SIDE: STICKY HEADER */}
           <div className="md:w-1/3 pr-8">
-            <div className="sticky top-32 flex justify-center">
-             {/* Sticky Header Content (Commented out in original) */}
+            <div className="sticky top-32 flex justify-center flex-col">
+               <h2 className="text-5xl font-light mb-6">{data?.projects?.heading ?? "Glimpse into our work"}</h2>
+               <p className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62]">{data?.projects?.subHeading ?? "Selected Works"}</p>
             </div>
         </div>
 
@@ -287,7 +322,7 @@ const HomePage = () => {
           <div className="md:w-2/3 space-y-40">
             {projects.map((proj: any, idx: number) => (
               <motion.div
-                key={idx}
+                key={proj.id || idx}
                 initial={{ opacity: 0, y: 80 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
@@ -295,7 +330,7 @@ const HomePage = () => {
                 className="group"
               >
                 <CardContainer className="inter-var md:w-full w-auto h-auto perspective-1000px">
-                  <CardBody className="bg-tranparent-50 relative group/card  dark:hover:shadow-2xl dark:hover:shadow-emerald-500/10 dark:bg-black dark:border-white/[0.20rder-yellow/[0.1] w-auto md:w-full sm:w-[30rem120o rounded-xl p-6 border  ">
+                  <CardBody className="bg-tranparent-50 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/10 dark:bg-black dark:border-white/[0.20rder-yellow/[0.1] w-auto md:w-full sm:w-[30rem120o rounded-xl p-6 border">
 
 
                     <CardItem translateZ="100" className="w-full h-64 mt-4">
@@ -306,7 +341,7 @@ const HomePage = () => {
                       />
                     </CardItem>
                     <div className="flex justify-between items-center mt-20">
-                      mlml
+                      
                     </div>
                   </CardBody>
                 </CardContainer>
@@ -373,10 +408,10 @@ const HomePage = () => {
 
       {/* --- NUMBERS SECTION --- */}
       <section className="py-40 px-8 bg-[#e8e6d8] text-center">
-        <h2 className="text-3xl italic mb-24 text-[#892f1a]">Our story in numbers</h2>
+        <h2 className="text-3xl italic mb-24 text-[#892f1a]">{data?.stats?.heading ?? "Our story in numbers"}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
-          {(contentSections.find(s => s.id === 'home-stats')?.items ?? []).map((stat, i) => (
-            <div key={stat.id || i}>
+          {(data?.stats?.items ?? contentSections.find(s => s.id === 'home-stats')?.items ?? []).map((stat: any, i: number) => (
+            <div key={stat.id || stat._id || i}>
               <div className="text-6xl font-light mb-4 text-[#624a41]">{stat.title}</div>
               <p className="font-sans text-[10px] uppercase tracking-[0.4em] font-black text-[#bdaf62]">{stat.subtitle}</p>
             </div>
@@ -390,7 +425,7 @@ const HomePage = () => {
         <div className="flex flex-col md:flex-row justify-between gap-24 mb-32 max-w-7xl mx-auto">
           <div>
             <h3 className="text-5xl mb-12">{data?.footer?.heading ?? (<><span className="text-[#892f1a] italic">Ready to</span> elevate <br />your brand?</>)}</h3>
-            <div className="flex  pb-4 w-full md:w-96 group">
+            <div className="flex pb-4 w-full md:w-96 group">
               <Link href={data?.footer?.ctaLink ?? '/contact'} className="no-underline">
                 <button className="flex items-center gap-4 bg-[#892f1a] text-white px-6 py-3 text-[10px] uppercase tracking-[0.4em] hover:bg-[#624a41] transition-all duration-500 shadow-xl">{data?.footer?.ctaText ?? 'Contact Us'}</button>
                 {/* <ArrowRight className="text-[#892f1a] group-hover:translate-x-2 transition-transform" /> */}

@@ -170,3 +170,29 @@ export const updateConnectSection = asyncHandler(async (req, res) => {
   );
 });
 
+export const updateAwardsSection = asyncHandler(async (req, res) => {
+  // Validate that the input is an array
+  if (!Array.isArray(req.body)) {
+    throw new ApiError(400, "Awards must be an array");
+  }
+
+  const page = await AboutFounder.findOneAndUpdate(
+    {},
+    { $set: { awards: req.body } }, // Replace the entire awards array
+    { 
+      new: true, 
+      runValidators: true, 
+      upsert: true 
+    }
+  );
+
+  if (!page) {
+    throw new ApiError(404, "Founder page not found");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, page.awards, "Awards updated successfully")
+    );
+});

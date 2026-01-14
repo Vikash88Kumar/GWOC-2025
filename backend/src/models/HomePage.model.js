@@ -29,7 +29,7 @@ const HomePageSchema = new mongoose.Schema(
       },
       ctaText: { type: String, default: "Let's Get Started" },
       ctaLink: { type: String, default: "/services" },
-      backgroundImage: { type: String, default: "" } // Optional: to make the main image dynamic
+      backgroundImage: [{ type: String, default: "" }] // Optional: to make the main image dynamic
     },
 
     // --- 2. INTRO SECTION (Aceternity / Dotted BG area) ---
