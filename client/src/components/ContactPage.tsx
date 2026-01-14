@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2, X, Send, Sparkles } from "lucide-react";
-import {submitContactForm} from "../services/contact.api.js"
+import { submitContactForm } from "../services/contact.api.js"
 /* ------------------ ANIMATION VARIANTS ------------------ */
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -128,13 +128,13 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 /* ------------------ PAGE ------------------ */
 const ContactPage = () => {
   const [formData, setFormData] = useState({
-  firstName: "",
-  lastName: "",
-  email: "",
-  budget: "",
-  timeline: "",
-  message: "",
-});
+    firstName: "",
+    lastName: "",
+    email: "",
+    budget: "",
+    timeline: "",
+    message: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -161,55 +161,55 @@ const ContactPage = () => {
   //   await createTestimonial()
   //   // Simulate API call
   //   await new Promise((resolve) => setTimeout(resolve, 2000));
-    
+
   //   setIsLoading(false);
   //   setShowSuccess(true);
   // };
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  if (!formData.email) {
-    alert("Email is required");
-    return;
-  }
+    if (!formData.email) {
+      alert("Email is required");
+      return;
+    }
 
-  if (selectedServices.length === 0) {
-    alert("Please select at least one service");
-    return;
-  }
+    if (selectedServices.length === 0) {
+      alert("Please select at least one service");
+      return;
+    }
 
-  try {
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-    const payload = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      budget: formData.budget,
-      timeline: formData.timeline,
-      services: selectedServices,
-      message: formData.message,
-    };
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        budget: formData.budget,
+        timeline: formData.timeline,
+        services: selectedServices,
+        message: formData.message,
+      };
 
-    await submitContactForm(payload);
+      await submitContactForm(payload);
 
-    setShowSuccess(true);
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      budget: "",
-      timeline: "",
-      message: "",
-    });
-    setSelectedServices([]);
-  } catch (error) {
-    console.error("Failed to submit form:", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      setShowSuccess(true);
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        budget: "",
+        timeline: "",
+        message: "",
+      });
+      setSelectedServices([]);
+    } catch (error) {
+      console.error("Failed to submit form:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   return (
@@ -242,13 +242,14 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         >
           <motion.div variants={fadeInUp} className="inline-block mb-4">
             <span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium tracking-wide">
-              Get in Touch 
+              Get in Touch
             </span>
           </motion.div>
 
           <motion.h1
             variants={fadeInUp}
-            className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-chocolate mb-4"
+            
+            className="text-center font-display text-4xl md:text-6xl lg:text-7xl font-bold text-chocolate mb-4"
           >
             Let's create something{" "}
             <span className="relative inline-block">
@@ -263,6 +264,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               />
             </span>
           </motion.h1>
+
 
           <motion.p
             variants={fadeInUp}
@@ -298,10 +300,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     </label>
                     <input
                       type="text"
-  name="firstName"
-  value={formData.firstName}
-  onChange={handleChange}
-  placeholder="John"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      placeholder="John"
                       className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                     />
                   </div>
@@ -312,10 +314,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     </label>
                     <input
                       type="text"
-  name="lastName"
-  value={formData.lastName}
-  onChange={handleChange}
-  placeholder="Doe"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      placeholder="Doe"
                       className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                     />
                   </div>
@@ -333,11 +335,11 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                   </label>
                   <input
                     type="email"
-  name="email"
-  value={formData.email}
-  onChange={handleChange}
-  required
-  placeholder="john@email.com"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="john@email.com"
                     className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                   />
                 </motion.div>
@@ -354,11 +356,11 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                       Budget
                     </label>
                     <input
-                       type="text"
-  name="budget"
-  value={formData.budget}
-  onChange={handleChange}
-  placeholder="$5,000 - $10,000"
+                      type="text"
+                      name="budget"
+                      value={formData.budget}
+                      onChange={handleChange}
+                      placeholder="$5,000 - $10,000"
                       className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                     />
                   </div>
@@ -369,10 +371,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     </label>
                     <input
                       type="text"
-  name="timeline"
-  value={formData.timeline}
-  onChange={handleChange}
-  placeholder="2–3 months"
+                      name="timeline"
+                      value={formData.timeline}
+                      onChange={handleChange}
+                      placeholder="2–3 months"
                       className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
                     />
                   </div>
@@ -396,11 +398,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                         transition={{ delay: 0.8 + index * 0.05 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className={`cursor-pointer px-5 py-2.5 rounded-full border-2 transition-all duration-300 ${
-                          selectedServices.includes(service)
-                            ? "bg-primary text-white border-primary shadow-lg shadow-primary/30"
-                            : "border-chocolate/20 text-chocolate/70 hover:border-primary/50 hover:bg-primary/5"
-                        }`}
+                        className={`cursor-pointer px-5 py-2.5 rounded-full border-2 transition-all duration-300 ${selectedServices.includes(service)
+                          ? "bg-primary text-white border-primary shadow-lg shadow-primary/30"
+                          : "border-chocolate/20 text-chocolate/70 hover:border-primary/50 hover:bg-primary/5"
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -446,11 +447,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     disabled={isLoading}
                     whileHover={{ scale: isLoading ? 1 : 1.02 }}
                     whileTap={{ scale: isLoading ? 1 : 0.98 }}
-                    className={`relative w-full md:w-auto px-12 py-4 rounded-full text-sm uppercase tracking-widest font-medium transition-all duration-300 flex items-center justify-center gap-3 ${
-                      isLoading
-                        ? "bg-chocolate/50 text-background cursor-not-allowed"
-                        : "bg-gradient-to-r from-chocolate to-chocolate/90 text-background hover:from-primary hover:to-primary/90 shadow-lg hover:shadow-xl hover:shadow-primary/20"
-                    }`}
+                    className={`relative w-full md:w-auto px-12 py-4 rounded-full text-sm uppercase tracking-widest font-medium transition-all duration-300 flex items-center justify-center gap-3 ${isLoading
+                      ? "bg-chocolate/50 text-background cursor-not-allowed"
+                      : "bg-gradient-to-r from-chocolate to-chocolate/90 text-background hover:from-primary hover:to-primary/90 shadow-lg hover:shadow-xl hover:shadow-primary/20"
+                      }`}
                   >
                     <AnimatePresence mode="wait">
                       {isLoading ? (
