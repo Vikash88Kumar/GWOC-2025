@@ -65,8 +65,12 @@ const Navbar: React.FC = () => {
       >
         {/* LOGO SECTION */}
         <Link href="/" className="flex items-center gap-3 shrink-0 pointer-events-auto">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black font-black text-sm overflow-hidden">
-            <img src="./mark logo.png" alt="Logo" width={20} height={20} />
+          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black font-black text-sm overflow-hidden">
+            <img 
+              src="./mark logo.png" 
+              alt="Logo" 
+              className="w-14 h-14 oobject-contain scale-140"
+            />
           </div>
           <AnimatePresence mode="popLayout">
             {!scrolled && (
