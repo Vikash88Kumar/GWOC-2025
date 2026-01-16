@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Loader2, Save, Plus, Trash2, Heart, Lightbulb, Users, Rocket, 
-  Twitter, Linkedin, Instagram, Mail, Trophy, Sparkles 
+  Twitter, Linkedin, Instagram, Mail, Trophy, Sparkles,Upload
 } from 'lucide-react';
 
 export default function FounderAdminView() {
@@ -98,27 +98,70 @@ export default function FounderAdminView() {
 // ------------------------------------------------------------------
 // 1. HERO EDITOR
 // ------------------------------------------------------------------
+// ------------------------------------------------------------------
+// 1. HERO EDITOR (Updated for Image Upload)
+// ------------------------------------------------------------------
 function HeroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
   const { toast } = useToast();
   const [form, setForm] = useState(data);
   const [saving, setSaving] = useState(false);
+  
+  // New state for handling file upload
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>(data.profileImage || "");
 
-  useEffect(() => { setForm(data) }, [data]);
+  // Update form and preview when data from DB loads
+  useEffect(() => { 
+    setForm(data);
+    setImagePreview(data.profileImage || ""); // Ensure DB image is shown initially
+  }, [data]);
+
+  // Handle File Selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create a local URL to preview the image immediately
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateFounderHero(form);
-      toast({ title: "Hero updated" });
+      // 1. Create FormData object
+      const formData = new FormData();
+
+      // 2. Append all text fields
+      formData.append("role", form.role);
+      formData.append("firstName", form.firstName);
+      formData.append("lastName", form.lastName);
+      formData.append("tagline", form.tagline);
+      formData.append("experienceYears", form.experienceYears.toString());
+
+      // 3. Append the file ONLY if a new one was selected
+      // IMPORTANT: The string 'image' here must match upload.single('image') in your backend route
+      if (selectedFile) {
+        formData.append("profileImage", selectedFile);
+      }
+
+      // 4. Send FormData
+      await updateFounderHero(formData);
+      
+      toast({ title: "Hero section updated successfully" });
       onRefresh();
-    } catch (e) { toast({ title: "Failed", variant: "destructive" }); }
-    finally { setSaving(false); }
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Failed to update", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="pt-8">
       <div className="grid lg:grid-cols-2 gap-12 items-start">
-        {/* Left Side (Text) */}
+        {/* Left Side (Text Inputs) */}
         <div className="space-y-6">
           <div className="space-y-2">
             <Label>Role / Subtitle</Label>
@@ -150,18 +193,57 @@ function HeroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
           </div>
         </div>
 
-        {/* Right Side (Image & Stats) */}
+        {/* Right Side (Image Upload & Stats) */}
         <div className="space-y-6">
            <div className="space-y-2">
-             <Label>Profile Image URL</Label>
-             <div className="flex gap-4">
-                <div className="w-24 h-32 bg-muted rounded-lg overflow-hidden shrink-0 border">
-                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                   <img src={form.profileImage} alt="Preview" className="w-full h-full object-cover" />
+             <Label>Profile Image</Label>
+             
+             <div className="flex gap-6 items-start">
+                {/* Image Preview Box */}
+                <div className="relative group w-32 h-40 bg-muted rounded-lg overflow-hidden shrink-0 border shadow-sm">
+                   {imagePreview ? (
+                     // eslint-disable-next-line @next/next/no-img-element
+                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                   ) : (
+                     <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-slate-100">
+                       <span className="text-xs">No Image</span>
+                     </div>
+                   )}
+                   
+                   {/* Overlay Hint */}
+                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      <span className="text-white text-xs font-medium">Change</span>
+                   </div>
                 </div>
-                <div className="w-full space-y-2">
-                    <Input value={form.profileImage} onChange={e => setForm({...form, profileImage: e.target.value})} placeholder="https://..." />
-                    <p className="text-xs text-muted-foreground">Paste a direct image link.</p>
+
+                {/* Upload Controls */}
+                <div className="space-y-3 w-full">
+                    <div className="space-y-1">
+                      <Label htmlFor="image-upload" className="cursor-pointer">
+                        <div className="flex items-center justify-center w-full px-4 py-2 border-2 border-dashed border-primary/20 rounded-md hover:bg-primary/5 transition-colors text-sm text-primary font-medium">
+                           <Upload className="w-4 h-4 mr-2" />
+                           Choose New Image
+                        </div>
+                      </Label>
+                      <Input 
+                        id="image-upload" 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleImageChange}
+                      />
+                    </div>
+                    
+                    {selectedFile && (
+                      <p className="text-xs text-green-600 font-medium flex items-center">
+                        <Sparkles className="w-3 h-3 mr-1" /> 
+                        New file selected: {selectedFile.name}
+                      </p>
+                    )}
+                    
+                    <p className="text-xs text-muted-foreground">
+                      Supported formats: JPG, PNG, WEBP. <br/> Max size: 5MB.
+                    </p>
                 </div>
              </div>
            </div>
@@ -170,7 +252,7 @@ function HeroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
               <Label>Years Experience</Label>
               <div className="flex items-center gap-3 border p-3 rounded-lg bg-card">
                  <Input type="number" className="w-20 font-bold text-xl" value={form.experienceYears} onChange={e => setForm({...form, experienceYears: Number(e.target.value)})} />
-                 <span className="text-sm text-muted-foreground">Years of Impact Badge</span>
+                 <span className="text-sm text-muted-foreground">Years of Impact</span>
               </div>
            </div>
         </div>
@@ -178,12 +260,15 @@ function HeroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
 
       <div className="mt-8 flex justify-end">
         <Button onClick={handleSave} disabled={saving}>
-          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} <Save className="mr-2 h-4 w-4" /> Save Hero
+          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} <Save className="mr-2 h-4 w-4" /> Save Hero Section
         </Button>
       </div>
     </div>
   );
 }
+
+// Ensure you import 'Upload' from lucide-react at the top of your file
+// import { ..., Upload } from 'lucide-react';
 
 // ------------------------------------------------------------------
 // 2. STORY EDITOR

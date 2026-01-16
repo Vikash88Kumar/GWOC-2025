@@ -1,129 +1,168 @@
-import { HomePage } from "../models/HomePage.model.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import { HomePage } from "../models/homepage.model.js"; // Adjust path
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
-// --- GET FULL PAGE ---
+// --- GET PAGE ---
 export const getHomePage = asyncHandler(async (req, res) => {
-  let page = await HomePage.findOne();
-  if (!page) {
-    // Create default if not exists to prevent frontend crashes
-    page = await HomePage.create({});
-  }
-  return res.status(200).json(new ApiResponse(200, page, "Fetched successfully"));
+  const page = await HomePage.findOne();
+  return res.status(200).json(new ApiResponse(200, page || {}, "Home page fetched"));
 });
 
-// --- GENERIC UPDATE (Backup) ---
+// --- GENERAL FULL PAGE UPDATE (Added) ---
+// Use this for bulk JSON updates (without file uploads)
 export const updateHomePage = asyncHandler(async (req, res) => {
   const page = await HomePage.findOneAndUpdate(
     {},
     { $set: req.body },
-    { new: true, upsert: true }
+    {
+      new: true,
+      upsert: true,
+      runValidators: true
+    }
   );
-  return res.status(200).json(new ApiResponse(200, page, "Updated successfully"));
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, page, "Home page updated successfully"));
 });
 
-// --- 1. HERO SECTION UPDATE ---
+// --- 1. HERO SECTION (Multi-Image Logic) ---
 export const updateHomeHero = asyncHandler(async (req, res) => {
   const updates = {};
-  // Automatically map req.body to hero.field
+  let backgroundImages = [];
+
+  // 1. Handle existing text fields
   for (const [key, value] of Object.entries(req.body)) {
-    updates[`hero.${key}`] = value;
+    if (key === 'backgroundImage') {
+        // Parse the comma-separated string back into an array
+        // This array represents the images the User KEPT in the UI
+        if (typeof value === 'string') {
+            backgroundImages = value.split(',').map(s => s.trim()).filter(Boolean);
+        } else if (Array.isArray(value)) {
+            backgroundImages = value;
+        }
+    } else {
+        updates[`hero.${key}`] = value;
+    }
   }
 
+  // 2. Handle New File Upload
+  if (req.file?.path) {
+    const img = await uploadOnCloudinary(req.file.path);
+    if (img) {
+        // Add the NEW image to the array of KEPT images
+        backgroundImages.push(img.url);
+    }
+  }
+
+  // 3. Set the updated array in the DB
+  // We use $set here instead of $push so that deletions are respected
+  updates["hero.backgroundImage"] = backgroundImages;
+
   const page = await HomePage.findOneAndUpdate(
-    {},
-    { $set: updates },
+    {}, 
+    { $set: updates }, 
     { new: true, upsert: true }
   );
-
+  
   return res.status(200).json(new ApiResponse(200, page.hero, "Hero updated"));
 });
 
-// --- 2. INTRO SECTION UPDATE ---
+// --- 2. INTRO (Text Only) ---
 export const updateHomeIntro = asyncHandler(async (req, res) => {
   const updates = {};
   for (const [key, value] of Object.entries(req.body)) {
     updates[`intro.${key}`] = value;
   }
-
-  const page = await HomePage.findOneAndUpdate(
-    {},
-    { $set: updates },
-    { new: true, upsert: true }
-  );
-
+  const page = await HomePage.findOneAndUpdate({}, { $set: updates }, { new: true, upsert: true });
   return res.status(200).json(new ApiResponse(200, page.intro, "Intro updated"));
 });
 
-// --- 3. PROJECTS SECTION UPDATE ---
-export const updateHomeProjects = asyncHandler(async (req, res) => {
-  const updates = {};
+// --- 3. PROJECTS (Individual Item Logic) ---
 
-  // Separate normal fields from the items array
-  for (const [key, value] of Object.entries(req.body)) {
-    if (key !== "items") {
-      updates[`projects.${key}`] = value;
+// Update a Specific Project
+export const updateHomeProjectItem = asyncHandler(async (req, res) => {
+    const { itemId } = req.params;
+    const updates = { ...req.body };
+
+    if (req.file?.path) {
+        const img = await uploadOnCloudinary(req.file.path);
+        if (img) updates.image = img.url;
     }
-  }
 
-  // If items array is present, replace it entirely
-  if (Array.isArray(req.body.items)) {
-    updates["projects.items"] = req.body.items;
-  }
-
-  const page = await HomePage.findOneAndUpdate(
-    {},
-    { $set: updates },
-    { new: true, upsert: true }
-  );
-
-  return res.status(200).json(new ApiResponse(200, page.projects, "Projects updated"));
+    const page = await HomePage.findOneAndUpdate(
+        { "projects.items._id": itemId },
+        {
+            $set: {
+                "projects.items.$.title": updates.title,
+                "projects.items.$.subtitle": updates.subtitle,
+                "projects.items.$.order": updates.order,
+                ...(updates.image && { "projects.items.$.image": updates.image })
+            }
+        },
+        { new: true }
+    );
+    return res.status(200).json(new ApiResponse(200, page.projects, "Project updated"));
 });
 
-// --- 4. STATS SECTION UPDATE ---
-export const updateHomeStats = asyncHandler(async (req, res) => {
-  const updates = {};
+// Add a New Project
+export const addHomeProjectItem = asyncHandler(async (req, res) => {
+    const newItem = { ...req.body };
 
-  for (const [key, value] of Object.entries(req.body)) {
-    if (key !== "items") {
-      updates[`stats.${key}`] = value;
+    if (req.file?.path) {
+        const img = await uploadOnCloudinary(req.file.path);
+        if (img) newItem.image = img.url;
     }
-  }
 
-  if (Array.isArray(req.body.items)) {
-    updates["stats.items"] = req.body.items;
-  }
+    const page = await HomePage.findOneAndUpdate(
+        {},
+        { $push: { "projects.items": newItem } },
+        { new: true, upsert: true }
+    );
+    return res.status(200).json(new ApiResponse(200, page.projects, "Project added"));
+});
 
+// Update Project Meta (Heading/Subheading)
+export const updateHomeProjectsMeta = asyncHandler(async (req, res) => {
+    const updates = {};
+    if(req.body.heading) updates["projects.heading"] = req.body.heading;
+    if(req.body.subHeading) updates["projects.subHeading"] = req.body.subHeading;
+
+    const page = await HomePage.findOneAndUpdate({}, { $set: updates }, { new: true });
+    return res.status(200).json(new ApiResponse(200, page.projects, "Projects meta updated"));
+});
+
+// --- 4. STATS ---
+export const updateHomeStats = asyncHandler(async (req, res) => {
+  // Stats are usually small text only, keeping array update for simplicity
   const page = await HomePage.findOneAndUpdate(
-    {},
-    { $set: updates },
+    {}, 
+    { $set: { stats: req.body } }, 
     { new: true, upsert: true }
   );
-
   return res.status(200).json(new ApiResponse(200, page.stats, "Stats updated"));
 });
 
-// --- 5. FOOTER / MARQUEE UPDATE ---
-export const updateHomeFooter = asyncHandler(async (req, res) => {
-  const updates = {};
-
-  for (const [key, value] of Object.entries(req.body)) {
-    if (key !== "marqueeImages") {
-      updates[`footer.${key}`] = value;
+// --- 5. CLIENTS (New Section) ---
+export const updateHomeClients = asyncHandler(async (req, res) => {
+    const updates = {};
+    if(req.body.heading) updates["clients.heading"] = req.body.heading;
+    
+    // If uploading a logo, append to logos array
+    if (req.file?.path) {
+        const img = await uploadOnCloudinary(req.file.path);
+        if (img) {
+            await HomePage.findOneAndUpdate({}, { $push: { "clients.logos": img.url } });
+        }
     }
-  }
 
-  // Handle marquee images array
-  if (Array.isArray(req.body.marqueeImages)) {
-    updates["footer.marqueeImages"] = req.body.marqueeImages;
-  }
+    const page = await HomePage.findOneAndUpdate({}, { $set: updates }, { new: true, upsert: true });
+    return res.status(200).json(new ApiResponse(200, page.clients, "Clients section updated"));
+});
 
-  const page = await HomePage.findOneAndUpdate(
-    {},
-    { $set: updates },
-    { new: true, upsert: true }
-  );
-
-  return res.status(200).json(new ApiResponse(200, page.footer, "Footer updated"));
+// --- 6. FOOTER ---
+export const updateHomeFooter = asyncHandler(async (req, res) => {
+    const page = await HomePage.findOneAndUpdate({}, { $set: { footer: req.body } }, { new: true, upsert: true });
+    return res.status(200).json(new ApiResponse(200, page.footer, "Footer updated"));
 });

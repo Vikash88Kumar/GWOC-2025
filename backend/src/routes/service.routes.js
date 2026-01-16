@@ -1,22 +1,21 @@
 import express from "express";
 import {
   getServicePage,
-  updateServicePage,
   updateServiceHero,
-  updateServicesList,
   updateServiceCTA,
-  updateServiceProcess,
+  updateServiceItem,
+  addServiceItem
 } from "../controllers/service.controller.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 
-router.route("/").get(getServicePage);
+router.get("/", getServicePage);
+router.patch("/hero", updateServiceHero);
+router.patch("/cta", updateServiceCTA);
 
-router.route("/").patch(updateServicePage);
-
-router.route("/hero").patch( updateServiceHero);
-router.route("/lists").patch( updateServicesList);
-router.route("/process").patch(updateServiceProcess)
-router.route("/cta").patch( updateServiceCTA);
+// List Operations (With File Upload)
+router.post("/items", upload.single("serviceImage"), addServiceItem);
+router.patch("/items/:itemId", upload.single("serviceImage"), updateServiceItem);
 
 export default router;

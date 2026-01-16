@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion'; // Added AnimatePresence
-import { ArrowRight, Instagram, Facebook, Linkedin } from 'lucide-react';
+import { ArrowRight, Instagram, Facebook, Linkedin, Star } from 'lucide-react'; // Added Star
 import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
 import { BackgroundLines } from '@/components/ui/background-lines';
 import { ThreeDMarquee } from '@/components/ui/3d-marquee';
@@ -194,7 +194,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
+    <div className="w-full bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
 
       {/* --- HERO SECTION WITH BG IMAGE SLIDER & ELECTRIC BLUE --- */}
       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-20 overflow-hidden">
@@ -360,49 +360,110 @@ const HomePage = () => {
       <AnimatedTestimonials testimonials={animatedTestimonials} />
 
       {/* --- GIVE A REVIEW (FRONTEND ONLY) --- */}
-      <section className="max-w-2xl mx-auto px-4 py-12">
-        <h3 className="text-3xl font-semibold mb-6">Give a Review</h3>
-        <form onSubmit={submitReview} className="grid gap-3">
-          <input
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-            placeholder="Your name"
-            className="rounded-md border px-4 py-2"
-          />
-          <div className="flex gap-3">
-            <input
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              placeholder="Role (e.g., Founder)"
-              className="rounded-md border px-4 py-2 flex-1"
-            />
-            <input
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              placeholder="Company"
-              className="rounded-md border px-4 py-2 flex-1"
-            />
+{/* --- GIVE A REVIEW (STYLED - SIMPLIFIED) --- */}
+      <section className="py-32 px-8 md:px-20 bg-[#e8e6d8] relative border-t border-[#624a41]/10">
+        <div className="max-w-2xl mx-auto">
+          
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <span className="text-[10px] uppercase tracking-[0.4em] text-[#bdaf62] font-bold block mb-4">
+              Feedback
+            </span>
+            <h3 className="text-4xl md:text-5xl font-light text-[#624a41] mb-6">
+              Share your experience
+            </h3>
+            <div className="h-px w-24 bg-[#892f1a] mx-auto opacity-50"></div>
           </div>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Your message"
-            rows={4}
-            className="rounded-md border px-4 py-2"
-          />
-          <div className="flex items-center gap-2">
-            <div className="text-sm">Rating:</div>
-            {[1,2,3,4,5].map(n => (
-              <button key={n} type="button" onClick={() => setStar(n)} className={`px-2 py-1 rounded ${star === n ? 'bg-[#892f1a] text-white' : 'bg-gray-100'}`}>
-                {n}★
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-4">
-            <button type="submit" className="bg-[#892f1a] text-white px-6 py-2 rounded">Submit Review</button>
-            <div className="text-sm text-green-600">{reviewSuccess}</div>
-          </div>
-        </form>
+
+          <form onSubmit={submitReview} className="space-y-12">
+            
+            {/* Role Input */}
+            <div className="group relative">
+              <input
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                placeholder=" "
+                className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl"
+                id="roleInput"
+              />
+              <label 
+                htmlFor="roleInput"
+                className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]"
+              >
+                Your Role (e.g. Founder)
+              </label>
+            </div>
+
+            {/* Message Area */}
+            <div className="group relative">
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder=" "
+                rows={4}
+                className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl resize-none"
+                id="messageInput"
+              />
+              <label 
+                htmlFor="messageInput"
+                className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]"
+              >
+                Your Message
+              </label>
+            </div>
+
+            {/* Rating & Submit */}
+            <div className="flex flex-col items-center gap-10 mt-12">
+              
+              {/* Star Rating */}
+              <div className="flex flex-col items-center gap-4">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-[#624a41]/40">Rating</span>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setStar(n)}
+                      className="transition-transform hover:scale-110 focus:outline-none"
+                    >
+                      <Star 
+                        size={24} 
+                        className={cn(
+                          "transition-colors duration-300",
+                          star && n <= star ? "fill-[#892f1a] text-[#892f1a]" : "text-[#624a41]/20"
+                        )} 
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="submit"
+                className="bg-[#624a41] text-[#e8e6d8] px-12 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] transition-all duration-500 shadow-xl"
+              >
+                Submit Review
+              </motion.button>
+
+              {/* Success Feedback */}
+              <AnimatePresence>
+                {reviewSuccess && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-[#892f1a] font-serif italic text-lg"
+                  >
+                    {reviewSuccess}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </form>
+        </div>
       </section>
 
 

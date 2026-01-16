@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 // Sub-schema for Project Items (e.g., Nandan Coffee, Mana)
 const ProjectItemSchema = new mongoose.Schema({
-  title: { type: String, required: true }, // e.g., "NANDAN COFFEE"
-  subtitle: { type: String, default: "" }, // e.g., "October 2023 - Ongoing"
+  title: { type: String, required: true }, 
+  subtitle: { type: String, default: "" }, 
   image: { type: String, required: true }, // URL
   order: { type: Number, default: 0 }
 });
@@ -29,10 +29,14 @@ const HomePageSchema = new mongoose.Schema(
       },
       ctaText: { type: String, default: "Let's Get Started" },
       ctaLink: { type: String, default: "/services" },
-      backgroundImage: [{ type: String, default: "" }] // Optional: to make the main image dynamic
+      // Updated to strictly be an array of strings
+      backgroundImage: { 
+        type: [String], 
+        default: [] 
+      } 
     },
 
-    // --- 2. INTRO SECTION (Aceternity / Dotted BG area) ---
+    // --- 2. INTRO SECTION ---
     intro: {
       heading: { type: String, default: "Ready to buy Aceternity Pro?" },
       description: { type: String, default: "Unlock premium components..." },
@@ -49,17 +53,26 @@ const HomePageSchema = new mongoose.Schema(
       items: [ProjectItemSchema]
     },
 
-    // --- 4. STATS SECTION (Numbers) ---
+    // --- 4. CLIENTS SECTION (✅ NEW ADDITION) ---
+    clients: {
+      heading: { type: String, default: "Trusted by" },
+      // Array of Logo URLs
+      logos: { 
+        type: [String], 
+        default: [] 
+      }
+    },
+
+    // --- 5. STATS SECTION ---
     stats: {
       heading: { type: String, default: "Our story in numbers" },
       items: [StatItemSchema]
     },
 
-    // --- 5. FOOTER / MARQUEE SECTION ---
+    // --- 6. FOOTER / MARQUEE SECTION ---
     footer: {
       heading: { type: String, default: "Ready to elevate your brand?" },
       ctaText: { type: String, default: "Contact Us" },
-      // Array of image URLs for the 3D Marquee
       marqueeImages: {
         type: [String],
         default: [

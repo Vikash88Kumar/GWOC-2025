@@ -23,7 +23,7 @@ const AdminSidebar: React.FC = () => {
 
     const items = [
     { href: "/register", icon: MessageSquareQuote, label: "Login" },
-    { href: "/logout", icon: Users, label: "Logout" },
+
   ];
 
   const pathname = usePathname() || "/";
@@ -116,7 +116,7 @@ const AdminSidebar: React.FC = () => {
 
             return (
               <Link
-                key={item.href}
+                key={item.label}
                 href={item.href}
                 className={[
                   "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all",

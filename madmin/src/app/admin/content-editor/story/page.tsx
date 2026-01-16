@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { 
   getStoryPage, 
   updateHeroSection, 
@@ -21,15 +20,16 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Trash2, Edit2, Save, Rocket, Star, Users, Globe, Award, Quote, Check, X } from 'lucide-react';
-import { cn } from '@/lib/utils'; // Assuming you have a cn utility, if not remove or use generic class string
+import { 
+  Loader2, Plus, Trash2, Edit2, Save, Rocket, Star, Users, Globe, Award, Quote, Upload, ImageIcon 
+} from 'lucide-react';
 
 // --- Icon Map for Visuals ---
 const IconMap: Record<string, any> = { Rocket, Users, Globe, Award, Star };
 
 export default function StoryAdminView() {
   const { toast } = useToast();
-  const [data, setData] = useState<any>(null); // Using any for flexibility during dev, better to use strict types
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshData = async () => {
@@ -48,7 +48,7 @@ export default function StoryAdminView() {
   if (loading || !data) return <div className="flex justify-center p-20"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12 pb-20">
+    <div className="max-w-6xl mx-auto space-y-12 pb-20 p-6">
       
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -60,38 +60,34 @@ export default function StoryAdminView() {
       </div>
 
       {/* ================= HERO SECTION ================= */}
-      <section className="relative border-2 border-dashed border-border/60 rounded-xl p-8 bg-background/50">
-        <div className="absolute top-4 left-4 bg-muted px-2 py-1 text-xs font-mono uppercase rounded text-muted-foreground">
+      <section className="relative border-2 border-dashed border-primary/20 rounded-xl p-8 bg-white/50">
+        <div className="absolute top-4 left-4 bg-primary/10 text-primary px-2 py-1 text-xs font-mono uppercase rounded">
           Hero Section
         </div>
-        
         <HeroEditor data={data.hero} onRefresh={refreshData} />
       </section>
 
       {/* ================= MARQUEE SECTION ================= */}
-      <section className="relative border-2 border-dashed border-border/60 rounded-xl p-8 bg-muted/20">
-         <div className="absolute top-4 left-4 bg-muted px-2 py-1 text-xs font-mono uppercase rounded text-muted-foreground">
+      <section className="relative border-2 border-dashed border-primary/20 rounded-xl p-8 bg-muted/20">
+         <div className="absolute top-4 left-4 bg-primary/10 text-primary px-2 py-1 text-xs font-mono uppercase rounded">
           Marquee Section
         </div>
-        
         <MarqueeEditor data={data.marquee} onRefresh={refreshData} />
       </section>
 
       {/* ================= TIMELINE SECTION ================= */}
-      <section className="relative border-2 border-dashed border-border/60 rounded-xl p-8 bg-background/50">
-        <div className="absolute top-4 left-4 bg-muted px-2 py-1 text-xs font-mono uppercase rounded text-muted-foreground">
+      <section className="relative border-2 border-dashed border-primary/20 rounded-xl p-8 bg-white/50">
+        <div className="absolute top-4 left-4 bg-primary/10 text-primary px-2 py-1 text-xs font-mono uppercase rounded">
           Timeline Section
         </div>
-
         <TimelineEditor data={data.timeline} onRefresh={refreshData} />
       </section>
 
       {/* ================= TESTIMONIALS SECTION ================= */}
-      <section className="relative border-2 border-dashed border-border/60 rounded-xl p-8 bg-muted/20">
-        <div className="absolute top-4 left-4 bg-muted px-2 py-1 text-xs font-mono uppercase rounded text-muted-foreground">
+      <section className="relative border-2 border-dashed border-primary/20 rounded-xl p-8 bg-muted/20">
+        <div className="absolute top-4 left-4 bg-primary/10 text-primary px-2 py-1 text-xs font-mono uppercase rounded">
           Testimonials Section
         </div>
-
         <TestimonialsEditor data={data.testimonials} onRefresh={refreshData} />
       </section>
 
@@ -101,118 +97,186 @@ export default function StoryAdminView() {
 
 
 // ============================================================================
-// 1. HERO EDITOR (Visual)
+// 1. HERO EDITOR (Updated with Image Upload)
 // ============================================================================
 function HeroEditor({ data, onRefresh }: { data: any, onRefresh: () => void }) {
   const { toast } = useToast();
   const [form, setForm] = useState(data);
-  const [isDirty, setIsDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  // Update local state when typing
-  const handleChange = (field: string, value: any) => {
-    setForm((prev: any) => ({ ...prev, [field]: value }));
-    setIsDirty(true);
+  // Image Upload State
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string>(data.image || "");
+
+  useEffect(() => { 
+    setForm(data);
+    setPreview(data.image || "");
+  }, [data]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSave = async () => {
+    setSaving(true);
     try {
-      await updateHeroSection(form);
+      const formData = new FormData();
+
+      // 1. Append Simple Text
+      formData.append("miniTag", form.miniTag || "");
+      formData.append("subtitle", form.subtitle || "");
+
+      // 2. Append Complex Data (Arrays/Objects)
+      formData.append("titleLines", JSON.stringify(form.titleLines)); 
+      formData.append("ctas", JSON.stringify(form.ctas));
+
+      // 3. Append File (Must match backend: upload.single('heroImage'))
+      if (selectedFile) {
+        formData.append("heroImage", selectedFile);
+      }
+
+      await updateHeroSection(formData);
+      
       toast({ title: "Hero updated successfully" });
-      setIsDirty(false);
       onRefresh();
-    } catch (e) { toast({ title: "Failed to save", variant: "destructive" }); }
+    } catch (e) { 
+      console.error(e);
+      toast({ title: "Failed to save", variant: "destructive" }); 
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="text-center max-w-3xl mx-auto space-y-6 pt-6">
+    <div className="pt-8 grid lg:grid-cols-3 gap-10 items-start">
       
-      {/* Mini Tag Input */}
-      <div className="flex justify-center">
-        <Input 
-          className="text-center w-64 h-8 text-xs uppercase tracking-wider bg-secondary/50 border-transparent focus:border-primary focus:bg-background transition-all"
-          value={form.miniTag}
-          onChange={(e) => handleChange('miniTag', e.target.value)}
-          placeholder="MINI TAG"
-        />
+      {/* LEFT COLUMN: Text Content */}
+      <div className="lg:col-span-2 space-y-6">
+          {/* Mini Tag Input */}
+          <div className="space-y-2">
+            <Label className="text-xs uppercase text-muted-foreground">Mini Tag</Label>
+            <Input 
+              className="font-mono text-xs uppercase tracking-wider bg-secondary/30"
+              value={form.miniTag}
+              onChange={(e) => setForm({...form, miniTag: e.target.value})}
+              placeholder="MINI TAG"
+            />
+          </div>
+
+          {/* Title Inputs */}
+          <div className="space-y-2">
+            <Label className="text-xs uppercase text-muted-foreground">Title Lines (Split by Enter)</Label>
+            <Textarea 
+              className="text-2xl font-bold font-heading min-h-[100px]"
+              value={form.titleLines.join('\n')}
+              onChange={(e) => setForm({...form, titleLines: e.target.value.split('\n')})}
+              placeholder="Line 1&#10;Line 2"
+            />
+          </div>
+
+          {/* Subtitle Input */}
+          <div className="space-y-2">
+            <Label className="text-xs uppercase text-muted-foreground">Subtitle</Label>
+            <Textarea 
+              className="text-muted-foreground min-h-[80px]"
+              value={form.subtitle}
+              onChange={(e) => setForm({...form, subtitle: e.target.value})}
+              placeholder="Enter hero subtitle..."
+            />
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="grid sm:grid-cols-2 gap-4 pt-4">
+            {/* Primary CTA */}
+            <div className="p-4 border rounded-lg bg-slate-50 space-y-3">
+               <div className="flex items-center justify-between">
+                 <span className="text-sm font-bold text-primary">Primary Button</span>
+                 <Switch checked={form.ctas.primary.isEnabled} onCheckedChange={(c) => setForm({...form, ctas: {...form.ctas, primary: {...form.ctas.primary, isEnabled: c}}})} />
+               </div>
+               {form.ctas.primary.isEnabled && (
+                 <div className="space-y-2">
+                   <Input className="h-8 text-sm" placeholder="Label" value={form.ctas.primary.label} onChange={(e) => setForm({...form, ctas: {...form.ctas, primary: {...form.ctas.primary, label: e.target.value}}})} />
+                   <Input className="h-8 text-sm text-muted-foreground" placeholder="Link /path" value={form.ctas.primary.href} onChange={(e) => setForm({...form, ctas: {...form.ctas, primary: {...form.ctas.primary, href: e.target.value}}})} />
+                 </div>
+               )}
+            </div>
+
+            {/* Secondary CTA */}
+            <div className="p-4 border rounded-lg bg-slate-50 space-y-3">
+               <div className="flex items-center justify-between">
+                 <span className="text-sm font-bold text-muted-foreground">Secondary Button</span>
+                 <Switch checked={form.ctas.secondary.isEnabled} onCheckedChange={(c) => setForm({...form, ctas: {...form.ctas, secondary: {...form.ctas.secondary, isEnabled: c}}})} />
+               </div>
+               {form.ctas.secondary.isEnabled && (
+                 <div className="space-y-2">
+                   <Input className="h-8 text-sm" placeholder="Label" value={form.ctas.secondary.label} onChange={(e) => setForm({...form, ctas: {...form.ctas, secondary: {...form.ctas.secondary, label: e.target.value}}})} />
+                   <Input className="h-8 text-sm text-muted-foreground" placeholder="Link /path" value={form.ctas.secondary.href} onChange={(e) => setForm({...form, ctas: {...form.ctas, secondary: {...form.ctas.secondary, href: e.target.value}}})} />
+                 </div>
+               )}
+            </div>
+          </div>
       </div>
 
-      {/* Title Inputs (Lines) */}
-      <div className="space-y-2">
-        <Textarea 
-          className="text-center text-4xl font-bold font-heading border-none focus:ring-1 focus:ring-primary bg-transparent resize-none overflow-hidden"
-          rows={2}
-          value={form.titleLines.join('\n')}
-          onChange={(e) => handleChange('titleLines', e.target.value.split('\n'))}
-          placeholder="Title Line 1&#10;Title Line 2"
-        />
-        <p className="text-xs text-muted-foreground">Enter title lines separated by enter</p>
+      {/* RIGHT COLUMN: Image Upload */}
+      <div className="lg:col-span-1 space-y-4">
+          <Label className="text-xs uppercase text-muted-foreground">Hero Image</Label>
+          
+          <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-1 bg-slate-50 overflow-hidden relative group">
+              {/* Image Preview */}
+              <div className="aspect-[4/5] relative bg-white rounded-lg overflow-hidden flex items-center justify-center">
+                  {preview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={preview} alt="Hero Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center text-muted-foreground gap-2">
+                       <ImageIcon className="w-8 h-8 opacity-20" />
+                       <span className="text-xs">No Image Set</span>
+                    </div>
+                  )}
+                  
+                  {/* Overlay for hover */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                      <span className="text-white text-xs font-medium">Click button below to change</span>
+                  </div>
+              </div>
+          </div>
+
+          {/* Upload Button */}
+          <div className="grid gap-2">
+             <Input 
+                id="hero-image-upload" 
+                type="file" 
+                className="hidden" 
+                accept="image/*"
+                onChange={handleImageChange}
+             />
+             <Button variant="outline" className="w-full" onClick={() => document.getElementById('hero-image-upload')?.click()}>
+                <Upload className="w-4 h-4 mr-2" /> 
+                {preview ? "Replace Image" : "Upload Image"}
+             </Button>
+             
+             {selectedFile && (
+                <p className="text-[10px] text-green-600 font-medium text-center truncate px-2">
+                  Selected: {selectedFile.name}
+                </p>
+             )}
+          </div>
+
+          <div className="pt-8">
+             <Button onClick={handleSave} disabled={saving} className="w-full h-12 text-base shadow-lg shadow-primary/20">
+               {saving ? <Loader2 className="animate-spin mr-2" /> : <Save className="mr-2 w-4 h-4" />}
+               Save Hero Section
+             </Button>
+          </div>
       </div>
 
-      {/* Subtitle Input */}
-      <Textarea 
-        className="text-center text-lg text-muted-foreground border-none focus:ring-1 focus:ring-primary bg-transparent resize-none"
-        rows={3}
-        value={form.subtitle}
-        onChange={(e) => handleChange('subtitle', e.target.value)}
-        placeholder="Enter your hero subtitle here..."
-      />
-
-      {/* CTA Buttons */}
-      <div className="flex flex-wrap items-center justify-center gap-4 pt-4 border-t border-dashed mt-6">
-        <div className="flex flex-col gap-2 items-center p-3 border rounded-lg bg-white shadow-sm">
-           <div className="flex items-center gap-2 mb-1">
-             <span className="text-xs font-bold text-primary">Primary Button</span>
-             <Switch checked={form.ctas.primary.isEnabled} onCheckedChange={(c) => {
-                setForm((prev:any) => ({...prev, ctas: {...prev.ctas, primary: {...prev.ctas.primary, isEnabled: c}}}));
-                setIsDirty(true);
-             }} />
-           </div>
-           {form.ctas.primary.isEnabled && (
-             <>
-               <Input className="h-8 text-sm" placeholder="Label" value={form.ctas.primary.label} onChange={(e) => {
-                  setForm((prev:any) => ({...prev, ctas: {...prev.ctas, primary: {...prev.ctas.primary, label: e.target.value}}}));
-                  setIsDirty(true);
-               }} />
-               <Input className="h-8 text-sm text-muted-foreground" placeholder="Link #" value={form.ctas.primary.href} onChange={(e) => {
-                  setForm((prev:any) => ({...prev, ctas: {...prev.ctas, primary: {...prev.ctas.primary, href: e.target.value}}}));
-                  setIsDirty(true);
-               }} />
-             </>
-           )}
-        </div>
-
-        <div className="flex flex-col gap-2 items-center p-3 border rounded-lg bg-white shadow-sm">
-           <div className="flex items-center gap-2 mb-1">
-             <span className="text-xs font-bold text-muted-foreground">Secondary Button</span>
-             <Switch checked={form.ctas.secondary.isEnabled} onCheckedChange={(c) => {
-                setForm((prev:any) => ({...prev, ctas: {...prev.ctas, secondary: {...prev.ctas.secondary, isEnabled: c}}}));
-                setIsDirty(true);
-             }} />
-           </div>
-           {form.ctas.secondary.isEnabled && (
-             <>
-               <Input className="h-8 text-sm" placeholder="Label" value={form.ctas.secondary.label} onChange={(e) => {
-                  setForm((prev:any) => ({...prev, ctas: {...prev.ctas, secondary: {...prev.ctas.secondary, label: e.target.value}}}));
-                  setIsDirty(true);
-               }} />
-               <Input className="h-8 text-sm text-muted-foreground" placeholder="Link #" value={form.ctas.secondary.href} onChange={(e) => {
-                  setForm((prev:any) => ({...prev, ctas: {...prev.ctas, secondary: {...prev.ctas.secondary, href: e.target.value}}}));
-                  setIsDirty(true);
-               }} />
-             </>
-           )}
-        </div>
-      </div>
-
-      {isDirty && (
-        <div className="pt-4">
-          <Button onClick={handleSave} className="w-full max-w-xs mx-auto"><Save className="w-4 h-4 mr-2"/> Save Changes</Button>
-        </div>
-      )}
     </div>
   );
 }
-
 
 // ============================================================================
 // 2. MARQUEE EDITOR
@@ -394,14 +458,8 @@ function TestimonialsEditor({ data, onRefresh }: { data: any, onRefresh: () => v
   const { toast } = useToast();
   const [meta, setMeta] = useState({ isEnabled: data.isEnabled, heading: data.heading });
   
-  // Note: Since you have a global Testimonials manager, we usually just link there. 
-  // However, your JSON has specific items here. I'll provide a basic JSON-style editor or simple list for these specific items 
-  // IF they are different from global. Assuming they are specific:
-  
   const handleSave = async () => {
     try {
-        // We only update the meta here for brevity in this specific request, 
-        // to fully edit the array, duplicate the Timeline Logic above.
         await updateTestimonialsSection({ ...meta, items: data.items }); 
         toast({ title: "Updated" });
     } catch(e) { toast({ title: "Error", variant: "destructive" }); }

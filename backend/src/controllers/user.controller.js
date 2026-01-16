@@ -17,7 +17,7 @@ const sendOTPEmail = async (email, otp) => {
         const htmlContent = `
             <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                 <h2 style="color: #2563eb;">Verify Your Account</h2>
-                <p>Thanks for joining ODE Studio! To complete your registration, please use the following verification code:</p>
+                <p>Thanks for joining Bloom Branding! To complete your registration, please use the following verification code:</p>
                 <div style="background: #f4f4f4; padding: 15px; border-radius: 5px; text-align: center; margin: 20px 0;">
                     <h1 style="margin: 0; color: #333; letter-spacing: 5px;">${otp}</h1>
                 </div>
@@ -28,7 +28,7 @@ const sendOTPEmail = async (email, otp) => {
 
         await sendEmail({
             to: email,
-            subject: "Your Verification Code - ODE Studio",
+            subject: "Your Verification Code - Bloom Branding",
             html: htmlContent
         });
     } catch (error) {

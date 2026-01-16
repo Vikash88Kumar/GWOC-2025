@@ -1,23 +1,40 @@
-import { Router } from "express";
-import { 
-    getHomePage, 
-    updateHomePage, 
-    updateHomeHero, 
-    updateHomeIntro, 
-    updateHomeProjects, 
-    updateHomeStats, 
-    updateHomeFooter 
+import express from "express";
+import {
+  getHomePage,
+  updateHomePage,
+  updateHomeHero,
+  updateHomeIntro,
+  updateHomeProjectItem,
+  addHomeProjectItem,
+  updateHomeProjectsMeta,
+  updateHomeStats,
+  updateHomeClients,
+  updateHomeFooter
 } from "../controllers/homepage.controller.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
-const router = Router();
+const router = express.Router();
 
-router.route("/").get(getHomePage).patch(updateHomePage); // Base endpoints
+router.get("/", getHomePage);
+router.route("/").patch(updateHomePage)
+// Hero (Image Upload supported)
+router.patch("/hero", upload.single("heroImage"), updateHomeHero);
 
-// Specific Section Endpoints
-router.route("/hero").patch(updateHomeHero);
-router.route("/intro").patch(updateHomeIntro);
-router.route("/projects").patch(updateHomeProjects);
-router.route("/stats").patch(updateHomeStats);
-router.route("/footer").patch(updateHomeFooter);
+// Intro
+router.patch("/intro", updateHomeIntro);
+
+// Projects (Split into Meta, Add Item, Update Item)
+router.patch("/projects/meta", updateHomeProjectsMeta);
+router.post("/projects/items", upload.single("projectImage"), addHomeProjectItem);
+router.patch("/projects/items/:itemId", upload.single("projectImage"), updateHomeProjectItem);
+
+// Stats
+router.patch("/stats", updateHomeStats);
+
+// Clients (New Section)
+router.patch("/clients", upload.single("clientLogo"), updateHomeClients);
+
+// Footer
+router.patch("/footer", updateHomeFooter);
 
 export default router;
