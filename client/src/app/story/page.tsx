@@ -1,37 +1,45 @@
-'use client'
-import Navbar from "@/components/Navbar";
+'use client';
+
+import React, { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
 import Timeline from "@/components/Timeline";
-import Services from "@/components/Services";
-import { useEffect, useState } from "react";
-import {getStoryPage } from "../../services/story.api.js"
-// import Stats from "@/components/Stats";
-// import CTA from "@/components/CTA";
-// import Footer from "@/components/Footer";
+import FounderProfile from "@/components/FounderProfile";
+import VisionValues from "@/components/VisionValues";
+import { getStoryPage } from "../../services/story.api.js";
 
 const Index = () => {
-  const [data,setData]=useState<any>(null)
-  useEffect(()=>{
-    const fetchStory=async()=>{
-      try{
-        const res=await getStoryPage()
-        // getStoryPage returns ApiResponse-like object: { statusCode, data, message }
-        setData(res?.data ?? res)
-      }catch(e){
-        console.error('Failed to load story page', e)
+  // We can fetch data if needed, or use static defaults for the Story narrative
+  const [data, setData] = useState<any>(null);
+
+  // Optional: Fetch dynamic data if existing API supports it, otherwise defaults in components work
+  useEffect(() => {
+    const fetchStory = async () => {
+      try {
+        const res = await getStoryPage();
+        setData(res?.data ?? res);
+      } catch (e) {
+        console.error(e);
       }
     }
-    fetchStory()
-  },[])
+    fetchStory();
+  }, []);
+
+  const storyHeroData = {
+    miniTag: "Blooming Since 2018",
+    titleLines: ["Our Story", "Unfolded"],
+    subtitle: "From a small coffee shop table to a global branding studio. This is how we grew, one brand at a time.",
+    ctas: {
+      primary: { label: "View Our Work", href: "/#portfolio", variant: "outline" },
+      secondary: { label: "Contact Us", href: "/contact", variant: "ghost" }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* <Navbar /> */}
-      <Hero hero={data?.hero} />
+    <div className="min-h-screen bg-[var(--earth-gray)]">
+      <Hero hero={data?.hero || storyHeroData} />
+      <VisionValues />
       <Timeline timeline={data?.timeline} />
-      {/* <Services /> */}
-      {/* <Stats /> */}
-      {/* <CTA /> */}
-      {/* <Footer /> */}
+      <FounderProfile />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2, X, Send, Sparkles } from "lucide-react";
 import { submitContactForm } from "../services/contact.api.js"
+
 /* ------------------ ANIMATION VARIANTS ------------------ */
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -39,7 +40,7 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-chocolate/60 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--dark-chocolate)]/60 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
@@ -47,15 +48,15 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.8, opacity: 0, y: 20 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="relative bg-background rounded-3xl p-8 md:p-12 max-w-md w-full shadow-2xl border border-primary/20"
+          className="relative bg-[var(--earth-gray)] rounded-3xl p-8 md:p-12 max-w-md w-full shadow-2xl border border-[var(--dark-chocolate)]/20"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-chocolate/10 transition-colors"
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-[var(--dark-chocolate)]/10 transition-colors"
           >
-            <X className="w-5 h-5 text-chocolate" />
+            <X className="w-5 h-5 text-[var(--dark-chocolate)]" />
           </button>
 
           {/* Success icon */}
@@ -63,7 +64,7 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg"
+            className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-[var(--electric-rust)] to-[var(--electric-rust)]/70 flex items-center justify-center shadow-lg"
           >
             <motion.div
               initial={{ pathLength: 0 }}
@@ -80,21 +81,21 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             animate={{ rotate: 360, scale: [1, 1.2, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <Sparkles className="w-6 h-6 text-accent" />
+            <Sparkles className="w-6 h-6 text-[var(--butter-yellow)]" />
           </motion.div>
           <motion.div
             className="absolute top-16 right-16"
             animate={{ rotate: -360, scale: [1, 1.3, 1] }}
             transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
           >
-            <Sparkles className="w-4 h-4 text-primary" />
+            <Sparkles className="w-4 h-4 text-[var(--electric-rust)]" />
           </motion.div>
 
           <motion.h3
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-2xl md:text-3xl font-display font-bold text-chocolate text-center mb-3"
+            className="text-2xl md:text-3xl font-display font-bold text-[var(--dark-chocolate)] text-center mb-3"
           >
             Message Sent!
           </motion.h3>
@@ -103,7 +104,7 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-chocolate/70 text-center mb-6"
+            className="text-[var(--dark-chocolate)]/70 text-center mb-6"
           >
             Thank you for reaching out! We'll get back to you within 24-48 hours.
           </motion.p>
@@ -115,7 +116,7 @@ const SuccessModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onClose}
-            className="w-full py-3 bg-chocolate text-background rounded-full font-medium hover:bg-primary transition-colors"
+            className="w-full py-3 bg-[var(--dark-chocolate)] text-[var(--earth-gray)] rounded-full font-medium hover:bg-[var(--electric-rust)] transition-colors"
           >
             Got it!
           </motion.button>
@@ -154,17 +155,6 @@ const ContactPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   await createTestimonial()
-  //   // Simulate API call
-  //   await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  //   setIsLoading(false);
-  //   setShowSuccess(true);
-  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -213,22 +203,17 @@ const ContactPage = () => {
 
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-white via-sky-50 to-amber-50 relative overflow-hidden">
+    <div className="w-full min-h-screen bg-[var(--earth-gray)] relative overflow-hidden">
       {/* Decorative elements */}
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" as const }}
-        className="absolute top-20 left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl"
+        className="absolute top-20 left-10 w-64 h-64 bg-[var(--electric-rust)]/10 rounded-full blur-3xl"
       />
       <motion.div
         animate={{ y: [0, 15, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" as const }}
-        className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl"
-      />
-      <motion.div
-        animate={{ scale: [1, 1.1, 1] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" as const }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-chocolate/5 rounded-full blur-3xl"
+        className="absolute bottom-20 right-10 w-96 h-96 bg-[var(--butter-yellow)]/20 rounded-full blur-3xl"
       />
 
       {/* Content */}
@@ -241,26 +226,25 @@ const ContactPage = () => {
           className="text-center mb-12 md:mb-16"
         >
           <motion.div variants={fadeInUp} className="inline-block mb-4">
-            <span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium tracking-wide">
+            <span className="px-4 py-2 bg-[var(--electric-rust)]/10 text-[var(--electric-rust)] rounded-full text-sm font-medium tracking-wide">
               Get in Touch
             </span>
           </motion.div>
 
           <motion.h1
             variants={fadeInUp}
-            
-            className="text-center font-display text-4xl md:text-6xl lg:text-7xl font-bold text-chocolate mb-4"
+            className="text-center font-display text-4xl md:text-6xl lg:text-7xl font-bold text-[var(--dark-chocolate)] mb-4"
           >
             Let's create something{" "}
             <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-primary via-primary to-chocolate bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[var(--electric-rust)] via-[var(--electric-rust)] to-[var(--dark-chocolate)] bg-clip-text text-transparent">
                 meaningful
               </span>
               <motion.span
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ delay: 0.8, duration: 0.6 }}
-                className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent rounded-full origin-left"
+                className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[var(--electric-rust)] to-[var(--butter-yellow)] rounded-full origin-left"
               />
             </span>
           </motion.h1>
@@ -268,7 +252,7 @@ const ContactPage = () => {
 
           <motion.p
             variants={fadeInUp}
-            className="text-chocolate/60 text-lg md:text-xl max-w-xl mx-auto"
+            className="text-[var(--dark-chocolate)]/60 text-lg md:text-xl max-w-xl mx-auto"
           >
             Tell us about your project and we'll be in touch shortly.
           </motion.p>
@@ -281,9 +265,9 @@ const ContactPage = () => {
           transition={{ delay: 0.4, duration: 0.8 }}
           className="max-w-3xl mx-auto"
         >
-          <div className="bg-background/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-chocolate/10 overflow-hidden">
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-[var(--dark-chocolate)]/10 overflow-hidden">
             {/* Form header decoration */}
-            <div className="h-2 bg-gradient-to-r from-primary via-accent to-chocolate" />
+            <div className="h-2 bg-gradient-to-r from-[var(--electric-rust)] via-[var(--butter-yellow)] to-[var(--dark-chocolate)]" />
 
             <div className="p-6 md:p-10 lg:p-12">
               <form onSubmit={handleSubmit} className="space-y-8">
@@ -295,7 +279,7 @@ const ContactPage = () => {
                   className="grid md:grid-cols-2 gap-6"
                 >
                   <div className="group">
-                    <label className="block text-sm font-medium text-chocolate/80 mb-2 group-focus-within:text-primary transition-colors">
+                    <label className="block text-sm font-medium text-[var(--dark-chocolate)]/80 mb-2 group-focus-within:text-[var(--electric-rust)] transition-colors">
                       First Name
                     </label>
                     <input
@@ -304,12 +288,12 @@ const ContactPage = () => {
                       value={formData.firstName}
                       onChange={handleChange}
                       placeholder="John"
-                      className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
+                      className="w-full bg-transparent border-b-2 border-[var(--dark-chocolate)]/20 py-3 outline-none focus:border-[var(--electric-rust)] transition-all placeholder:text-[var(--dark-chocolate)]/30 text-[var(--dark-chocolate)]"
                     />
                   </div>
 
                   <div className="group">
-                    <label className="block text-sm font-medium text-chocolate/80 mb-2 group-focus-within:text-primary transition-colors">
+                    <label className="block text-sm font-medium text-[var(--dark-chocolate)]/80 mb-2 group-focus-within:text-[var(--electric-rust)] transition-colors">
                       Last Name
                     </label>
                     <input
@@ -318,7 +302,7 @@ const ContactPage = () => {
                       value={formData.lastName}
                       onChange={handleChange}
                       placeholder="Doe"
-                      className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
+                      className="w-full bg-transparent border-b-2 border-[var(--dark-chocolate)]/20 py-3 outline-none focus:border-[var(--electric-rust)] transition-all placeholder:text-[var(--dark-chocolate)]/30 text-[var(--dark-chocolate)]"
                     />
                   </div>
                 </motion.div>
@@ -330,8 +314,8 @@ const ContactPage = () => {
                   transition={{ delay: 0.6 }}
                   className="group"
                 >
-                  <label className="block text-sm font-medium text-chocolate/80 mb-2 group-focus-within:text-primary transition-colors">
-                    Email <span className="text-primary">*</span>
+                  <label className="block text-sm font-medium text-[var(--dark-chocolate)]/80 mb-2 group-focus-within:text-[var(--electric-rust)] transition-colors">
+                    Email <span className="text-[var(--electric-rust)]">*</span>
                   </label>
                   <input
                     type="email"
@@ -340,7 +324,7 @@ const ContactPage = () => {
                     onChange={handleChange}
                     required
                     placeholder="john@email.com"
-                    className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
+                    className="w-full bg-transparent border-b-2 border-[var(--dark-chocolate)]/20 py-3 outline-none focus:border-[var(--electric-rust)] transition-all placeholder:text-[var(--dark-chocolate)]/30 text-[var(--dark-chocolate)]"
                   />
                 </motion.div>
 
@@ -352,7 +336,7 @@ const ContactPage = () => {
                   className="grid md:grid-cols-2 gap-6"
                 >
                   <div className="group">
-                    <label className="block text-sm font-medium text-chocolate/80 mb-2 group-focus-within:text-primary transition-colors">
+                    <label className="block text-sm font-medium text-[var(--dark-chocolate)]/80 mb-2 group-focus-within:text-[var(--electric-rust)] transition-colors">
                       Budget
                     </label>
                     <input
@@ -361,12 +345,12 @@ const ContactPage = () => {
                       value={formData.budget}
                       onChange={handleChange}
                       placeholder="$5,000 - $10,000"
-                      className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
+                      className="w-full bg-transparent border-b-2 border-[var(--dark-chocolate)]/20 py-3 outline-none focus:border-[var(--electric-rust)] transition-all placeholder:text-[var(--dark-chocolate)]/30 text-[var(--dark-chocolate)]"
                     />
                   </div>
 
                   <div className="group">
-                    <label className="block text-sm font-medium text-chocolate/80 mb-2 group-focus-within:text-primary transition-colors">
+                    <label className="block text-sm font-medium text-[var(--dark-chocolate)]/80 mb-2 group-focus-within:text-[var(--electric-rust)] transition-colors">
                       Timeline
                     </label>
                     <input
@@ -375,7 +359,7 @@ const ContactPage = () => {
                       value={formData.timeline}
                       onChange={handleChange}
                       placeholder="2–3 months"
-                      className="w-full bg-transparent border-b-2 border-chocolate/20 py-3 outline-none focus:border-primary transition-all placeholder:text-chocolate/30 text-chocolate"
+                      className="w-full bg-transparent border-b-2 border-[var(--dark-chocolate)]/20 py-3 outline-none focus:border-[var(--electric-rust)] transition-all placeholder:text-[var(--dark-chocolate)]/30 text-[var(--dark-chocolate)]"
                     />
                   </div>
                 </motion.div>
@@ -386,7 +370,7 @@ const ContactPage = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 }}
                 >
-                  <label className="block text-sm font-medium text-chocolate/80 mb-4">
+                  <label className="block text-sm font-medium text-[var(--dark-chocolate)]/80 mb-4">
                     Services
                   </label>
                   <div className="flex flex-wrap gap-3">
@@ -399,8 +383,8 @@ const ContactPage = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className={`cursor-pointer px-5 py-2.5 rounded-full border-2 transition-all duration-300 ${selectedServices.includes(service)
-                          ? "bg-primary text-white border-primary shadow-lg shadow-primary/30"
-                          : "border-chocolate/20 text-chocolate/70 hover:border-primary/50 hover:bg-primary/5"
+                          ? "bg-[var(--electric-rust)] text-white border-[var(--electric-rust)] shadow-lg shadow-[var(--electric-rust)]/30"
+                          : "border-[var(--dark-chocolate)]/20 text-[var(--dark-chocolate)]/70 hover:border-[var(--electric-rust)]/50 hover:bg-[var(--electric-rust)]/5"
                           }`}
                       >
                         <input
@@ -422,7 +406,7 @@ const ContactPage = () => {
                   transition={{ delay: 0.9 }}
                   className="group"
                 >
-                  <label className="block text-sm font-medium text-chocolate/80 mb-2 group-focus-within:text-primary transition-colors">
+                  <label className="block text-sm font-medium text-[var(--dark-chocolate)]/80 mb-2 group-focus-within:text-[var(--electric-rust)] transition-colors">
                     Anything else?
                   </label>
                   <textarea
@@ -431,7 +415,7 @@ const ContactPage = () => {
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full bg-chocolate/5 rounded-2xl border-2 border-transparent p-4 outline-none focus:border-primary focus:bg-transparent transition-all placeholder:text-chocolate/30 text-chocolate resize-none"
+                    className="w-full bg-[var(--dark-chocolate)]/5 rounded-2xl border-2 border-transparent p-4 outline-none focus:border-[var(--electric-rust)] focus:bg-transparent transition-all placeholder:text-[var(--dark-chocolate)]/30 text-[var(--dark-chocolate)] resize-none"
                   />
                 </motion.div>
 
@@ -448,8 +432,8 @@ const ContactPage = () => {
                     whileHover={{ scale: isLoading ? 1 : 1.02 }}
                     whileTap={{ scale: isLoading ? 1 : 0.98 }}
                     className={`relative w-full md:w-auto px-12 py-4 rounded-full text-sm uppercase tracking-widest font-medium transition-all duration-300 flex items-center justify-center gap-3 ${isLoading
-                      ? "bg-chocolate/50 text-background cursor-not-allowed"
-                      : "bg-gradient-to-r from-chocolate to-chocolate/90 text-background hover:from-primary hover:to-primary/90 shadow-lg hover:shadow-xl hover:shadow-primary/20"
+                      ? "bg-[var(--dark-chocolate)]/50 text-[var(--earth-gray)] cursor-not-allowed"
+                      : "bg-gradient-to-r from-[var(--dark-chocolate)] to-[var(--dark-chocolate)]/90 text-[var(--earth-gray)] hover:from-[var(--electric-rust)] hover:to-[var(--electric-rust)]/90 shadow-lg hover:shadow-xl hover:shadow-[var(--electric-rust)]/20"
                       }`}
                   >
                     <AnimatePresence mode="wait">
@@ -483,7 +467,7 @@ const ContactPage = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.1 }}
-                    className="mt-4 text-sm text-chocolate/50"
+                    className="mt-4 text-sm text-[var(--dark-chocolate)]/50"
                   >
                     We usually reply within 24–48 hours.
                   </motion.p>
@@ -498,9 +482,9 @@ const ContactPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
-          className="mt-16 text-center text-xs tracking-widest text-chocolate/40 uppercase"
+          className="mt-16 text-center text-xs tracking-widest text-[var(--dark-chocolate)]/40 uppercase"
         >
-          © 2026 BY ODE STUDIO. ALL RIGHTS RESERVED.
+          © 2026 BY BLOOM BRANDING STUDIO. ALL RIGHTS RESERVED.
         </motion.footer>
       </div>
 

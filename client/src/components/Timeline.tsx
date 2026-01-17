@@ -67,7 +67,7 @@ const defaultMilestones: Milestone[] = [
 
 const Timeline = ({ timeline }: { timeline?: any }) => {
   const containerRef = useRef(null);
-  
+
   // Scroll tracking for the line animation
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -113,29 +113,29 @@ const Timeline = ({ timeline }: { timeline?: any }) => {
   return (
     <section
       ref={containerRef}
-      className="relative py-32 overflow-hidden bg-[#F2F1F0]" // Soft Earl Grey
+      className="relative py-32 overflow-hidden bg-[var(--earth-gray)]"
     >
       {/* --- ENHANCED HERO ANIMATION BACKGROUND --- */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Floating Glassmorphic Orbs */}
-        <motion.div 
-          animate={{ 
+        {/* Floating Glassmorphic Orbs - Rust & Yellow */}
+        <motion.div
+          animate={{
             y: [0, -40, 0],
             x: [0, 20, 0],
             rotate: [0, 10, 0]
           }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[10%] left-[5%] w-64 h-64 bg-[#BEE3F8] rounded-full blur-[80px] opacity-40"
+          className="absolute top-[10%] left-[5%] w-64 h-64 bg-[var(--electric-rust)] rounded-full blur-[80px] opacity-20"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             y: [0, 50, 0],
             x: [0, -30, 0]
           }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-[#FAF089] rounded-full blur-[100px] opacity-30"
+          className="absolute bottom-[20%] right-[10%] w-96 h-96 bg-[var(--butter-yellow)] rounded-full blur-[100px] opacity-20"
         />
-        
+
         {/* Animated Grid Pattern */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')] opacity-[0.05]" />
       </div>
@@ -146,18 +146,18 @@ const Timeline = ({ timeline }: { timeline?: any }) => {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            className="inline-block px-4 py-1 rounded-full bg-white border border-[#3D3735]/10 text-[#3D3735]/60 text-xs font-bold uppercase tracking-[0.4em] mb-6"
+            className="inline-block px-4 py-1 rounded-full bg-white border border-[var(--dark-chocolate)]/10 text-[var(--dark-chocolate)]/60 text-xs font-bold uppercase tracking-[0.4em] mb-6"
           >
             Our Journey
           </motion.div>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-6xl md:text-8xl font-black text-[#3D3735] tracking-tight"
+            className="text-6xl md:text-8xl font-black text-[var(--dark-chocolate)] tracking-tight"
           >
-            The Evolution of <br/>
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-[#90CDF4] to-[#F6E05E]">
+            The Evolution of <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--electric-rust)] to-[var(--butter-yellow)]">
               Greatness
             </span>
           </motion.h2>
@@ -165,10 +165,10 @@ const Timeline = ({ timeline }: { timeline?: any }) => {
 
         <div className="relative">
           {/* --- ANIMATED PROGRESS LINE --- */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-[#3D3735]/10 hidden md:block -translate-x-1/2" />
-          <motion.div 
+          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-[var(--dark-chocolate)]/10 hidden md:block -translate-x-1/2" />
+          <motion.div
             style={{ scaleY, originY: 0 }}
-            className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-linear-to-b from-[#90CDF4] to-[#F6E05E] hidden md:block -translate-x-1/2 z-20"
+            className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[var(--electric-rust)] to-[var(--butter-yellow)] hidden md:block -translate-x-1/2 z-20"
           />
 
           <div className="space-y-24 md:space-y-40">
@@ -179,25 +179,23 @@ const Timeline = ({ timeline }: { timeline?: any }) => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.8, ease: "circOut" }}
-                className={`relative md:flex items-center ${
-                  index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-                }`}
+                className={`relative md:flex items-center ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+                  }`}
               >
                 {/* Content Card */}
                 <div className={`md:w-1/2 ${index % 2 === 0 ? "md:pr-20 md:text-right" : "md:pl-20 text-left"}`}>
-                  <div className="group relative p-10 rounded-[2.5rem] bg-[#3D3735] shadow-2xl transition-transform hover:scale-[1.02] duration-500 overflow-hidden">
+                  <div className="group relative p-10 rounded-[2.5rem] bg-[var(--dark-chocolate)] shadow-2xl transition-transform hover:scale-[1.02] duration-500 overflow-hidden">
                     {/* Subtle Overlay Glow */}
                     {(() => {
                       const highlight = milestone.highlight || (index % 2 === 0 ? 'butter' : 'electric');
                       return (
                         <>
                           <div className={`absolute -right-10 -top-10 w-32 h-32 blur-[50px] opacity-20 group-hover:opacity-40 transition-opacity
-                            ${highlight === 'butter' ? 'bg-[#FAF089]' : 'bg-[#BEE3F8]'}`} 
+                            ${highlight === 'butter' ? 'bg-[var(--butter-yellow)]' : 'bg-[var(--electric-rust)]'}`}
                           />
 
-                          <span className={`text-5xl font-black tracking-tighter ${
-                            highlight === 'butter' ? 'text-[#FAF089]' : 'text-[#BEE3F8]'
-                          }`}>
+                          <span className={`text-5xl font-black tracking-tighter ${highlight === 'butter' ? 'text-[var(--butter-yellow)]' : 'text-[var(--electric-rust)]'
+                            }`}>
                             {milestone.year}
                           </span>
                         </>
@@ -214,13 +212,13 @@ const Timeline = ({ timeline }: { timeline?: any }) => {
 
                 {/* Animated Center Icon */}
                 <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center justify-center z-30">
-                  <motion.div 
-                    whileInView={{ 
-                      boxShadow: ["0px 0px 0px rgba(144,205,244,0)", "0px 0px 30px rgba(144,205,244,0.4)", "0px 0px 0px rgba(144,205,244,0)"] 
+                  <motion.div
+                    whileInView={{
+                      boxShadow: ["0px 0px 0px rgba(137,47,26,0)", "0px 0px 30px rgba(137,47,26,0.4)", "0px 0px 0px rgba(137,47,26,0)"]
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
                     className={`w-16 h-16 rounded-full flex items-center justify-center bg-white shadow-xl border-[3px]
-                    ${ (milestone.highlight || (index % 2 === 0 ? 'butter' : 'electric')) === 'butter' ? 'border-[#FAF089] text-[#3D3735]' : 'border-[#90CDF4] text-[#3D3735]'}`}
+                    ${(milestone.highlight || (index % 2 === 0 ? 'butter' : 'electric')) === 'butter' ? 'border-[var(--butter-yellow)] text-[var(--dark-chocolate)]' : 'border-[var(--electric-rust)] text-[var(--dark-chocolate)]'}`}
                   >
                     {milestone.image ? (
                       <img src={milestone.image} alt={milestone.title} className="w-8 h-8 object-cover rounded-full" />

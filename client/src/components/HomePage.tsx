@@ -39,9 +39,9 @@ const HomePage = () => {
         // 2. Handle Testimonial Data
         // specific to your backend: res.status(200).json(new ApiResponse(..., data, ...))
         if (testimonialRes?.data?.data) {
-           setDbTestimonials(testimonialRes.data.data);
+          setDbTestimonials(testimonialRes.data.data);
         } else if (Array.isArray(testimonialRes?.data)) {
-           setDbTestimonials(testimonialRes.data);
+          setDbTestimonials(testimonialRes.data);
         }
 
       } catch (err) {
@@ -57,9 +57,9 @@ const HomePage = () => {
 
   // --- ADDED: SLIDER LOGIC ---
   // Ensure we have an array. If backend sends a string or null, fallback to array or default.
-  const heroImages = Array.isArray(data?.hero?.backgroundImage) 
-    ? data.hero.backgroundImage 
-    : [data?.hero?.backgroundImage ];
+  const heroImages = Array.isArray(data?.hero?.backgroundImage)
+    ? data.hero.backgroundImage
+    : [data?.hero?.backgroundImage];
 
   useEffect(() => {
     if (heroImages.length <= 1) return; // Don't slide if only 1 image
@@ -73,26 +73,26 @@ const HomePage = () => {
   // Projects from AdminContext
   const { contentSections, testimonials: adminTestimonials, addTestimonial } = useAdmin();
   const projectsSection = contentSections.find(s => s.id === 'home-projects');
-  
+
   // Updated project mapping to match your Backend response structure (_id, subtitle, etc)
-  const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({ 
-    title: it.title || '', 
-    date: it.subtitle || '', 
+  const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({
+    title: it.title || '',
+    date: it.subtitle || '',
     img: it.image || '',
-    id: it._id 
+    id: it._id
   }));
-  
+
   const projects = apiProjects.length
     ? apiProjects
     : (projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? [
-        { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
-        { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
-        { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
-        { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
-      ]);
-  
+      { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
+      { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
+      { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
+      { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
+    ]);
+
   // Use backend marquee images if available
-  const images =  [
+  const images = [
     "/1.png", "/2.png", "/3.png", "/4.png", "/5.png", "/6.png", "/7.png", "/8.png", "/9.png", "/10.png",
     "/11.png", "/12.png", "/13.png", "/14.png", "/15.png", "/16.png", "/17.png", "/18.png", "/19.png", "/20.png",
     "/21.png", "/22.png", "/23.png", "/24.png", "/25.png", "/26.png", "/27.png", "/28.png", "/29.png", "/30.png",
@@ -110,7 +110,7 @@ const HomePage = () => {
     const name = t.user?.fullName || t.clientName || "Client";
     const company = t.user?.companyName || t.company || t.clientCompany || "";
     const role = t.role || t.clientRole || "";
-    const content = t.message || t.content || ""; 
+    const content = t.message || t.content || "";
     const image = t.user?.avatar || t.clientImage || '/placeholder-profile.png';
 
     return {
@@ -128,7 +128,7 @@ const HomePage = () => {
   const [star, setStar] = useState<number | null>(5);
   const [reviewSuccess, setReviewSuccess] = useState('');
 
-  const submitReview = async(e: React.FormEvent) => {
+  const submitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientName.trim() || !message.trim()) {
       setReviewSuccess('Please add your name and message.');
@@ -153,7 +153,7 @@ const HomePage = () => {
           status: t.status || 'pending',
           createdAt: t.createdAt || new Date().toISOString().split('T')[0],
         });
-        
+
         // Optionally refresh DB list
         // const newDetails = await getTestimonials();
         // setDbTestimonials(newDetails.data.data);
@@ -198,7 +198,7 @@ const HomePage = () => {
 
       {/* --- HERO SECTION WITH BG IMAGE SLIDER & ELECTRIC BLUE --- */}
       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-20 overflow-hidden">
-        
+
         {/* UPDATED: Background Image Slider */}
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout">
@@ -300,22 +300,22 @@ const HomePage = () => {
       {/* --- STICKY WORK SHOWCASE (DARK CHOC) --- */}
       <section className="bg-[#624a41] text-[#e8e6d8] py-32 px-8 md:px-20 relative">
         <div
-        className={cn(
-          "absolute inset-0",
-          "bg-size-[40px_40px]",
-          "bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
-          "dark:bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
-        )}
-      />
+          className={cn(
+            "absolute inset-0",
+            "bg-size-[40px_40px]",
+            "bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
+            "dark:bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
+          )}
+        />
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
 
           {/* LEFT SIDE: STICKY HEADER */}
           <div className="md:w-1/3 pr-8">
             <div className="sticky top-32 flex justify-center flex-col">
-               <h2 className="text-5xl font-light mb-6">{data?.projects?.heading ?? "Glimpse into our work"}</h2>
-               <p className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62]">{data?.projects?.subHeading ?? "Selected Works"}</p>
+              <h2 className="text-5xl font-light mb-6">{data?.projects?.heading ?? "Glimpse into our work"}</h2>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62]">{data?.projects?.subHeading ?? "Selected Works"}</p>
             </div>
-        </div>
+          </div>
 
 
           {/* RIGHT SIDE: VERTICAL SCROLLING IMAGES */}
@@ -341,7 +341,7 @@ const HomePage = () => {
                       />
                     </CardItem>
                     <div className="flex justify-between items-center mt-20">
-                      
+
                     </div>
                   </CardBody>
                 </CardContainer>
@@ -360,10 +360,10 @@ const HomePage = () => {
       <AnimatedTestimonials testimonials={animatedTestimonials} />
 
       {/* --- GIVE A REVIEW (FRONTEND ONLY) --- */}
-{/* --- GIVE A REVIEW (STYLED - SIMPLIFIED) --- */}
+      {/* --- GIVE A REVIEW (STYLED - SIMPLIFIED) --- */}
       <section className="py-32 px-8 md:px-20 bg-[#e8e6d8] relative border-t border-[#624a41]/10">
         <div className="max-w-2xl mx-auto">
-          
+
           {/* Section Header */}
           <div className="text-center mb-16">
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#bdaf62] font-bold block mb-4">
@@ -376,7 +376,7 @@ const HomePage = () => {
           </div>
 
           <form onSubmit={submitReview} className="space-y-12">
-            
+
             {/* Role Input */}
             <div className="group relative">
               <input
@@ -386,7 +386,7 @@ const HomePage = () => {
                 className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl"
                 id="roleInput"
               />
-              <label 
+              <label
                 htmlFor="roleInput"
                 className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]"
               >
@@ -404,7 +404,7 @@ const HomePage = () => {
                 className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl resize-none"
                 id="messageInput"
               />
-              <label 
+              <label
                 htmlFor="messageInput"
                 className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]"
               >
@@ -414,7 +414,7 @@ const HomePage = () => {
 
             {/* Rating & Submit */}
             <div className="flex flex-col items-center gap-10 mt-12">
-              
+
               {/* Star Rating */}
               <div className="flex flex-col items-center gap-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-[#624a41]/40">Rating</span>
@@ -426,12 +426,12 @@ const HomePage = () => {
                       onClick={() => setStar(n)}
                       className="transition-transform hover:scale-110 focus:outline-none"
                     >
-                      <Star 
-                        size={24} 
+                      <Star
+                        size={24}
                         className={cn(
                           "transition-colors duration-300",
                           star && n <= star ? "fill-[#892f1a] text-[#892f1a]" : "text-[#624a41]/20"
-                        )} 
+                        )}
                       />
                     </button>
                   ))}
@@ -482,37 +482,9 @@ const HomePage = () => {
 
 
       {/* --- FOOTER --- */}
-      <footer className="bg-white/40 pt-32 pb-12 px-8 md:px-20 border-t border-[#624a41]/10">
-        <div className="flex flex-col md:flex-row justify-between gap-24 mb-32 max-w-7xl mx-auto">
-          <div>
-            <h3 className="text-5xl mb-12">{data?.footer?.heading ?? (<><span className="text-[#892f1a] italic">Ready to</span> elevate <br />your brand?</>)}</h3>
-            <div className="flex pb-4 w-full md:w-96 group">
-              <Link href={data?.footer?.ctaLink ?? '/contact'} className="no-underline">
-                <button className="flex items-center gap-4 bg-[#892f1a] text-white px-6 py-3 text-[10px] uppercase tracking-[0.4em] hover:bg-[#624a41] transition-all duration-500 shadow-xl">{data?.footer?.ctaText ?? 'Contact Us'}</button>
-                {/* <ArrowRight className="text-[#892f1a] group-hover:translate-x-2 transition-transform" /> */}
-              </Link>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-20 text-[10px] font-sans uppercase tracking-[0.4em]">
-            <div className="flex flex-col gap-6">
-              <a href="#" className="hover:text-[#892f1a]">Our Story</a>
-              <a href="#" className="hover:text-[#892f1a]">Work</a>
-            </div>
-            <div className="flex flex-col gap-6">
-              <div className="flex gap-4 text-[#624a41]/60">
-                <Instagram size={18} className="hover:text-[#892f1a]" />
-                <Facebook size={18} className="hover:text-[#892f1a]" />
-                <Linkedin size={18} className="hover:text-[#892f1a]" />
-              </div>
-            </div>
-          </div>
-
-
-        </div>
-        <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-2 ring-1 ring-neutral-700/10 dark:bg-neutral-800">
-          <ThreeDMarquee images={images} />
-        </div>
-      </footer>
+      <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-2 ring-1 ring-neutral-700/10 dark:bg-neutral-800">
+        <ThreeDMarquee images={images} />
+      </div>
     </div>
   );
 };

@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {useDispatch } from "react-redux"
-import {useRouter} from "next/navigation"
+import { useDispatch } from "react-redux"
+import { useRouter } from "next/navigation"
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, Transition } from 'framer-motion';
-import {logout as authlogout} from "../contextapi/authSlice"
+import { logout as authlogout } from "../contextapi/authSlice"
 import { logout } from '@/services/user.api';
+
 interface NavItem {
   path: string;
   label: string;
@@ -17,7 +18,7 @@ const navItems: NavItem[] = [
   { path: '/', label: 'Home' },
   { path: '/services', label: 'Services' },
   { path: '/story', label: 'Our Story' },
-  { path: '/founder', label: 'Founder' },
+  // { path: '/founder', label: 'Founder' },
   { path: '/contact', label: 'Contact' },
 ];
 
@@ -34,18 +35,25 @@ const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  const router=useRouter()
-    const dispatch=useDispatch()
-    const handelLogout=async()=>{
+
+  const router = useRouter()
+  const dispatch = useDispatch()
+
+  const handelLogout = async () => {
     try {
-     const res=await logout()
-     dispatch(authlogout())
-     router.push("/login")
-     return res
-   } catch (error) {
-    console.log("logout failed",error)
-   }
+      const res = await logout()
+      dispatch(authlogout())
+      router.push("/login")
+      return res
+    } catch (error) {
+      console.log("logout failed", error)
+    }
   }
+
+  // Dynamic Colors based on scroll
+  const navTextColor = scrolled ? "text-[var(--earth-gray)]" : "text-[var(--dark-chocolate)]";
+  const logoTextMain = scrolled ? "text-[var(--earth-gray)]" : "text-[var(--dark-chocolate)]";
+  const logoTextAccent = scrolled ? "text-[var(--butter-yellow)]" : "text-[var(--electric-rust)]";
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex justify-center pointer-events-none">
@@ -55,21 +63,22 @@ const Navbar: React.FC = () => {
           width: scrolled ? "max-content" : "100%",
           marginTop: scrolled ? "20px" : "0px",
           borderRadius: scrolled ? "100px" : "0px",
-          backgroundColor: scrolled ? "rgba(23, 23, 23, 0.8)" : "rgba(0, 0, 0, 0)",
-          paddingLeft: scrolled ? "24px" : "40px",
-          paddingRight: scrolled ? "24px" : "40px",
-          border: scrolled ? "1px solid rgba(255,255,255,0.08)" : "1px solid transparent",
+          backgroundColor: scrolled ? "rgba(98, 74, 65, 0.95)" : "rgba(232, 230, 216, 0.0)", // Chocolate vs Transparent
+          paddingLeft: scrolled ? "32px" : "40px",
+          paddingRight: scrolled ? "32px" : "40px",
+          border: scrolled ? "1px solid rgba(255,255,255,0.1)" : "1px solid transparent",
+          boxShadow: scrolled ? "0 20px 25px -5px rgb(0 0 0 / 0.1)" : "none",
         }}
         transition={spring}
-        className="h-14 flex items-center justify-between gap-12 backdrop-blur-md pointer-events-auto overflow-hidden shadow-2xl shadow-black/50"
+        className="h-20 flex items-center justify-between gap-12 backdrop-blur-sm pointer-events-auto overflow-hidden"
       >
         {/* LOGO SECTION */}
-        <Link href="/" className="flex items-center gap-3 shrink-0 pointer-events-auto">
-          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black font-black text-sm overflow-hidden">
-            <img 
-              src="./mark logo.png" 
-              alt="Logo" 
-              className="w-14 h-14 oobject-contain scale-140"
+        <Link href="/" className="flex items-center gap-3 shrink-0 pointer-events-auto group">
+          <div className="w-10 h-10 bg-[var(--earth-gray)] rounded-full flex items-center justify-center overflow-hidden border border-[var(--dark-chocolate)]/10 shadow-sm transition-transform group-hover:scale-105">
+            <img
+              src="./mark logo.png"
+              alt="Logo"
+              className="w-12 h-12 object-contain scale-125"
             />
           </div>
           <AnimatePresence mode="popLayout">
@@ -78,31 +87,34 @@ const Navbar: React.FC = () => {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="text-lg font-bold tracking-tighter text-black whitespace-nowrap"
+                className={`text-xl font-display font-bold tracking-tight ${logoTextMain}`}
               >
-                Bloom <span className="text-amber-900">Branding</span>
+                Bloom<span className={logoTextAccent}>.</span>
               </motion.span>
             )}
           </AnimatePresence>
         </Link>
 
         {/* CENTER LINKS (Desktop) */}
-        <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-[0.2em] text-gray-500">
+        <div className={`hidden md:flex items-center gap-10 text-[11px] font-bold uppercase tracking-[0.2em] ${navTextColor}`}>
           {navItems.map((item) => {
             const isActive = pathname === item.path;
+            // Active state color logic
+            const activeColor = scrolled ? "text-[var(--butter-yellow)]" : "text-[var(--electric-rust)]";
+            const hoverColor = scrolled ? "hover:text-white" : "hover:text-[var(--electric-rust)]";
+
             return (
               <Link
                 key={item.label}
                 href={item.path}
-                className={`relative py-2 transition-colors duration-300 ${
-                  isActive ? 'text-white' : 'hover:text-gray-500'
-                }`}
+                className={`relative py-2 transition-colors duration-300 ${isActive ? activeColor : hoverColor
+                  }`}
               >
                 {item.label}
                 {isActive && (
                   <motion.div
                     layoutId="nav-underline"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-white rounded-full"
+                    className={`absolute -bottom-1 left-0 right-0 h-[2px] rounded-full ${scrolled ? 'bg-[var(--butter-yellow)]' : 'bg-[var(--electric-rust)]'}`}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -112,23 +124,17 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* ACTION BUTTONS */}
-         <div className="flex items-center gap-3 shrink-0">
-          <AnimatePresence>
-            {!scrolled && (
-              <Link href="/login">
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="hidden sm:block text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white px-4"
-                >
-                  Login
-                </motion.button>
-              </Link>
-            )}
-          </AnimatePresence>
-          <button onClick={handelLogout}>logout</button>
-        </div> 
+        <div className={`flex items-center gap-6 shrink-0 ${navTextColor}`}>
+          <button
+            onClick={handelLogout}
+            className={`text-[10px] font-bold uppercase tracking-widest px-5 py-2 rounded-full border transition-all duration-300 ${scrolled
+                ? "border-white/20 hover:bg-[var(--butter-yellow)] hover:text-[var(--dark-chocolate)] hover:border-transparent"
+                : "border-[var(--dark-chocolate)]/20 hover:bg-[var(--electric-rust)] hover:text-white hover:border-transparent"
+              }`}
+          >
+            Log Out
+          </button>
+        </div>
       </motion.nav>
     </header>
   );

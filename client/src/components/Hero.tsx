@@ -13,13 +13,13 @@ const Hero = ({ hero }: { hero?: any }) => {
   const secondary = hero?.ctas?.secondary || { label: "Our Services", href: "#services", variant: "ghost" };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
-      
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[var(--earth-gray)]">
+
       {/* ANIMATION LAYER 
           We use a CSS filter to turn the default white/blue beams into 
           a Dark Chocolate color to match your branding.
       */}
-      <div className="absolute inset-0 z-0 pointer-events-none brightness-[0] sepia-[1] hue-rotate-400 saturate-[2] opacity-200">
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 mix-blend-multiply">
         <BackgroundBeams />
       </div>
 
@@ -35,7 +35,7 @@ const Hero = ({ hero }: { hero?: any }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="inline-block px-4 py-2 rounded-full bg-secondary/30 text-chocolate font-medium text-sm mb-6"
+            className="inline-block px-4 py-2 rounded-full bg-[var(--butter-yellow)]/30 text-[var(--dark-chocolate)] font-medium text-sm mb-6"
           >
             {miniTag}
           </motion.span>
@@ -44,10 +44,10 @@ const Hero = ({ hero }: { hero?: any }) => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-chocolate leading-tight mb-6"
+            className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-[var(--dark-chocolate)] leading-tight mb-6"
           >
             {titleLines.map((line, i) => (
-              <span key={i} className={i === 1 ? 'block text-gradient-electric' : ''}>{line}</span>
+              <span key={i} className={i === 1 ? 'block text-[var(--electric-rust)]' : ''}>{line}</span>
             ))}
           </motion.h1>
 
@@ -55,7 +55,7 @@ const Hero = ({ hero }: { hero?: any }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+            className="text-lg md:text-xl text-[var(--dark-chocolate)]/70 max-w-2xl mx-auto mb-10"
           >
             {subtitle}
           </motion.p>
@@ -68,13 +68,13 @@ const Hero = ({ hero }: { hero?: any }) => {
           >
             <a
               href={secondary.href}
-              className="px-8 py-4 bg-gradient-electric text-primary-foreground rounded-full font-semibold shadow-electric hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              className="px-8 py-4 bg-[var(--electric-rust)] text-white rounded-full font-semibold shadow-xl hover:shadow-[var(--electric-rust)]/30 transition-all duration-300 hover:-translate-y-1"
             >
               {secondary.label}
             </a>
             <a
               href={primary.href}
-              className="px-8 py-4 bg-card border-2 border-chocolate/20 text-chocolate rounded-full font-semibold hover:bg-secondary/30 transition-all duration-300"
+              className="px-8 py-4 bg-transparent border-2 border-[var(--dark-chocolate)]/20 text-[var(--dark-chocolate)] rounded-full font-semibold hover:bg-[var(--butter-yellow)]/30 transition-all duration-300"
             >
               {primary.label}
             </a>
@@ -88,7 +88,7 @@ const Hero = ({ hero }: { hero?: any }) => {
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 1.5, repeat: Infinity }}
       >
-        <ArrowDown className="w-6 h-6 text-chocolate/50" />
+        <ArrowDown className="w-6 h-6 text-[var(--dark-chocolate)]/50" />
       </motion.div>
     </section>
   );
