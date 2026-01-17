@@ -219,39 +219,17 @@ const HomePage = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-[#624a41]/60 via-transparent to-[#e8e6d8] z-[2]"></div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="max-w-5xl z-10"
-        >
-          <h1 className="text-5xl md:text-[85px] font-light leading-[1.05] mb-10 text-[#e8e6d8]">
-            {data?.hero?.headline ?? (
-              <>Creating strategic, <span className="italic text-[#bdaf62]">confident</span> and timeless designs with <span className="italic text-[#892f1a]">you</span> at the centre.</>
-            )}
-          </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#e8e6d8] uppercase">
-            {data?.hero?.subHeadline ?? 'We ensure your brand feels like home to those it serves.'}
-          </p>
-          <Link href={data?.hero?.ctaLink ?? '/services'}>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="bg-[#e8e6d8] text-[#624a41] px-10 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] hover:text-white transition-all duration-500 shadow-xl"
-            >
-              {data?.hero?.ctaText ?? "Let's Get Started"}
-            </motion.button>
-          </Link>
-        </motion.div>
+ 
       </section>
 
       {/* --- INTRO SECTION --- */}
-      <section className="py-32 px-8 md:px-20 grid md:grid-cols-2 gap-20 items-center bg-[#e8e6d8]">
+      <section className="w-full py-32 px-8 md:px-20 grid md:grid-cols-1 gap-20 items-center bg-[#e8e6d8]">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          <div className="relative mx-auto flex w-full max-w-7xl items-center justify-center">
+          <div className="relative  flex w-full items-center justify-center">
             <DottedGlowBackground
               className="pointer-events-none mask-radial-to-90% mask-radial-at-center opacity-20 dark:opacity-100"
               opacity={0.5}
@@ -266,35 +244,37 @@ const HomePage = () => {
               speedMax={1.6}
               speedScale={1}
             />
-
-            <div className="relative z-10 flex w-full flex-col items-center justify-between space-y-6 px-8 py-16 text-center md:flex-row">
-              <div>
-                <h2 className="text-center text-4xl font-normal tracking-tight text-neutral-900 sm:text-5xl md:text-left dark:text-neutral-400">
-                  {data?.intro?.heading ?? (
-                    <>Ready to buy <span className="font-bold dark:text-white">Aceternity Pro</span>?</>
-                  )}
-                </h2>
-                <p className="mt-4 max-w-lg text-center text-base text-neutral-600 md:text-left dark:text-neutral-300">
-                  {data?.intro?.description ?? "Unlock premium components, advanced animations, and exclusive templates to build stunning modern interfaces."}
-                </p>
-              </div>
-              <div className="flex flex-col gap-4 sm:flex-row">
-                {/* Optional Buttons here if needed */}
-              </div>
+            <div className="w-full relative z-10 flex  items-center justify-between space-y-6 px-40 py-16 text-center md:flex-row">
+              
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1.2, ease: "easeOut" }}
+                  className="max-w-5xl z-10"
+                >
+                  <h1 className="text-5xl md:text-[85px] font-light leading-[1.05] mb-10 text-[#624a41]">
+                    {data?.hero?.headline ?? (
+                      <>Creating strategic, <span className="italic text-[#bdaf62]">confident</span> and timeless designs with <span className="italic text-[#892f1a]">you</span> at the centre.</>
+                    )}
+                  </h1>
+                  <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#624a41] uppercase">
+                    {data?.hero?.subHeadline ?? 'We ensure your brand feels like home to those it serves.'}
+                  </p>
+                  <Link href={data?.hero?.ctaLink ?? '/services'}>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      className="hover:bg-[#e8e6d8] hover:text-[#624a41] px-10 py-4 text-[10px] rounded-xl uppercase tracking-[0.4em] bg-[#892f1a] text-white transition-all duration-500 shadow-xl"
+                    >
+                      {data?.hero?.ctaText ?? "Let's Get Started"}
+                    </motion.button>
+                  </Link>
+                </motion.div>
+              
+              
             </div>
           </div>
         </motion.div>
-        <div className="flex justify-center md:justify-end">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="w-56 h-56 rounded-full border-2 border-[#892f1a] border-dotted flex items-center justify-center p-8 text-center"
-          >
-            <span className="text-[9px] uppercase tracking-[0.2em] text-[#892f1a] font-bold">
-              {data?.intro?.floatingCircleText ?? 'Strategy Led • Detail Driven • Keeping You At The Centre'}
-            </span>
-          </motion.div>
-        </div>
+
       </section>
 
       {/* --- STICKY WORK SHOWCASE (DARK CHOC) --- */}
