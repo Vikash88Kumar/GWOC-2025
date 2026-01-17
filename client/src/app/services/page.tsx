@@ -178,21 +178,30 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+useEffect(() => {
     const fetchService = async () => {
       try {
+        console.log("Attempting to fetch..."); // Log start
         const res = await getServicePage();
+        console.log("Fetch success, raw response:", res); // Log raw data
         setData(res?.data ?? res);
-      } catch (err) {
-        console.error('Failed to fetch service page:', err);
-        setError(String(err));
+      } catch (err: any) {
+        // Enhanced error logging
+        console.error('Fetch Error Full Object:', err);
+        if (err.response) {
+            // If using axios
+            console.error("Server responded with:", err.response.status, err.response.data);
+        } else if (err.message) {
+            console.error("Error Message:", err.message);
+        }
+        setError(String(err.message || err));
       } finally {
         setLoading(false);
       }
     };
 
     fetchService();
-  }, []);
+}, []);
 
   const services = useMemo(() => (data?.servicesList ?? SERVICES) as Service[], [data]);
   const total = services.length;
