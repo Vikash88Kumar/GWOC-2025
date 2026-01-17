@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {useDispatch} from "react-redux"
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -29,10 +29,10 @@ import {
 } from "lucide-react";
 
 // --- CUSTOM UI COMPONENTS ---
-import CursorGlow from "./CursorGlow";
-import FloatingParticles from "./FloatingParticles";
-import StepIndicator from "./StepIndicator";
-import AnimatedInput from "./AnimatedInput";
+import CursorGlow from "./CursorGlow.js";
+import FloatingParticles from "./FloatingParticles.js";
+import StepIndicator from "./StepIndicator.js";
+import AnimatedInput from "./AnimatedInput.js";
 
 // --- SERVICES (The file from the previous step) ---
 // Adjust this path if your file is in a different folder

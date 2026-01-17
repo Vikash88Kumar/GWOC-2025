@@ -2,7 +2,7 @@
 
 import React, { useMemo,useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation.js";
 import { useAdmin } from "@/contexts/AdminContext";
 import StatCard from "@/components/admin/StatCard";
 import AdminLayout from "@/components/admin/AdminLayout";
