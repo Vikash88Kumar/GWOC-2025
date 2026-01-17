@@ -1,33 +1,21 @@
 import { Router } from "express";
-import {
-  getStoryPage,
-  updateStoryPage,
-  updateHeroSection,
-  updateTimelineSection,
-  replaceMilestones,
-  addMilestone,
-  updateMilestoneById,
-  deleteMilestoneById,
-  updateMarqueeSection,
-  updateTestimonialsSection,
+import { upload } from "../middlewares/multer.middleware.js"; // Import multer
+import { 
+    getStoryPage, 
+    updateHeroSection,
+    // ... imports 
 } from "../controllers/story.controller.js";
 
 const router = Router();
 
-// page
 router.route("/").get(getStoryPage);
-router.route("/").patch(updateStoryPage);
 
-// sections
-router.route("/hero").patch(updateHeroSection);
-router.route("/timeline").patch( updateTimelineSection);
-router.route("/marquee").patch( updateMarqueeSection);
-router.route("/testimonials").patch( updateTestimonialsSection);
+// ✅ KEY CHANGE: Add upload.single('heroImage')
+// The string 'heroImage' matches the formData.append('heroImage', file) from your frontend
+router.route("/hero").patch(
+    upload.single("heroImage"), 
+    updateHeroSection
+);
 
-// milestones CRUD
-router.route("/timeline/milestones").put( replaceMilestones); // replace all
-router.route("/timeline/milestones").post(addMilestone); // add one
-router.route("/timeline/milestones/:id").patch( updateMilestoneById); // update one
-router.route("/timeline/milestones/:id").delete( deleteMilestoneById); // delete one
-
+// ... other routes
 export default router;
