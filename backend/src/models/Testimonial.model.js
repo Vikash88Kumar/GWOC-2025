@@ -7,10 +7,6 @@ const TestimonialSchema = new mongoose.Schema(
       ref: "User",
       required: true, // Set to true if only logged-in users can review
     },
-    // We make these optional because we will pull them from the User table
-    clientName: { type: String, trim: true }, 
-    clientImage: { type: String }, 
-    company: { type: String },
 
     message: {
       type: String,

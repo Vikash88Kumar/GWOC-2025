@@ -16,7 +16,6 @@ const ContentEditor: React.FC = () => {
     { key: 'home', label: 'home', href: '/admin/content-editor/home' },
     { key: 'services', label: 'services', href: '/admin/content-editor/services' },
     { key: 'story', label: 'story', href: '/admin/content-editor/story' },
-    { key: 'contact', label: 'contact', href: '/admin/content-editor/contact' },
     { key: 'founder', label: 'founder', href: '/admin/content-editor/founder' },
   ];
 

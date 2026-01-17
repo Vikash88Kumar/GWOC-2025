@@ -5,15 +5,19 @@ import {
     getTestimonials, 
     rejectTestimonial 
 } from "../controllers/testimonial.controller.js";
-import verifyJwt from "../middlewares/auth.middleware.js"; // Import Auth Middleware
+import verifyJwt from "../middlewares/auth.middleware.js"; 
 
 const router = Router();
 
-
+// Public route (anyone can read reviews)
 router.route("/").get(getTestimonials);
-router.route("/").post( createTestimonial);
 
-router.route("/:id").patch( toggleTestimonialActive);       // Approve/Toggle
-router.route("/reject/:id").patch( rejectTestimonial);      // Reject
+// Protected route (Only logged-in users can create)
+// 👇 ADD verifyJwt HERE
+router.route("/").post(verifyJwt, createTestimonial);
+
+// Admin routes (Should also be protected!)
+router.route("/:id").patch(verifyJwt, toggleTestimonialActive);      
+router.route("/reject/:id").patch(verifyJwt, rejectTestimonial);     
 
 export default router;
