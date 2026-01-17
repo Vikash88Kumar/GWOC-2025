@@ -1,4 +1,4 @@
-import { HomePage } from "../models/homepage.model.js"; // Adjust path
+import { HomePage } from "../models/HomePage.model.js"; // Adjust path
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
