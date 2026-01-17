@@ -6,7 +6,20 @@ const app=express();
 
 
 app.use(cors({
-  origin: process.env.CORS_ORIGIN,
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      "https://gwoc-2025.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:5173",
+      process.env.CORS_ORIGIN,
+    ].filter(Boolean);
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 
