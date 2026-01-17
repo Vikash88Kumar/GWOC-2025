@@ -9,15 +9,23 @@
 :root {
   --radius: 0.625rem;
 
-  /* Bloom palette */
+  /* --- 1. BLOOM PALETTE (Your Brand Colors) --- */
   --bloom-egg: #e8e6d8;        /* earl gray */
   --bloom-choco: #624a41;      /* dark chocolate */
   --bloom-rust: #892f1a;       /* electric rust */
   --bloom-butter: #bdaf62;     /* butter yellow */
   --bloom-blue: #2d6bff;       /* electric blue */
 
-  /* shadcn semantic tokens (HSL values without hsl()) */
-  --background: 51 29% 88%;
+  /* --- 2. COMPONENT MAPPING (Crucial Fix) --- */
+  /* This connects the AboutFounder component to your brand colors */
+  --earth-gray: var(--bloom-egg);
+  --dark-chocolate: #2a1810;        /* DARKENED for better contrast */
+  --electric-rust: var(--bloom-rust);
+  --butter-yellow: var(--bloom-butter);
+
+  /* --- 3. SHADCN SEMANTIC TOKENS (HSL) --- */
+  /* Background: Mapped to Egg/Beige */
+  --background: 51 29% 88%; 
   --foreground: 16 20% 18%;
 
   --card: 51 29% 92%;
@@ -76,8 +84,9 @@
   --ring: 11 68% 48%;
 }
 
-/* Tailwind v4 theme tokens => enables bg-background, text-foreground, etc. */
+/* Tailwind v4 theme tokens */
 @theme {
+  --font-display: "Playfair Display", serif;
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
@@ -109,6 +118,9 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+  
+  /* Add custom fonts if needed here */
+  /* --font-display: "Playfair Display", serif; */
 }
 
 @layer base {
