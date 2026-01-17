@@ -1,315 +1,388 @@
-'use client';
+'use client'
 
-import { motion, useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react"; // Added useEffect
-import Link from 'next/link';
-import {
-  Heart, Lightbulb, Users, Rocket, Twitter, Linkedin, Instagram, Mail,
-  ArrowRight, Trophy, Star, Sparkles, Brain, Loader2
-} from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Save, Plus, Trash2, Upload, ImageIcon } from 'lucide-react';
+import axios from 'axios'; // Assuming you use axios, or replace with your api instance
 
-// 1. IMPORT YOUR API FUNCTION
-// Make sure this path points correctly to where you saved your api file
-import { getFounderPage } from "../../services/founder.api.js"; 
+// --- API CONFIGURATION ---
+// Replace with your actual axios instance import
+const api = axios.create({ baseURL: 'http://localhost:8000/api/v1/founderpage' });
 
-// --- ICON MAPPER ---
-const getIcon = (iconName: string) => {
-  const map: { [key: string]: any } = {
-    Heart: Heart,
-    Brain: Brain,
-    Users: Users,
-    Lightbulb: Lightbulb,
-    Rocket: Rocket,
-    Twitter: Twitter,
-    LinkedIn: Linkedin,
-    Instagram: Instagram,
-    Mail: Mail
+export default function FounderAdminView() {
+  const { toast } = useToast();
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // --- FETCH DATA ---
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/');
+      setData(res.data.data); // Adjust based on your ApiResponse structure
+    } catch (error) {
+      toast({ title: "Failed to load data", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
-  return map[iconName] || Lightbulb;
-};
 
-const FloatingParticle = ({ delay, x, duration }: { delay: number; x: number; duration: number }) => (
-  <motion.div
-    className="absolute w-2 h-2 bg-gradient-to-r from-[var(--butter-yellow)] to-[var(--electric-rust)] rounded-full opacity-60"
-    style={{ left: `${x}%` }}
-    animate={{ y: [0, -100, -200], opacity: [0, 0.8, 0], scale: [0, 1, 0.5] }}
-    transition={{ duration, delay, repeat: Infinity, ease: "easeOut" }}
-  />
-);
-
-const AboutFounder = () => {
-  const storyRef = useRef(null);
-  const valuesRef = useRef(null);
-  const awardsRef = useRef(null);
-  const connectRef = useRef(null);
-  const [hoveredAward, setHoveredAward] = useState<number | null>(null);
-
-  const storyInView = useInView(storyRef, { once: true, margin: '-100px' });
-  const valuesInView = useInView(valuesRef, { once: true, margin: '-100px' });
-  const awardsInView = useInView(awardsRef, { once: true, margin: '-100px' });
-  const connectInView = useInView(connectRef, { once: true, margin: '-100px' });
-
-  // --- 2. STATE MANAGEMENT ---
-  const [data, setData] = useState<any>(null); // Holds the API data
-  const [loading, setLoading] = useState(true); // Tracks loading state
-  const [error, setError] = useState<string | null>(null); // Tracks errors
-
-  // --- 3. FETCH DATA ON MOUNT ---
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getFounderPage();
-        
-        // Check structure: response might be { data: { hero: ... } } or just { hero: ... }
-        // Based on your hardcoded example, data was inside a 'data' key.
-        // If your API returns the whole object, access response.data
-        setData(response.data || response); 
-      } catch (err) {
-        console.error("Error loading founder page:", err);
-        setError("Failed to load content");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
-  // --- 4. LOADING STATE UI ---
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--earth-gray)] text-[var(--dark-chocolate)]">
-        <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-[var(--electric-rust)]" />
-            <p>Loading Founder Story...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // --- 5. ERROR STATE UI ---
-  if (error || !data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--earth-gray)] text-red-600">
-        <p>{error || "No data available."}</p>
-      </div>
-    );
-  }
-
-  // --- 6. DESTRUCTURE DATA ---
-  // Now we use 'data' from state instead of 'BACKEND_DATA'
-  const { hero, story, connect, values, awards } = data;
-
-  // Safety checks (optional but recommended in case API returns partial data)
-  const heroButtonText = 'View Our Services';
-  const heroButtonLink = '/services';
-  const heroSecondaryText = 'Follow Us';
-  // Use optional chaining (?.) to prevent crashes if socials are missing
-  const heroSecondaryLink = connect?.socials?.[0]?.url || '#';
+  if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin" /></div>;
+  if (!data) return <div>No data found.</div>;
 
   return (
-    <div className="min-h-screen bg-[var(--earth-gray)] scroll-smooth font-body text-[var(--dark-chocolate)]">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
-        <div className="absolute top-20 right-0 w-96 h-96 bg-[var(--electric-rust)]/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-0 w-80 h-80 bg-[var(--butter-yellow)]/20 rounded-full blur-3xl" />
-
-        <div className="container mx-auto px-6 lg:px-12 py-24">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="order-2 lg:order-1">
-              <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }} className="inline-block text-sm tracking-[0.3em] uppercase text-[var(--electric-rust)] mb-6 font-medium">
-                {hero?.role}
-              </motion.span>
-
-              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }} className="font-display text-5xl md:text-6xl lg:text-7xl font-medium text-[var(--dark-chocolate)] leading-[1.1] mb-8">
-                {hero?.firstName}
-                <span className="block italic text-[var(--electric-rust)] mt-2">{hero?.lastName}</span>
-              </motion.h1>
-
-              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.6 }} className="text-lg text-[var(--dark-chocolate)]/80 leading-relaxed max-w-xl mb-10 font-body">
-                {hero?.tagline}
-              </motion.p>
-
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7, duration: 0.6 }} className="flex flex-wrap gap-4">
-                
-                <Link href={heroButtonLink}>
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="inline-flex items-center gap-2 rounded-full bg-[var(--dark-chocolate)] px-8 py-4 font-semibold text-[var(--earth-gray)] transition-all duration-300 hover:shadow-xl">
-                    {heroButtonText}
-                    <ArrowRight className="h-5 w-5" />
-                  </motion.button>
-                </Link>
-                <a href={heroSecondaryLink} target="_blank" rel="noopener noreferrer">
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="inline-flex items-center gap-2 rounded-full border-2 border-[var(--dark-chocolate)] px-8 py-4 font-semibold text-[var(--dark-chocolate)] transition-all duration-300 hover:bg-[var(--dark-chocolate)]/5">
-                    {heroSecondaryText}
-                  </motion.button>
-                </a>
-              </motion.div>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease: "easeOut" }} className="order-1 lg:order-2 relative">
-              <div className="relative">
-                <div className="absolute -top-6 -right-6 w-full h-full border-2 border-[var(--electric-rust)] rounded-2xl" />
-                <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-[var(--butter-yellow)]/20 rounded-full" />
-                {hero?.profileImage && (
-                    <img src={hero.profileImage} alt={`${hero.firstName} ${hero.lastName}`} className="relative z-10 w-full max-w-md mx-auto rounded-2xl shadow-2xl object-cover aspect-[3/4] grayscale-[0.2] hover:grayscale-0 transition-all duration-500" />
-                )}
-                <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-4 -right-4 z-20 bg-[var(--earth-gray)] px-6 py-4 rounded-xl shadow-lg border border-[var(--dark-chocolate)]/10">
-                  <span className="block text-2xl font-semibold text-[var(--electric-rust)]">{hero?.experienceYears}+</span>
-                  <span className="text-sm text-[var(--dark-chocolate)]/70">Years of Impact</span>
-                </motion.div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Story Section */}
-      <section id="story" className="py-24 lg:py-32 bg-[var(--earth-gray)] relative overflow-hidden" ref={storyRef}>
-        <div className="container mx-auto px-6 lg:px-12">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={storyInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className="text-center mb-16">
-            <span className="inline-block text-sm tracking-[0.3em] uppercase text-[var(--electric-rust)] mb-4">The Journey</span>
-            <h2 className="font-display text-4xl md:text-5xl font-medium text-[var(--dark-chocolate)]">My Story</h2>
-          </motion.div>
-          <div className="max-w-4xl mx-auto">
-            <motion.blockquote initial={{ opacity: 0, y: 40 }} animate={storyInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }} className="font-display text-2xl md:text-3xl italic text-[var(--dark-chocolate)] leading-relaxed mb-12 pl-8 border-l-4 border-[var(--electric-rust)]">
-              {story?.quote}
-            </motion.blockquote>
-            <motion.div initial={{ opacity: 0, y: 40 }} animate={storyInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.4 }} className="grid md:grid-cols-2 gap-12 text-[var(--dark-chocolate)]/80">
-              {story?.paragraphs?.map((para: string, idx: number) => (
-                <p key={idx} className="leading-relaxed">{para}</p>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="py-24 lg:py-32 relative" ref={valuesRef}>
-        <div className="container mx-auto px-6 lg:px-12">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={valuesInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className="text-center mb-16">
-            <span className="inline-block text-sm tracking-[0.3em] uppercase text-[var(--electric-rust)] mb-4">What Drives Me</span>
-            <h2 className="font-display text-4xl md:text-5xl font-medium text-[var(--dark-chocolate)]">Core Values</h2>
-          </motion.div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values?.map((value: any, index: number) => {
-              const IconComponent = getIcon(value.icon);
-              return (
-                <motion.div key={value.title} initial={{ opacity: 0, y: 40 }} animate={valuesInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: index * 0.15 }} className="group">
-                  <div className="h-full p-8 bg-white/50 backdrop-blur-sm rounded-2xl border border-[var(--dark-chocolate)]/10 transition-all duration-500 hover:border-[var(--electric-rust)] hover:shadow-xl hover:-translate-y-2">
-                    <div className="w-14 h-14 rounded-xl bg-[var(--butter-yellow)]/20 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-[var(--butter-yellow)] group-hover:scale-110">
-                      <IconComponent className="w-7 h-7 text-[var(--dark-chocolate)]" />
-                    </div>
-                    <h3 className="font-display text-xl font-medium text-[var(--dark-chocolate)] mb-3">{value.title}</h3>
-                    <p className="text-[var(--dark-chocolate)]/70 leading-relaxed">{value.description}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Awards Section - Dark Theme */}
-      <section className="py-24 lg:py-32 relative overflow-hidden bg-[var(--dark-chocolate)]" ref={awardsRef}>
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
-            <FloatingParticle key={i} delay={i * 0.5} x={Math.random() * 100} duration={3 + Math.random() * 2} />
-          ))}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[var(--electric-rust)]/10 rounded-full blur-3xl" />
-        </div>
-
-        <div className="container mx-auto px-6 lg:px-12 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={awardsInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className="text-center mb-20">
-            <motion.div initial={{ scale: 0 }} animate={awardsInView ? { scale: 1 } : {}} transition={{ duration: 0.5, delay: 0.2, type: "spring" }} className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[var(--butter-yellow)] mb-6 shadow-lg shadow-[var(--butter-yellow)]/30">
-              <Trophy className="w-10 h-10 text-[var(--dark-chocolate)]" />
-            </motion.div>
-            <span className="block text-sm tracking-[0.3em] uppercase text-[var(--butter-yellow)] mb-4 font-medium">Recognition & Achievements</span>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--earth-gray)]">Award Wins</h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {awards?.map((award: any, index: number) => (
-              <motion.div
-                key={award.year}
-                initial={{ opacity: 0, y: 40, rotateX: -15 }}
-                animate={awardsInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                onMouseEnter={() => setHoveredAward(index)}
-                onMouseLeave={() => setHoveredAward(null)}
-                className="relative group perspective-1000"
-              >
-                <div className={`relative p-6 rounded-2xl border backdrop-blur-sm transition-all duration-500 ${hoveredAward === index ? 'bg-[var(--electric-rust)]/20 border-[var(--butter-yellow)]/50 shadow-2xl -translate-y-2' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
-                  {hoveredAward === index && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute -top-1 -right-1">
-                      <Sparkles className="w-6 h-6 text-[var(--butter-yellow)] animate-pulse" />
-                    </motion.div>
-                  )}
-                  <div className="flex items-start gap-4">
-                    <motion.div animate={hoveredAward === index ? { rotate: [0, -10, 10, 0], scale: 1.1 } : {}} transition={{ duration: 0.5 }} className={`p-3 rounded-xl transition-all duration-300 ${hoveredAward === index ? 'bg-[var(--butter-yellow)] shadow-lg' : 'bg-[var(--butter-yellow)]/20'}`}>
-                      <Trophy className={`w-6 h-6 transition-colors duration-300 ${hoveredAward === index ? 'text-[var(--dark-chocolate)]' : 'text-[var(--butter-yellow)]'}`} />
-                    </motion.div>
-                    <div className="flex-1">
-                      <span className="inline-block px-3 py-1 text-xs font-bold rounded-full bg-[var(--butter-yellow)]/20 text-[var(--butter-yellow)] mb-2">{award.year}</span>
-                      <h3 className="font-display text-lg font-semibold text-[var(--earth-gray)] mb-2">{award.title}</h3>
-                      <p className="text-sm text-[var(--earth-gray)]/70 leading-relaxed">{award.description}</p>
-                      <div className="flex gap-1 mt-3">
-                        {[...Array(5)].map((_, i) => (
-                          <motion.div key={i} initial={{ opacity: 0, scale: 0 }} animate={awardsInView ? { opacity: 1, scale: 1 } : {}} transition={{ delay: index * 0.1 + i * 0.05 + 0.3 }}>
-                            <Star className="w-4 h-4 fill-[var(--butter-yellow)] text-[var(--butter-yellow)]" />
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Connect Section */}
-    <section id="connect" className="py-24 lg:py-32 relative overflow-hidden" ref={connectRef}>
-      <div className="absolute inset-0  bg-[var(--earth-gray)]" />
-      <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.span initial={{ opacity: 0, y: 20 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }} className="inline-block text-sm tracking-[0.3em] uppercase text-[var(--dark-chocolate)] mb-4">
-            Get In Touch
-          </motion.span>
-          <motion.h2 initial={{ opacity: 0, y: 30 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.1 }} className="font-display text-4xl md:text-5xl lg:text-6xl font-medium text-[var(--dark-chocolate)] mb-6">
-            {connect?.headline}
-            <span className="block italic text-[var(--dark-chocolate)]">Extraordinary</span>
-          </motion.h2>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.3 }} className="text-lg text-[var(--dark-chocolate)]/80 mb-12 max-w-xl mx-auto">
-            {connect?.subHeadline}
-          </motion.p>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.5 }} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <a href={`mailto:${connect?.email}`} className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--butter-yellow)] text-[var(--dark-chocolate)] font-medium rounded-full transition-all duration-300 hover:scale-105">
-              Send a Message
-              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-            </a>
-            <a href="#" className="inline-flex items-center gap-3 px-8 py-4 border border-[var(--earth-gray)]/30 text-[var(--dark-chocolate)] font-medium rounded-full transition-all duration-300 hover:bg-[var(--earth-gray)]/10">
-              Schedule a Call
-            </a>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={connectInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay: 0.7 }} className="flex items-center justify-center gap-6">
-            {connect?.socials?.map((social: any) => {
-              const IconComponent = getIcon(social.label);
-              return (
-                <a key={social.label} href={social.url} aria-label={social.label} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full border border-[var(--earth-gray)]/30 flex items-center justify-center text-[var(--dark-chocolate)]/70 transition-all duration-300 hover:bg-[var(--earth-gray)] hover:text-[var(--dark-chocolate)] hover:scale-110">
-                  <IconComponent className="w-5 h-5" />
-                </a>
-              );
-            })}
-            <a href={`mailto:${connect?.email}`} aria-label="Email" className="w-12 h-12 rounded-full border border-[var(--earth-gray)]/30 flex items-center justify-center text-[var(--dark-chocolate)]/70 transition-all duration-300 hover:bg-[var(--earth-gray)] hover:text-[var(--dark-chocolate)] hover:scale-110">
-              <Mail className="w-5 h-5" />
-            </a>
-          </motion.div>
-        </div>
+    <div className="max-w-5xl mx-auto p-6 space-y-8 pb-20">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Founder Page Editor</h1>
+        <Button variant="outline" onClick={fetchData}>Refresh Data</Button>
       </div>
-    </section>
+
+      <Tabs defaultValue="hero" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="hero">Hero</TabsTrigger>
+          <TabsTrigger value="story">Story</TabsTrigger>
+          <TabsTrigger value="values">Values</TabsTrigger>
+          <TabsTrigger value="journey">Journey</TabsTrigger>
+          <TabsTrigger value="connect">Connect</TabsTrigger>
+        </TabsList>
+
+        {/* --- HERO SECTION --- */}
+        <TabsContent value="hero">
+          <HeroEditor initialData={data.hero} onRefresh={fetchData} />
+        </TabsContent>
+
+        {/* --- STORY SECTION --- */}
+        <TabsContent value="story">
+          <StoryEditor initialData={data.story} onRefresh={fetchData} />
+        </TabsContent>
+
+        {/* --- VALUES SECTION --- */}
+        <TabsContent value="values">
+          <ValuesEditor initialData={data.values || []} onRefresh={fetchData} />
+        </TabsContent>
+
+        {/* --- JOURNEY (Milestones & Awards) --- */}
+        <TabsContent value="journey">
+          <div className="space-y-8">
+            <MilestonesEditor initialData={data.milestones || []} onRefresh={fetchData} />
+            <AwardsEditor initialData={data.awards || []} onRefresh={fetchData} />
+          </div>
+        </TabsContent>
+
+        {/* --- CONNECT SECTION --- */}
+        <TabsContent value="connect">
+          <ConnectEditor initialData={data.connect} onRefresh={fetchData} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
-};
+}
 
-export default AboutFounder;
+// ============================================================================
+// 1. HERO EDITOR (Multipart/FormData for Image)
+// ============================================================================
+function HeroEditor({ initialData, onRefresh }: { initialData: any, onRefresh: () => void }) {
+  const { toast } = useToast();
+  const [form, setForm] = useState(initialData || {});
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState(initialData?.profileImage || "");
+  const [saving, setSaving] = useState(false);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setFile(e.target.files[0]);
+      setPreview(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      // Append text fields
+      Object.keys(form).forEach(key => {
+        if (key !== 'profileImage' && form[key]) formData.append(key, form[key]);
+      });
+      // Append file matches backend: upload.single("profileImage")
+      if (file) formData.append("profileImage", file);
+
+      await api.patch('/hero', formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      
+      toast({ title: "Hero updated successfully" });
+      onRefresh();
+    } catch (error) {
+      toast({ title: "Failed to save", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader><CardTitle>Hero Section</CardTitle></CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex gap-6">
+          {/* Image Upload */}
+          <div className="w-1/3 space-y-4">
+            <div className="aspect-[3/4] rounded-lg bg-slate-100 overflow-hidden relative border flex items-center justify-center">
+              {preview ? (
+                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <ImageIcon className="w-12 h-12 text-slate-300" />
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+                <Input type="file" id="heroImg" className="hidden" onChange={handleFileChange} accept="image/*" />
+                <Button variant="outline" className="w-full" onClick={() => document.getElementById('heroImg')?.click()}>
+                    <Upload className="w-4 h-4 mr-2" /> Upload Photo
+                </Button>
+            </div>
+          </div>
+
+          {/* Text Fields */}
+          <div className="w-2/3 grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label>First Name</Label><Input value={form.firstName || ''} onChange={e => setForm({...form, firstName: e.target.value})} /></div>
+            <div className="space-y-2"><Label>Last Name</Label><Input value={form.lastName || ''} onChange={e => setForm({...form, lastName: e.target.value})} /></div>
+            <div className="col-span-2 space-y-2"><Label>Role</Label><Input value={form.role || ''} onChange={e => setForm({...form, role: e.target.value})} /></div>
+            <div className="col-span-2 space-y-2"><Label>Tagline</Label><Textarea value={form.tagline || ''} onChange={e => setForm({...form, tagline: e.target.value})} /></div>
+            <div className="space-y-2"><Label>Experience (Years)</Label><Input type="number" value={form.experienceYears || 0} onChange={e => setForm({...form, experienceYears: e.target.value})} /></div>
+          </div>
+        </div>
+        <Button onClick={handleSave} disabled={saving}><Save className="w-4 h-4 mr-2" /> Save Hero</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ============================================================================
+// 2. STORY EDITOR (JSON)
+// ============================================================================
+function StoryEditor({ initialData, onRefresh }: { initialData: any, onRefresh: () => void }) {
+  const { toast } = useToast();
+  const [form, setForm] = useState(initialData || { quote: "", paragraphs: [] });
+  const [paragraphsText, setParagraphsText] = useState((initialData?.paragraphs || []).join('\n\n'));
+
+  const handleSave = async () => {
+    try {
+      // Split paragraphs by double newline for easy editing
+      const paragraphsArray = paragraphsText.split('\n\n').filter((p: string) => p.trim() !== "");
+      
+      await api.patch('/story', {
+        quote: form.quote,
+        paragraphs: paragraphsArray
+      });
+      toast({ title: "Story updated" });
+      onRefresh();
+    } catch (e) { toast({ title: "Error", variant: "destructive" }); }
+  };
+
+  return (
+    <Card>
+      <CardHeader><CardTitle>My Story</CardTitle></CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label>Quote</Label>
+          <Textarea className="font-serif italic text-lg" value={form.quote} onChange={e => setForm({...form, quote: e.target.value})} />
+        </div>
+        <div className="space-y-2">
+          <Label>Paragraphs (Separate by double enter)</Label>
+          <Textarea className="min-h-[300px]" value={paragraphsText} onChange={e => setParagraphsText(e.target.value)} />
+        </div>
+        <Button onClick={handleSave}><Save className="w-4 h-4 mr-2" /> Save Story</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ============================================================================
+// 3. VALUES EDITOR (Array of Objects)
+// ============================================================================
+function ValuesEditor({ initialData, onRefresh }: { initialData: any[], onRefresh: () => void }) {
+  const { toast } = useToast();
+  const [values, setValues] = useState(initialData);
+
+  const addValue = () => setValues([...values, { title: "New Value", description: "Desc...", icon: "Lightbulb" }]);
+  const removeValue = (idx: number) => setValues(values.filter((_, i) => i !== idx));
+  const updateValue = (idx: number, field: string, val: string) => {
+    const newVals = [...values];
+    newVals[idx] = { ...newVals[idx], [field]: val };
+    setValues(newVals);
+  };
+
+  const handleSave = async () => {
+    try {
+      // Backend expects the array directly as req.body
+      await api.patch('/values', values);
+      toast({ title: "Values updated" });
+    } catch (e) { toast({ title: "Error", variant: "destructive" }); }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Core Values</CardTitle>
+        <Button size="sm" variant="outline" onClick={addValue}><Plus className="w-4 h-4 mr-2"/> Add Value</Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {values.map((val, idx) => (
+          <div key={idx} className="flex gap-4 items-start border p-4 rounded-lg">
+            <div className="grid gap-2 flex-1">
+              <Input placeholder="Title" value={val.title} onChange={e => updateValue(idx, 'title', e.target.value)} className="font-bold" />
+              <Input placeholder="Icon Name (Heart, Brain, Users...)" value={val.icon} onChange={e => updateValue(idx, 'icon', e.target.value)} />
+              <Textarea placeholder="Description" value={val.description} onChange={e => updateValue(idx, 'description', e.target.value)} />
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => removeValue(idx)}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+          </div>
+        ))}
+        <Button onClick={handleSave} className="w-full"><Save className="w-4 h-4 mr-2" /> Save All Values</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ============================================================================
+// 4. MILESTONES EDITOR (Array)
+// ============================================================================
+function MilestonesEditor({ initialData, onRefresh }: { initialData: any[], onRefresh: () => void }) {
+  const { toast } = useToast();
+  const [milestones, setMilestones] = useState(initialData);
+
+  const addM = () => setMilestones([...milestones, { year: "2024", title: "New", description: "..." }]);
+  const removeM = (idx: number) => setMilestones(milestones.filter((_, i) => i !== idx));
+  const updateM = (idx: number, field: string, val: string) => {
+    const newMs = [...milestones];
+    newMs[idx] = { ...newMs[idx], [field]: val };
+    setMilestones(newMs);
+  };
+
+  const handleSave = async () => {
+    try {
+      await api.patch('/milestones', milestones);
+      toast({ title: "Milestones saved" });
+    } catch (e) { toast({ title: "Error", variant: "destructive" }); }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Milestones Timeline</CardTitle>
+        <Button size="sm" variant="outline" onClick={addM}><Plus className="w-4 h-4 mr-2"/> Add Milestone</Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {milestones.map((m, idx) => (
+          <div key={idx} className="flex gap-4 items-start border p-4 rounded-lg bg-slate-50">
+             <div className="w-24">
+                <Input placeholder="Year" value={m.year} onChange={e => updateM(idx, 'year', e.target.value)} />
+             </div>
+             <div className="flex-1 space-y-2">
+                <Input placeholder="Title" value={m.title} onChange={e => updateM(idx, 'title', e.target.value)} className="font-bold"/>
+                <Textarea placeholder="Desc" value={m.description} onChange={e => updateM(idx, 'description', e.target.value)} />
+             </div>
+             <Button variant="ghost" size="icon" onClick={() => removeM(idx)}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+          </div>
+        ))}
+        <Button onClick={handleSave} className="w-full"><Save className="w-4 h-4 mr-2" /> Save Milestones</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ============================================================================
+// 5. AWARDS EDITOR (Array)
+// ============================================================================
+function AwardsEditor({ initialData, onRefresh }: { initialData: any[], onRefresh: () => void }) {
+  const { toast } = useToast();
+  const [awards, setAwards] = useState(initialData);
+
+  const addA = () => setAwards([...awards, { year: new Date().getFullYear(), title: "Award", description: "..." }]);
+  const removeA = (idx: number) => setAwards(awards.filter((_, i) => i !== idx));
+  const updateA = (idx: number, field: string, val: any) => {
+    const newAs = [...awards];
+    newAs[idx] = { ...newAs[idx], [field]: val };
+    setAwards(newAs);
+  };
+
+  const handleSave = async () => {
+    try {
+      await api.patch('/awards', awards);
+      toast({ title: "Awards saved" });
+    } catch (e) { toast({ title: "Error", variant: "destructive" }); }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Awards</CardTitle>
+        <Button size="sm" variant="outline" onClick={addA}><Plus className="w-4 h-4 mr-2"/> Add Award</Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {awards.map((a, idx) => (
+          <div key={idx} className="flex gap-4 items-center border p-4 rounded-lg">
+             <Input type="number" className="w-24" value={a.year} onChange={e => updateA(idx, 'year', Number(e.target.value))} />
+             <Input className="flex-1 font-bold" value={a.title} onChange={e => updateA(idx, 'title', e.target.value)} />
+             <Input className="flex-1" value={a.description} onChange={e => updateA(idx, 'description', e.target.value)} />
+             <Button variant="ghost" size="icon" onClick={() => removeA(idx)}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+          </div>
+        ))}
+        <Button onClick={handleSave} className="w-full"><Save className="w-4 h-4 mr-2" /> Save Awards</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ============================================================================
+// 6. CONNECT EDITOR
+// ============================================================================
+function ConnectEditor({ initialData, onRefresh }: { initialData: any, onRefresh: () => void }) {
+  const { toast } = useToast();
+  const [form, setForm] = useState(initialData || { socials: [] });
+
+  const updateSocial = (idx: number, field: string, val: string) => {
+    const newSocials = [...(form.socials || [])];
+    newSocials[idx] = { ...newSocials[idx], [field]: val };
+    setForm({ ...form, socials: newSocials });
+  };
+
+  const handleSave = async () => {
+    try {
+      await api.patch('/connect', form);
+      toast({ title: "Connect section saved" });
+    } catch (e) { toast({ title: "Error", variant: "destructive" }); }
+  };
+
+  return (
+    <Card>
+      <CardHeader><CardTitle>Connect & Contact</CardTitle></CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid gap-4">
+          <div className="space-y-2"><Label>Headline</Label><Input value={form.headline || ''} onChange={e => setForm({...form, headline: e.target.value})} /></div>
+          <div className="space-y-2"><Label>Sub Headline</Label><Input value={form.subHeadline || ''} onChange={e => setForm({...form, subHeadline: e.target.value})} /></div>
+          <div className="space-y-2"><Label>Email Address</Label><Input value={form.email || ''} onChange={e => setForm({...form, email: e.target.value})} /></div>
+        </div>
+
+        <div className="space-y-4 pt-4 border-t">
+          <Label className="text-lg font-bold">Social Links</Label>
+          {(form.socials || []).map((s: any, idx: number) => (
+             <div key={idx} className="flex gap-4">
+                <Input value={s.label} disabled className="w-32 bg-slate-50" />
+                <Input value={s.url} onChange={e => updateSocial(idx, 'url', e.target.value)} placeholder="URL..." />
+             </div>
+          ))}
+        </div>
+        <Button onClick={handleSave}><Save className="w-4 h-4 mr-2" /> Save Settings</Button>
+      </CardContent>
+    </Card>
+  );
+}
