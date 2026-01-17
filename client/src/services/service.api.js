@@ -3,7 +3,7 @@ import api from "../api/axios.js";
 // --- GET FULL PAGE ---
 export const getServicePage = async () => {
   try {
-    const res = await api.get("/service");
+    const res = await api.get("/services");
     return res.data;
   } catch (error) {
     console.error("Failed to fetch service page", error);
