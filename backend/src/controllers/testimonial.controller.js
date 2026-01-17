@@ -83,7 +83,7 @@ export const getTestimonials = asyncHandler(async (req, res) => {
   const formattedTestimonials = testimonials.map((t) => {
     const userData = t.user || {}; // Handle missing users (Anonymous)
 
-    return {
+    return {  
       _id: t._id,
       clientName: userData.firstName 
         ? `${userData.firstName} ${userData.lastName || ""}`.trim() 

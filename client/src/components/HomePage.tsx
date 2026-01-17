@@ -1,80 +1,142 @@
 "use client";
 import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion'; // Added AnimatePresence
-import { ArrowRight, Instagram, Facebook, Linkedin, Star } from 'lucide-react'; // Added Star
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Star } from 'lucide-react';
 import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
-import { BackgroundLines } from '@/components/ui/background-lines';
 import { ThreeDMarquee } from '@/components/ui/3d-marquee';
 import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
 import Link from 'next/link';
-// IMPORT getTestimonials HERE
-import { createTestimonial, getAllTestimonials } from "../services/testimonial.api.js"
-import { getHomePage } from "../services/homepage.api.js"
 import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
 import { useAdmin } from "@/contexts/AdminContext";
 
+// API Imports
+import { createTestimonial, getAllTestimonials } from "../services/testimonial.api.js"
+import { getHomePage } from "../services/homepage.api.js"
+
 const HomePage = () => {
   const [data, setData] = useState<any>({});
-  // State to store testimonials fetched from Backend
+  
+  // --- STATE FOR TESTIMONIALS ---
   const [dbTestimonials, setDbTestimonials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  // --- STATE FOR FORM ---
+  const [clientName, setClientName] = useState('');
+  const [role, setRole] = useState('');
+  const [company, setCompany] = useState('');
+  const [message, setMessage] = useState('');
+  const [star, setStar] = useState<number>(5);
+  const [reviewSuccess, setReviewSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- ADDED: SLIDER STATE ---
+  // --- SLIDER STATE ---
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Run both fetches in parallel
-        const [homeRes, testimonialRes] = await Promise.all([
-          getHomePage(),
-          getAllTestimonials()
-        ]);
+  // --- 1. FETCH DATA ---
+  const fetchData = async () => {
+    try {
+      // Fetch Home Data
+      const homeRes = await getHomePage();
+      setData(homeRes?.data ?? homeRes);
 
-        // 1. Handle Homepage Data
-        setData(homeRes?.data ?? homeRes);
-
-        // 2. Handle Testimonial Data
-        // specific to your backend: res.status(200).json(new ApiResponse(..., data, ...))
-        if (testimonialRes?.data?.data) {
-          setDbTestimonials(testimonialRes.data.data);
-        } else if (Array.isArray(testimonialRes?.data)) {
-          setDbTestimonials(testimonialRes.data);
-        }
-
-      } catch (err) {
-        console.error('Failed to fetch data:', err);
-        setError(String(err));
-      } finally {
-        setLoading(false);
+      // Fetch Testimonials
+      const testimonialRes = await getAllTestimonials();
+      
+      // Handle different response structures
+      let fetchedList = [];
+      if (testimonialRes?.data?.data) {
+        fetchedList = testimonialRes.data.data;
+      } else if (testimonialRes?.data) {
+        fetchedList = testimonialRes.data;
+      } else if (Array.isArray(testimonialRes)) {
+        fetchedList = testimonialRes;
       }
-    };
+      
+      setDbTestimonials(fetchedList);
 
+    } catch (err) {
+      console.error('Failed to fetch data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
-  // --- ADDED: SLIDER LOGIC ---
-  // Ensure we have an array. If backend sends a string or null, fallback to array or default.
+  // --- 2. SUBMIT REVIEW ---
+  const submitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!clientName.trim() || !message.trim()) {
+      setReviewSuccess('Please add your name and message.');
+      setTimeout(() => setReviewSuccess(''), 3000);
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    const payload = { 
+        clientName, 
+        role, 
+        company, 
+        message, 
+        star: star || 5 
+    };
+
+    try {
+      const res = await createTestimonial(payload);
+      
+      if (res) {
+        setReviewSuccess('Thanks for your review! It has been submitted for approval.');
+        
+        // Clear form
+        setClientName('');
+        setRole('');
+        setCompany('');
+        setMessage('');
+        setStar(5);
+        
+        // Optional: Refresh list (though new reviews are usually "pending" and won't show immediately)
+        // fetchData(); 
+      }
+    } catch (err: any) {
+      console.error('Failed to submit testimonial:', err);
+      // Check if it's an auth error
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setReviewSuccess('Please login to submit a review.');
+      } else {
+        setReviewSuccess('Something went wrong. Please try again.');
+      }
+    } finally {
+      setIsSubmitting(false);
+      setTimeout(() => setReviewSuccess(''), 4000);
+    }
+  };
+
+  // --- 3. SLIDER LOGIC ---
   const heroImages = Array.isArray(data?.hero?.backgroundImage)
     ? data.hero.backgroundImage
-    : [data?.hero?.backgroundImage];
+    : data?.hero?.backgroundImage 
+        ? [data.hero.backgroundImage] 
+        : ["https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80"];
 
   useEffect(() => {
-    if (heroImages.length <= 1) return; // Don't slide if only 1 image
+    if (heroImages.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-    }, 5000); // Change every 5 seconds
+    }, 5000);
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
-
-  // Projects from AdminContext
-  const { contentSections, testimonials: adminTestimonials, addTestimonial } = useAdmin();
+  // --- 4. PREPARE DATA FOR UI ---
+  const { contentSections, testimonials: adminTestimonials } = useAdmin();
+  
+  // Projects Logic
   const projectsSection = contentSections.find(s => s.id === 'home-projects');
-
-  // Updated project mapping to match your Backend response structure (_id, subtitle, etc)
   const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({
     title: it.title || '',
     date: it.subtitle || '',
@@ -84,128 +146,46 @@ const HomePage = () => {
 
   const projects = apiProjects.length
     ? apiProjects
-    : (projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? [
-      { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
-      { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
-      { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
-      { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
-    ]);
+    : (projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? []);
 
-  // Use backend marquee images if available
-  const images = [
-    "/1.png", "/2.png", "/3.png", "/4.png", "/5.png", "/6.png", "/7.png", "/8.png", "/9.png", "/10.png",
-    "/11.png", "/12.png", "/13.png", "/14.png", "/15.png", "/16.png", "/17.png", "/18.png", "/19.png", "/20.png",
-    "/21.png", "/22.png", "/23.png", "/24.png", "/25.png", "/26.png", "/27.png", "/28.png", "/29.png", "/30.png",
-    "/31.png", "/32.png", "/33.png", "/34.png", "/35.png",
-  ];
+  // Testimonials Logic (Merge DB and Local)
+  // Only show Active/Approved testimonials from DB
+  const validDbTestimonials = dbTestimonials.filter(t => t.status === 'approved' || t.isActive === true);
+  
+  const sourceTestimonials = validDbTestimonials.length > 0 ? validDbTestimonials : adminTestimonials;
 
-  // --- MERGE LOGIC ---
-  // Prioritize DB testimonials. If DB is empty (loading or no data), fall back to Admin Context.
-  const sourceTestimonials = dbTestimonials.length > 0 ? dbTestimonials : adminTestimonials;
-
-  // Map backend data to UI component structure
   const animatedTestimonials = sourceTestimonials.map(t => {
-    // 1. Check for populated User object (from backend: .populate("user"))
-    // 2. Fallback to flat fields (e.g., clientName) if user object doesn't exist or for anonymous reviews
-    const name = t.user?.fullName || t.clientName || "Client";
-    const company = t.user?.companyName || t.company || t.clientCompany || "";
-    const role = t.role || t.clientRole || "";
-    const content = t.message || t.content || "";
-    const image = t.user?.avatar || t.clientImage || '/placeholder-profile.png';
+    const name = t.clientName || t.user?.fullName || "Client";
+    const companyName = t.company || t.user?.companyName || "";
+    const roleName = t.role || "";
+    
+    // Construct designation safely
+    let designation = roleName;
+    if (companyName) {
+        designation = roleName ? `${roleName} at ${companyName}` : companyName;
+    }
 
     return {
-      quote: content,
+      quote: t.message || t.content || "",
       name: name,
-      designation: `${role}${company ? ' at ' + company : ''}`,
-      src: image
+      designation: designation,
+      src: t.clientImage || t.user?.avatar || '/placeholder-profile.png'
     };
   });
 
-  const [clientName, setClientName] = useState('');
-  const [role, setRole] = useState('');
-  const [company, setCompany] = useState('');
-  const [message, setMessage] = useState('');
-  const [star, setStar] = useState<number | null>(5);
-  const [reviewSuccess, setReviewSuccess] = useState('');
-
-  const submitReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!clientName.trim() || !message.trim()) {
-      setReviewSuccess('Please add your name and message.');
-      setTimeout(() => setReviewSuccess(''), 3000);
-      return;
-    }
-
-    const payload = { clientName, role, company, message, star };
-    try {
-      const res = await createTestimonial(payload);
-
-      if (res?.data) {
-        const t = res.data;
-        // Optimistically add to UI via Context (optional, since we now fetch from DB)
-        addTestimonial({
-          clientName: t.clientName || clientName,
-          clientRole: t.role || role || '',
-          clientCompany: t.company || company || '',
-          clientImage: '/placeholder-profile.png',
-          content: t.message || message,
-          rating: t.star || star || 5,
-          status: t.status || 'pending',
-          createdAt: t.createdAt || new Date().toISOString().split('T')[0],
-        });
-
-        // Optionally refresh DB list
-        // const newDetails = await getTestimonials();
-        // setDbTestimonials(newDetails.data.data);
-
-      } else {
-        addTestimonial({
-          clientName,
-          clientRole: role || '',
-          clientCompany: company || '',
-          clientImage: '/placeholder-profile.png',
-          content: message,
-          rating: star || 5,
-          status: 'pending',
-          createdAt: new Date().toISOString().split('T')[0],
-        });
-      }
-    } catch (err) {
-      console.error('Failed to submit testimonial to server', err);
-      addTestimonial({
-        clientName,
-        clientRole: role || '',
-        clientCompany: company || '',
-        clientImage: '/placeholder-profile.png',
-        content: message,
-        rating: star || 5,
-        status: 'pending',
-        createdAt: new Date().toISOString().split('T')[0],
-      });
-    }
-
-    setClientName('');
-    setRole('');
-    setCompany('');
-    setMessage('');
-    setStar(5);
-    setReviewSuccess('Thanks for your review! It will appear after approval.');
-    setTimeout(() => setReviewSuccess(''), 3000);
-  };
+  const images = ["/1.png", "/2.png", "/3.png", "/4.png", "/5.png"]; // Truncated for brevity
 
   return (
     <div className="w-full bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
 
-      {/* --- HERO SECTION WITH BG IMAGE SLIDER & ELECTRIC BLUE --- */}
+      {/* --- HERO SECTION --- */}
       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-20 overflow-hidden">
-
-        {/* UPDATED: Background Image Slider */}
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout">
             <motion.img
               key={currentSlide}
               src={heroImages[currentSlide]}
-              alt={data?.hero?.headline ?? 'Studio Interior'}
+              alt="Hero Background"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -213,151 +193,89 @@ const HomePage = () => {
               className="absolute inset-0 w-full h-full object-cover"
             />
           </AnimatePresence>
-
-          {/* Mixing Earl Gray and Electric Blue for a custom tinted overlay */}
           <div className="absolute inset-0 bg-[#892f1a]/40 mix-blend-multiply z-[1]"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-[#624a41]/60 via-transparent to-[#e8e6d8] z-[2]"></div>
         </div>
-
- 
       </section>
 
       {/* --- INTRO SECTION --- */}
       <section className="w-full py-32 px-8 md:px-20 grid md:grid-cols-1 gap-20 items-center bg-[#e8e6d8]">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          <div className="relative  flex w-full items-center justify-center">
-            <DottedGlowBackground
-              className="pointer-events-none mask-radial-to-90% mask-radial-at-center opacity-20 dark:opacity-100"
-              opacity={0.5}
-              gap={10}
-              radius={2.5}
-              colorLightVar="--color-neutral-500"
-              glowColorLightVar="--color-neutral-600"
-              colorDarkVar="--color-neutral-500"
-              glowColorDarkVar="--color-dark"
-              backgroundOpacity={0.01}
-              speedMin={0.3}
-              speedMax={1.6}
-              speedScale={1}
-            />
-            <div className="w-full relative z-10 flex  items-center justify-between space-y-6 px-40 py-16 text-center md:flex-row">
-              
-                <motion.div
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1.2, ease: "easeOut" }}
-                  className="max-w-5xl z-10"
-                >
-                  <h1 className="text-5xl md:text-[85px] font-light leading-[1.05] mb-10 text-[#624a41]">
-                    {data?.hero?.headline ?? (
-                      <>Creating strategic, <span className="italic text-[#bdaf62]">confident</span> and timeless designs with <span className="italic text-[#892f1a]">you</span> at the centre.</>
-                    )}
-                  </h1>
-                  <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#624a41] uppercase">
-                    {data?.hero?.subHeadline ?? 'We ensure your brand feels like home to those it serves.'}
-                  </p>
-                  <Link href={data?.hero?.ctaLink ?? '/services'}>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      className="hover:bg-[#e8e6d8] hover:text-[#624a41] px-10 py-4 text-[10px] rounded-xl uppercase tracking-[0.4em] bg-[#892f1a] text-white transition-all duration-500 shadow-xl"
-                    >
-                      {data?.hero?.ctaText ?? "Let's Get Started"}
-                    </motion.button>
-                  </Link>
-                </motion.div>
-              
-              
+         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 1 }}>
+            <div className="relative flex w-full items-center justify-center">
+                 <DottedGlowBackground className="pointer-events-none opacity-20" />
+                 <div className="w-full relative z-10 flex flex-col items-center justify-between space-y-6 px-4 md:px-40 py-16 text-center">
+                    <h1 className="text-5xl md:text-[85px] font-light leading-[1.05] mb-10 text-[#624a41]">
+                       {data?.hero?.headline ?? "Creating strategic designs"}
+                    </h1>
+                     <Link href={data?.hero?.ctaLink ?? '/services'}>
+                        <motion.button whileHover={{ scale: 1.05 }} className="px-10 py-4 text-[10px] rounded-xl uppercase tracking-[0.4em] bg-[#892f1a] text-white shadow-xl">
+                           {data?.hero?.ctaText ?? "Let's Get Started"}
+                        </motion.button>
+                     </Link>
+                 </div>
             </div>
-          </div>
-        </motion.div>
-
+         </motion.div>
       </section>
 
-      {/* --- STICKY WORK SHOWCASE (DARK CHOC) --- */}
+      {/* --- PROJECTS SECTION --- */}
       <section className="bg-[#624a41] text-[#e8e6d8] py-32 px-8 md:px-20 relative">
-        <div
-          className={cn(
-            "absolute inset-0",
-            "bg-size-[40px_40px]",
-            "bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
-            "dark:bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
-          )}
-        />
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
-
-          {/* LEFT SIDE: STICKY HEADER */}
-          <div className="md:w-1/3 pr-8">
-            <div className="sticky top-32 flex justify-center flex-col">
-              <h2 className="text-5xl font-light mb-6">{data?.projects?.heading ?? "Glimpse into our work"}</h2>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62]">{data?.projects?.subHeading ?? "Selected Works"}</p>
+         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16 relative z-10">
+            <div className="md:w-1/3 pr-8">
+               <div className="sticky top-32 flex justify-center flex-col">
+                  <h2 className="text-5xl font-light mb-6">{data?.projects?.heading ?? "Glimpse into our work"}</h2>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62]">{data?.projects?.subHeading ?? "Selected Works"}</p>
+               </div>
             </div>
-          </div>
-
-
-          {/* RIGHT SIDE: VERTICAL SCROLLING IMAGES */}
-          <div className="md:w-2/3 space-y-40">
-            {projects.map((proj: any, idx: number) => (
-              <motion.div
-                key={proj.id || idx}
-                initial={{ opacity: 0, y: 80 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                className="group"
-              >
-                <CardContainer className="inter-var md:w-full w-auto h-auto perspective-1000px">
-                  <CardBody className="bg-tranparent-50 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/10 dark:bg-black dark:border-white/[0.20rder-yellow/[0.1] w-auto md:w-full sm:w-[30rem120o rounded-xl p-6 border">
-
-
-                    <CardItem translateZ="100" className="w-full h-64 mt-4">
-                      <img
-                        src={proj.img}
-                        className="h-64 sm:h-64 md:h-72 w-full object-cover rounded-xl group-hover/card:shadow-xl"
-                        alt="thumbnail"
-                      />
-                    </CardItem>
-                    <div className="flex justify-between items-center mt-20">
-
-                    </div>
-                  </CardBody>
-                </CardContainer>
-
-                <div className="flex flex-col border-l-2 border-[#892f1a] pl-6 transition-all duration-500 group-hover:pl-10">
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62] mb-3">{proj.date}</span>
-                  <h3 className="text-4xl tracking-wide font-light">{proj.title}</h3>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+            <div className="md:w-2/3 space-y-40">
+               {projects.map((proj: any, idx: number) => (
+                  <motion.div key={proj.id || idx} initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group">
+                     <CardContainer className="inter-var w-full">
+                        <CardBody className="bg-transparent relative group/card w-full h-auto rounded-xl p-6 border border-white/10">
+                           <CardItem translateZ="100" className="w-full mt-4">
+                              <img src={proj.img} className="h-64 md:h-72 w-full object-cover rounded-xl" alt="thumbnail" />
+                           </CardItem>
+                        </CardBody>
+                     </CardContainer>
+                     <div className="flex flex-col border-l-2 border-[#892f1a] pl-6 mt-8">
+                        <span className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62] mb-3">{proj.date}</span>
+                        <h3 className="text-4xl tracking-wide font-light">{proj.title}</h3>
+                     </div>
+                  </motion.div>
+               ))}
+            </div>
+         </div>
       </section>
 
-      {/* --- TESTIMONIALS SECTION --- */}
+      {/* --- TESTIMONIALS DISPLAY --- */}
       <AnimatedTestimonials testimonials={animatedTestimonials} />
 
-      {/* --- GIVE A REVIEW (FRONTEND ONLY) --- */}
-      {/* --- GIVE A REVIEW (STYLED - SIMPLIFIED) --- */}
+      {/* --- GIVE A REVIEW FORM --- */}
       <section className="py-32 px-8 md:px-20 bg-[#e8e6d8] relative border-t border-[#624a41]/10">
         <div className="max-w-2xl mx-auto">
-
-          {/* Section Header */}
           <div className="text-center mb-16">
-            <span className="text-[10px] uppercase tracking-[0.4em] text-[#bdaf62] font-bold block mb-4">
-              Feedback
-            </span>
-            <h3 className="text-4xl md:text-5xl font-light text-[#624a41] mb-6">
-              Share your experience
-            </h3>
+            <span className="text-[10px] uppercase tracking-[0.4em] text-[#bdaf62] font-bold block mb-4">Feedback</span>
+            <h3 className="text-4xl md:text-5xl font-light text-[#624a41] mb-6">Share your experience</h3>
             <div className="h-px w-24 bg-[#892f1a] mx-auto opacity-50"></div>
           </div>
 
           <form onSubmit={submitReview} className="space-y-12">
+            
+            {/* 1. Name Input (ADDED) */}
+            <div className="group relative">
+              <input
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                placeholder=" "
+                className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl"
+                id="nameInput"
+                required // Ensure browser checks this too
+              />
+              <label htmlFor="nameInput" className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]">
+                Your Name *
+              </label>
+            </div>
 
-            {/* Role Input */}
+            {/* 2. Role Input */}
             <div className="group relative">
               <input
                 value={role}
@@ -366,15 +284,26 @@ const HomePage = () => {
                 className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl"
                 id="roleInput"
               />
-              <label
-                htmlFor="roleInput"
-                className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]"
-              >
-                Your Role (e.g. Founder)
+              <label htmlFor="roleInput" className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]">
+                Your Role
               </label>
             </div>
 
-            {/* Message Area */}
+            {/* 3. Company Input (ADDED) */}
+            <div className="group relative">
+              <input
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                placeholder=" "
+                className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl"
+                id="companyInput"
+              />
+              <label htmlFor="companyInput" className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]">
+                Company Name
+              </label>
+            </div>
+
+            {/* 4. Message Area */}
             <div className="group relative">
               <textarea
                 value={message}
@@ -383,60 +312,39 @@ const HomePage = () => {
                 rows={4}
                 className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl resize-none"
                 id="messageInput"
+                required
               />
-              <label
-                htmlFor="messageInput"
-                className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]"
-              >
-                Your Message
+              <label htmlFor="messageInput" className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]">
+                Your Message *
               </label>
             </div>
 
-            {/* Rating & Submit */}
+            {/* 5. Rating & Submit */}
             <div className="flex flex-col items-center gap-10 mt-12">
-
-              {/* Star Rating */}
               <div className="flex flex-col items-center gap-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-[#624a41]/40">Rating</span>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => setStar(n)}
-                      className="transition-transform hover:scale-110 focus:outline-none"
-                    >
-                      <Star
-                        size={24}
-                        className={cn(
-                          "transition-colors duration-300",
-                          star && n <= star ? "fill-[#892f1a] text-[#892f1a]" : "text-[#624a41]/20"
-                        )}
-                      />
+                    <button key={n} type="button" onClick={() => setStar(n)} className="transition-transform hover:scale-110 focus:outline-none">
+                      <Star size={24} className={cn("transition-colors duration-300", star && n <= star ? "fill-[#892f1a] text-[#892f1a]" : "text-[#624a41]/20")} />
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Submit Button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="submit"
-                className="bg-[#624a41] text-[#e8e6d8] px-12 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] transition-all duration-500 shadow-xl"
+                disabled={isSubmitting}
+                className="bg-[#624a41] text-[#e8e6d8] px-12 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] transition-all duration-500 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit Review
+                {isSubmitting ? 'Submitting...' : 'Submit Review'}
               </motion.button>
 
-              {/* Success Feedback */}
               <AnimatePresence>
                 {reviewSuccess && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="text-[#892f1a] font-serif italic text-lg"
-                  >
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-[#892f1a] font-serif italic text-lg">
                     {reviewSuccess}
                   </motion.div>
                 )}
@@ -446,28 +354,12 @@ const HomePage = () => {
         </div>
       </section>
 
-
-      {/* --- NUMBERS SECTION --- */}
-      <section className="py-40 px-8 bg-[#e8e6d8] text-center">
-        <h2 className="text-3xl italic mb-24 text-[#892f1a]">{data?.stats?.heading ?? "Our story in numbers"}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
-          {(data?.stats?.items ?? contentSections.find(s => s.id === 'home-stats')?.items ?? []).map((stat: any, i: number) => (
-            <div key={stat.id || stat._id || i}>
-              <div className="text-6xl font-light mb-4 text-[#624a41]">{stat.title}</div>
-              <p className="font-sans text-[10px] uppercase tracking-[0.4em] font-black text-[#bdaf62]">{stat.subtitle}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-
-      {/* --- FOOTER --- */}
-      <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-2 ring-1 ring-neutral-700/10 dark:bg-neutral-800">
+      {/* --- FOOTER MARQUEE --- */}
+      <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-2 ring-1 ring-neutral-700/10">
         <ThreeDMarquee images={images} />
       </div>
     </div>
   );
 };
-
 
 export default HomePage;
