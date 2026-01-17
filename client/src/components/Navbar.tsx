@@ -18,7 +18,7 @@ const navItems: NavItem[] = [
   { path: '/', label: 'Home' },
   { path: '/services', label: 'Services' },
   { path: '/story', label: 'Our Story' },
-  // { path: '/founder', label: 'Founder' },
+  { path: '/founder', label: 'Founder' },
   { path: '/contact', label: 'Contact' },
 ];
 

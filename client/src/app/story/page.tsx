@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
 import Timeline from "@/components/Timeline";
-import FounderProfile from "@/components/FounderProfile";
 import VisionValues from "@/components/VisionValues";
 import { getStoryPage } from "../../services/story.api.js";
 
@@ -39,7 +38,6 @@ const Index = () => {
       <Hero hero={data?.hero || storyHeroData} />
       <VisionValues />
       <Timeline timeline={data?.timeline} />
-      <FounderProfile />
     </div>
   );
 };
