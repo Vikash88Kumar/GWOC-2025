@@ -71,4 +71,13 @@ export const updateFounderConnect = async (data) => {
     }
 }
 
-
+export const updateFounderAwards = async (data) => {
+    try {
+        // data: { headline, subHeadline, email, socials: [] }
+        const res = await api.patch("/founderpage/awards", data);
+        return res.data;
+    } catch (error) {
+        console.error("Failed to update connect section", error);
+        throw error;
+    }
+}

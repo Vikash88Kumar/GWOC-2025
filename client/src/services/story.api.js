@@ -2,7 +2,6 @@ import api from "../api/axios.js"
 
 // --- 1. Full Page Operations ---
 
-// GET full story page
 export const getStoryPage = async () => {
     try {
         const res = await api.get("/story");
@@ -13,7 +12,6 @@ export const getStoryPage = async () => {
     }
 }
 
-// UPDATE full story page (General)
 export const updateStoryPage = async (data) => {
     try {
         const res = await api.patch("/story", data);
@@ -24,11 +22,12 @@ export const updateStoryPage = async (data) => {
     }
 }
 
-// --- 2. Hero Section ---
+// --- 2. Hero Section (UPDATED) ---
 
 export const updateHeroSection = async (data) => {
     try {
-        // data should be { titleLines: [], subtitle: "", miniTag: "", ... }
+        // 'data' can now be a JSON object OR a FormData object.
+        // If it's FormData, axios handles the headers automatically.
         const res = await api.patch("/story/hero", data);
         return res.data;
     } catch (error) {
@@ -39,10 +38,8 @@ export const updateHeroSection = async (data) => {
 
 // --- 3. Timeline Section (Meta & Milestones) ---
 
-// Update Timeline Heading/Eyebrow
 export const updateTimelineSection = async (data) => {
     try {
-        // data: { eyebrow: "...", heading: "..." }
         const res = await api.patch("/story/timeline", data);
         return res.data;
     } catch (error) {
@@ -51,10 +48,8 @@ export const updateTimelineSection = async (data) => {
     }
 }
 
-// Add a NEW Milestone
 export const addMilestone = async (data) => {
     try {
-        // data: { year, title, description, iconKey, ... }
         const res = await api.post("/story/timeline/milestones", data);
         return res.data;
     } catch (error) {
@@ -63,7 +58,6 @@ export const addMilestone = async (data) => {
     }
 }
 
-// Update an EXISTING Milestone
 export const updateMilestoneById = async (id, data) => {
     try {
         const res = await api.patch(`/story/timeline/milestones/${id}`, data);
@@ -74,7 +68,6 @@ export const updateMilestoneById = async (id, data) => {
     }
 }
 
-// Delete a Milestone
 export const deleteMilestoneById = async (id) => {
     try {
         const res = await api.delete(`/story/timeline/milestones/${id}`);
@@ -85,7 +78,6 @@ export const deleteMilestoneById = async (id) => {
     }
 }
 
-// Replace ALL Milestones (Bulk Edit/Reorder)
 export const replaceMilestones = async (milestonesArray) => {
     try {
         const res = await api.put("/story/timeline/milestones", milestonesArray);
@@ -100,7 +92,6 @@ export const replaceMilestones = async (milestonesArray) => {
 
 export const updateMarqueeSection = async (data) => {
     try {
-        // data: { isEnabled, heading, images: [] }
         const res = await api.patch("/story/marquee", data);
         return res.data;
     } catch (error) {
@@ -113,7 +104,6 @@ export const updateMarqueeSection = async (data) => {
 
 export const updateTestimonialsSection = async (data) => {
     try {
-        // data: { isEnabled, heading, items: [] }
         const res = await api.patch("/story/testimonials", data);
         return res.data;
     } catch (error) {

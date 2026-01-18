@@ -1,72 +1,20 @@
 import api from "../api/axios.js";
 
-// --- GET FULL PAGE ---
-export const getHomePage = async () => {
-  try {
-    const res = await api.get("/homepage");
-    return res.data;
-  } catch (error) {
-    console.error("Failed to fetch home page", error);
-    throw error;
-  }
-};
+export const getHomePage = async () => (await api.get("/homepage")).data;
 
-// --- UPDATE HERO SECTION ---
-export const updateHomeHero = async (data) => {
-  try {
-    // data: { headline, subHeadline, ctaText, ctaLink, backgroundImage }
-    const res = await api.patch("/homepage/hero", data);
-    return res.data;
-  } catch (error) {
-    console.error("Failed to update home hero", error);
-    throw error;
-  }
-};
+// Hero (Accepts FormData)
+export const updateHomeHero = async (data) => (await api.patch("/homepage/hero", data)).data;
 
-// --- UPDATE INTRO SECTION ---
-export const updateHomeIntro = async (data) => {
-  try {
-    // data: { heading, description, floatingCircleText }
-    const res = await api.patch("/homepage/intro", data);
-    return res.data;
-  } catch (error) {
-    console.error("Failed to update home intro", error);
-    throw error;
-  }
-};
+export const updateHomeIntro = async (data) => (await api.patch("/homepage/intro", data)).data;
 
-// --- UPDATE PROJECTS SECTION ---
-export const updateHomeProjects = async (data) => {
-  try {
-    // data: { heading, subHeading, items: [] }
-    const res = await api.patch("/homepage/projects", data);
-    return res.data;
-  } catch (error) {
-    console.error("Failed to update home projects", error);
-    throw error;
-  }
-};
+// Projects
+export const updateHomeProjectsMeta = async (data) => (await api.patch("/homepage/projects/meta", data)).data;
+export const addHomeProjectItem = async (formData) => (await api.post("/homepage/projects/items", formData)).data;
+export const updateHomeProjectItem = async (id, formData) => (await api.patch(`/homepage/projects/items/${id}`, formData)).data;
 
-// --- UPDATE STATS SECTION ---
-export const updateHomeStats = async (data) => {
-  try {
-    // data: { heading, items: [] }
-    const res = await api.patch("/homepage/stats", data);
-    return res.data;
-  } catch (error) {
-    console.error("Failed to update home stats", error);
-    throw error;
-  }
-};
+export const updateHomeStats = async (data) => (await api.patch("/homepage/stats", data)).data;
 
-// --- UPDATE FOOTER SECTION ---
-export const updateHomeFooter = async (data) => {
-  try {
-    // data: { heading, ctaText, marqueeImages: [] }
-    const res = await api.patch("/homepage/footer", data);
-    return res.data;
-  } catch (error) {
-    console.error("Failed to update home footer", error);
-    throw error;
-  }
-};
+// Clients (Accepts FormData)
+export const updateHomeClients = async (formData) => (await api.patch("/homepage/clients", formData)).data;
+
+export const updateHomeFooter = async (data) => (await api.patch("/homepage/footer", data)).data;

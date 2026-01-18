@@ -61,13 +61,3 @@ export const getCurrentUser = async () => {
         throw error;
     }
 };
-
-export const updateAccountDetails = async (data) => {
-    try {
-        // Changed to GET because we are fetching data, not sending it
-        const res = await api.patch("/users/update-account",data); 
-        return res.data;
-    } catch (error) {
-        throw error;
-    }
-};

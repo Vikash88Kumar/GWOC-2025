@@ -32,7 +32,7 @@ export const toggleTestimonialActive = async (id, data) => {
   }
 };
 
-
+// --- Added Reject Function ---
 export const rejectTestimonial = async (id) => {
   try {
     const res = await api.patch(`/testimonial/reject/${id}`);
