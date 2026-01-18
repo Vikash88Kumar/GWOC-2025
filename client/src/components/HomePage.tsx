@@ -1,52 +1,102 @@
 "use client";
-import { cn } from "@/lib/utils";
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion'; // Added AnimatePresence
-import { ArrowRight, Instagram, Facebook, Linkedin, Star } from 'lucide-react'; // Added Star
-import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
-import { BackgroundLines } from '@/components/ui/background-lines';
-import { ThreeDMarquee } from '@/components/ui/3d-marquee';
-import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
-import Link from 'next/link';
-// IMPORT getTestimonials HERE
-import { createTestimonial, getAllTestimonials } from "../services/testimonial.api.js"
-import { getHomePage } from "../services/homepage.api.js"
-import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
-import { useAdmin } from "@/contexts/AdminContext";
 
-const HomePage = () => {
-  const [data, setData] = useState<any>({});
-  // State to store testimonials fetched from Backend
-  const [dbTestimonials, setDbTestimonials] = useState<any[]>([]);
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Star, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
+import { ThreeDMarquee } from "@/components/ui/3d-marquee";
+import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
+import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
+
+// ✅ API
+import { createTestimonial, getAllTestimonials } from "../services/testimonial.api.js";
+import { getHomePage } from "../services/homepage.api.js";
+
+type AnyObj = Record<string, any>;
+
+const DEFAULT_HERO_FALLBACK =
+  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600";
+
+const DEFAULT_PROJECTS = [
+  {
+    id: "p1",
+    title: "NANDAN COFFEE",
+    date: "October 2023 - Ongoing",
+    img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1600",
+    order: 1,
+  },
+  {
+    id: "p2",
+    title: "PASTEL PATISSERIE",
+    date: "December 2024",
+    img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1600",
+    order: 2,
+  },
+  {
+    id: "p3",
+    title: "SEEKHO SIKHAO FOUNDATION",
+    date: "September 2023 - Ongoing",
+    img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1600",
+    order: 3,
+  },
+  {
+    id: "p4",
+    title: "MANA",
+    date: "October 2024",
+    img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600",
+    order: 4,
+  },
+];
+
+const DEFAULT_MARQUEE = [
+  "/1.png",
+  "/2.png",
+  "/3.png",
+  "/4.png",
+  "/5.png",
+  "/6.png",
+  "/7.png",
+  "/8.png",
+];
+
+export default function HomePage() {
+  const [data, setData] = useState<AnyObj>({});
+  const [dbTestimonials, setDbTestimonials] = useState<AnyObj[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // --- ADDED: SLIDER STATE ---
+  // slider
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // review form
+  const [role, setRole] = useState("");
+  const [message, setMessage] = useState("");
+  const [star, setStar] = useState<number>(5);
+  const [reviewSuccess, setReviewSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ---------- Fetch homepage + testimonials ----------
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Run both fetches in parallel
-        const [homeRes, testimonialRes] = await Promise.all([
-          getHomePage(),
-          getAllTestimonials()
-        ]);
+        const [homeRes, testiRes] = await Promise.all([getHomePage(), getAllTestimonials()]);
 
-        // 1. Handle Homepage Data
-        setData(homeRes?.data ?? homeRes);
+        // HomePage payload
+        setData(homeRes?.data ?? homeRes ?? {});
 
-        // 2. Handle Testimonial Data
-        // specific to your backend: res.status(200).json(new ApiResponse(..., data, ...))
-        if (testimonialRes?.data?.data) {
-          setDbTestimonials(testimonialRes.data.data);
-        } else if (Array.isArray(testimonialRes?.data)) {
-          setDbTestimonials(testimonialRes.data);
-        }
+        // Testimonials payload (supports both shapes)
+        const raw =
+          testiRes?.data?.data ??
+          testiRes?.data ??
+          (Array.isArray(testiRes) ? testiRes : []);
 
-      } catch (err) {
-        console.error('Failed to fetch data:', err);
-        setError(String(err));
+        setDbTestimonials(Array.isArray(raw) ? raw : []);
+      } catch (err: any) {
+        console.error("Failed to fetch homepage/testimonials:", err);
+        setError(err?.message ? String(err.message) : String(err));
       } finally {
         setLoading(false);
       }
@@ -55,43 +105,40 @@ const HomePage = () => {
     fetchData();
   }, []);
 
-  // --- ADDED: SLIDER LOGIC ---
-  // Ensure we have an array. If backend sends a string or null, fallback to array or default.
-  const heroImages = Array.isArray(data?.hero?.backgroundImage)
-    ? data.hero.backgroundImage
-    : [data?.hero?.backgroundImage];
+  // ---------- Hero images ----------
+  const heroImages = useMemo(() => {
+    const bg = data?.hero?.backgroundImage;
+    if (Array.isArray(bg) && bg.length > 0) return bg;
+    if (typeof bg === "string" && bg.trim().length > 0) return [bg];
+    return [DEFAULT_HERO_FALLBACK];
+  }, [data]);
 
   useEffect(() => {
-    if (heroImages.length <= 1) return; // Don't slide if only 1 image
+    if (heroImages.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-    }, 5000); // Change every 5 seconds
+    }, 5000);
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
+  // ---------- Projects mapping ----------
+  const projects = useMemo(() => {
+    const items = Array.isArray(data?.projects?.items) ? data.projects.items : [];
+    const mapped = items
+      .map((it: AnyObj) => ({
+        id: it._id || it.id || `${it.title}-${it.subtitle}`,
+        title: it.title || "",
+        date: it.subtitle || "",
+        img: it.image || "",
+        order: Number(it.order ?? 0),
+      }))
+      .filter((p: AnyObj) => p.title && p.img)
+      .sort((a: AnyObj, b: AnyObj) => a.order - b.order);
 
-  // Projects from AdminContext
-  const { contentSections, testimonials: adminTestimonials, addTestimonial } = useAdmin();
-  const projectsSection = contentSections.find(s => s.id === 'home-projects');
+    return mapped.length ? mapped : DEFAULT_PROJECTS;
+  }, [data]);
 
-  // Updated project mapping to match your Backend response structure (_id, subtitle, etc)
-  const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({
-    title: it.title || '',
-    date: it.subtitle || '',
-    img: it.image || '',
-    id: it._id
-  }));
-
-  const projects = apiProjects.length
-    ? apiProjects
-    : (projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? [
-      { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
-      { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
-      { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
-      { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
-    ]);
-
-  // Use backend marquee images if available
+  // ---------- Footer marquee ----------
   const images = [
     "/1.png", "/2.png", "/3.png", "/4.png", "/5.png", "/6.png", "/7.png", "/8.png", "/9.png", "/10.png",
     "/11.png", "/12.png", "/13.png", "/14.png", "/15.png", "/16.png", "/17.png", "/18.png", "/19.png", "/20.png",
@@ -99,113 +146,92 @@ const HomePage = () => {
     "/31.png", "/32.png", "/33.png", "/34.png", "/35.png",
   ];
 
-  // --- MERGE LOGIC ---
-  // Prioritize DB testimonials. If DB is empty (loading or no data), fall back to Admin Context.
-  const sourceTestimonials = dbTestimonials.length > 0 ? dbTestimonials : adminTestimonials;
+  // ---------- Testimonials mapping (to AnimatedTestimonials format) ----------
+  const animatedTestimonials = useMemo(() => {
+    return (dbTestimonials ?? []).map((t: AnyObj) => {
+      const name = t.user?.fullName || t.clientName || t.name || "Client";
+      const company = t.user?.companyName || t.company || t.clientCompany || "";
+      const r = t.role || t.clientRole || "";
+      const content = t.message || t.content || "";
+      const image = t.user?.avatar || t.clientImage || t.avatar || "/placeholder-profile.png";
 
-  // Map backend data to UI component structure
-  const animatedTestimonials = sourceTestimonials.map(t => {
-    // 1. Check for populated User object (from backend: .populate("user"))
-    // 2. Fallback to flat fields (e.g., clientName) if user object doesn't exist or for anonymous reviews
-    const name = t.user?.fullName || t.clientName || "Client";
-    const company = t.user?.companyName || t.company || t.clientCompany || "";
-    const role = t.role || t.clientRole || "";
-    const content = t.message || t.content || "";
-    const image = t.user?.avatar || t.clientImage || '/placeholder-profile.png';
+      return {
+        quote: content,
+        name,
+        designation: `${r}${company ? " at " + company : ""}`,
+        src: image,
+      };
+    });
+  }, [dbTestimonials]);
 
-    return {
-      quote: content,
-      name: name,
-      designation: `${role}${company ? ' at ' + company : ''}`,
-      src: image
-    };
-  });
-
-  const [clientName, setClientName] = useState('');
-  const [role, setRole] = useState('');
-  const [company, setCompany] = useState('');
-  const [message, setMessage] = useState('');
-  const [star, setStar] = useState<number | null>(5);
-  const [reviewSuccess, setReviewSuccess] = useState('');
-
+  // ---------- Submit review ----------
   const submitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientName.trim() || !message.trim()) {
-      setReviewSuccess('Please add your name and message.');
-      setTimeout(() => setReviewSuccess(''), 3000);
-      return;
-    }
+    if (isSubmitting) return;
 
-    const payload = { clientName, role, company, message, star };
+    setIsSubmitting(true);
+
+    // Optimistic insert (so UI updates instantly)
+    const optimistic = {
+      _id: `tmp-${Date.now()}`,
+      clientName: "Anonymous",
+      role,
+      message,
+      star,
+      clientImage: "/placeholder-profile.png",
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    };
+
+    setDbTestimonials((prev) => [optimistic, ...prev]);
+
     try {
+      const payload = { role, message, star };
       const res = await createTestimonial(payload);
 
-      if (res?.data) {
-        const t = res.data;
-        // Optimistically add to UI via Context (optional, since we now fetch from DB)
-        addTestimonial({
-          clientName: t.clientName || clientName,
-          clientRole: t.role || role || '',
-          clientCompany: t.company || company || '',
-          clientImage: '/placeholder-profile.png',
-          content: t.message || message,
-          rating: t.star || star || 5,
-          status: t.status || 'pending',
-          createdAt: t.createdAt || new Date().toISOString().split('T')[0],
-        });
+      // Normalize response
+      const saved = res?.data?.data ?? res?.data ?? null;
 
-        // Optionally refresh DB list
-        // const newDetails = await getTestimonials();
-        // setDbTestimonials(newDetails.data.data);
-
-      } else {
-        addTestimonial({
-          clientName,
-          clientRole: role || '',
-          clientCompany: company || '',
-          clientImage: '/placeholder-profile.png',
-          content: message,
-          rating: star || 5,
-          status: 'pending',
-          createdAt: new Date().toISOString().split('T')[0],
-        });
+      if (saved) {
+        setDbTestimonials((prev) =>
+          prev.map((x) => (x._id === optimistic._id ? saved : x))
+        );
       }
-    } catch (err) {
-      console.error('Failed to submit testimonial to server', err);
-      addTestimonial({
-        clientName,
-        clientRole: role || '',
-        clientCompany: company || '',
-        clientImage: '/placeholder-profile.png',
-        content: message,
-        rating: star || 5,
-        status: 'pending',
-        createdAt: new Date().toISOString().split('T')[0],
-      });
-    }
 
-    setClientName('');
-    setRole('');
-    setCompany('');
-    setMessage('');
-    setStar(5);
-    setReviewSuccess('Thanks for your review! It will appear after approval.');
-    setTimeout(() => setReviewSuccess(''), 3000);
+      setRole("");
+      setMessage("");
+      setStar(5);
+
+      setReviewSuccess("Thanks for your review! It will appear after approval.");
+      setTimeout(() => setReviewSuccess(""), 3000);
+    } catch (err) {
+      console.error("Failed to submit testimonial:", err);
+
+      // rollback optimistic item if failed
+      setDbTestimonials((prev) => prev.filter((x) => x._id !== optimistic._id));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#e8e6d8] flex items-center justify-center">
+        <Loader2 className="animate-spin h-10 w-10 text-[#624a41]" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
-
-      {/* --- HERO SECTION WITH BG IMAGE SLIDER & ELECTRIC BLUE --- */}
+      {/* ================= HERO SECTION ================= */}
       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-20 overflow-hidden">
-
-        {/* UPDATED: Background Image Slider */}
         <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout">
             <motion.img
               key={currentSlide}
               src={heroImages[currentSlide]}
-              alt={data?.hero?.headline ?? 'Studio Interior'}
+              alt={data?.hero?.headline ?? "Studio Interior"}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -214,22 +240,17 @@ const HomePage = () => {
             />
           </AnimatePresence>
 
-          {/* Mixing Earl Gray and Electric Blue for a custom tinted overlay */}
-          <div className="absolute inset-0 bg-[#892f1a]/40 mix-blend-multiply z-[1]"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#624a41]/60 via-transparent to-[#e8e6d8] z-[2]"></div>
+          <div className="absolute inset-0 bg-[#892f1a]/40 mix-blend-multiply z-[1]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#624a41]/60 via-transparent to-[#e8e6d8] z-[2]" />
         </div>
 
- 
+        {/* Optional: if you want hero content inside this section later, put it here */}
       </section>
 
-      {/* --- INTRO SECTION --- */}
+      {/* ================= INTRO SECTION ================= */}
       <section className="w-full py-32 px-8 md:px-20 grid md:grid-cols-1 gap-20 items-center bg-[#e8e6d8]">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          <div className="relative  flex w-full items-center justify-center">
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 1 }}>
+          <div className="relative flex w-full items-center justify-center">
             <DottedGlowBackground
               className="pointer-events-none mask-radial-to-90% mask-radial-at-center opacity-20 dark:opacity-100"
               opacity={0.5}
@@ -244,40 +265,95 @@ const HomePage = () => {
               speedMax={1.6}
               speedScale={1}
             />
-            <div className="w-full relative z-10 flex  items-center justify-between space-y-6 px-40 py-16 text-center md:flex-row">
-              
-                <motion.div
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1.2, ease: "easeOut" }}
-                  className="max-w-5xl z-10"
-                >
-                  <h1 className="text-5xl md:text-[85px] font-light leading-[1.05] mb-10 text-[#624a41]">
-                    {data?.hero?.headline ?? (
-                      <>Creating strategic, <span className="italic text-[#bdaf62]">confident</span> and timeless designs with <span className="italic text-[#892f1a]">you</span> at the centre.</>
+
+            <div className="w-full relative z-10 flex items-center justify-between space-y-6 px-4 py-16 text-center md:flex-row md:px-40">
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="max-w-5xl z-10 mx-auto"
+              >
+                <h1 className="text-5xl md:text-[85px] font-light leading-[1.05] mb-10 text-[#624a41]">
+                  {data?.intro?.heading ??
+                    data?.hero?.headline ?? (
+                      <>
+                        Creating strategic,{" "}
+                        <span className="italic text-[#bdaf62]">confident</span> and timeless designs with{" "}
+                        <span className="italic text-[#892f1a]">you</span> at the centre.
+                      </>
                     )}
-                  </h1>
-                  <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#624a41] uppercase">
-                    {data?.hero?.subHeadline ?? 'We ensure your brand feels like home to those it serves.'}
-                  </p>
-                  <Link href={data?.hero?.ctaLink ?? '/services'}>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      className="hover:bg-[#e8e6d8] hover:text-[#624a41] px-10 py-4 text-[10px] rounded-xl uppercase tracking-[0.4em] bg-[#892f1a] text-white transition-all duration-500 shadow-xl"
-                    >
-                      {data?.hero?.ctaText ?? "Let's Get Started"}
-                    </motion.button>
-                  </Link>
-                </motion.div>
-              
-              
+                </h1>
+
+                <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#624a41] uppercase max-w-3xl mx-auto">
+                  {data?.intro?.description ?? data?.hero?.subHeadline ?? "We ensure your brand feels like home to those it serves."}
+                </p>
+
+                <Link href={data?.hero?.ctaLink ?? "/services"}>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    className="hover:bg-[#e8e6d8] hover:text-[#624a41] px-10 py-4 text-[10px] rounded-xl uppercase tracking-[0.4em] bg-[#892f1a] text-white transition-all duration-500 shadow-xl"
+                  >
+                    {data?.hero?.ctaText ?? "Let's Get Started"}
+                  </motion.button>
+                </Link>
+              </motion.div>
             </div>
           </div>
         </motion.div>
-
       </section>
 
-      {/* --- STICKY WORK SHOWCASE (DARK CHOC) --- */}
+      {/* ================= WORK SHOWCASE (PROJECTS) ================= */}
+      {/* <section className="bg-[#624a41] text-[#e8e6d8] py-32 px-8 md:px-20 relative">
+        <div
+          className={cn(
+            "absolute inset-0",
+            "bg-size-[40px_40px]",
+            "bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
+            "dark:bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]"
+          )}
+        />
+
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16 relative">
+          <div className="md:w-1/3 pr-8">
+            <div className="sticky top-32 flex justify-center flex-col">
+              <h2 className="text-5xl font-light mb-6">{data?.projects?.heading ?? "Glimpse into our work"}</h2>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62]">
+                {data?.projects?.subHeading ?? "Selected Works"}
+              </p>
+            </div>
+          </div>
+
+          <div className="md:w-2/3 space-y-40">
+            {projects.map((proj: AnyObj, idx: number) => (
+              <motion.div
+                key={proj.id || idx}
+                initial={{ opacity: 0, y: 80 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-10%" }}
+                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                className="group"
+              >
+                <CardContainer className="inter-var md:w-full w-auto h-auto perspective-1000px">
+                  <CardBody className="bg-transparent relative group/card w-auto md:w-full rounded-xl p-0 border-none">
+                    <CardItem translateZ="50" className="w-full h-auto mt-4">
+                      <img
+                        src={proj.img}
+                        className="w-full object-cover rounded-xl group-hover/card:shadow-xl aspect-[4/3]"
+                        alt={proj.title}
+                      />
+                    </CardItem>
+                  </CardBody>
+                </CardContainer>
+
+                <div className="flex flex-col border-l-2 border-[#892f1a] pl-6 transition-all duration-500 group-hover:pl-10 mt-8">
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62] mb-3">{proj.date}</span>
+                  <h3 className="text-4xl tracking-wide font-light">{proj.title}</h3>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section> */}
       <section className="bg-[#624a41] text-[#e8e6d8] py-32 px-8 md:px-20 relative">
         <div
           className={cn(
@@ -336,28 +412,66 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- TESTIMONIALS SECTION --- */}
-      <AnimatedTestimonials testimonials={animatedTestimonials} />
+      {/* ================= CLIENTS SECTION (optional) ================= */}
+      {Array.isArray(data?.clients?.logos) && data.clients.logos.length > 0 && (
+        <section className="py-24 px-8 md:px-20 bg-[#e8e6d8]">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h3 className="text-2xl font-light text-[#624a41]">{data?.clients?.heading ?? "Trusted By"}</h3>
+              <div className="h-px w-12 bg-[#892f1a] mx-auto mt-4 opacity-50" />
+            </div>
 
-      {/* --- GIVE A REVIEW (FRONTEND ONLY) --- */}
-      {/* --- GIVE A REVIEW (STYLED - SIMPLIFIED) --- */}
+            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
+              {data.clients.logos.map((logo: string, i: number) => (
+                <div key={i} className="w-32 h-20 relative flex items-center justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={logo} alt="Client Logo" className="max-w-full max-h-full object-contain" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================= STATS SECTION ================= */}
+      <section className="py-40 px-8 bg-[#624a41]/5 text-center">
+        <h2 className="text-3xl italic mb-24 text-[#892f1a]">{data?.stats?.heading ?? "Our story in numbers"}</h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
+          {(Array.isArray(data?.stats?.items) ? data.stats.items : []).map((stat: AnyObj, i: number) => (
+            <div key={stat._id || stat.id || i}>
+              <div className="text-6xl font-light mb-4 text-[#624a41]">{stat.title}</div>
+              <p className="font-sans text-[10px] uppercase tracking-[0.4em] font-black text-[#bdaf62]">{stat.subtitle}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ================= TESTIMONIALS SECTION ================= */}
+      {error ? (
+        <div className="px-8 md:px-20 py-16 text-center text-[#892f1a]">
+          Failed to load: {error}
+        </div>
+      ) : animatedTestimonials.length > 0 ? (
+        <AnimatedTestimonials testimonials={animatedTestimonials} />
+      ) : (
+        <div className="px-8 md:px-20 py-20 text-center text-[#624a41]/60">
+          No testimonials yet.
+        </div>
+      )}
+
+      {/* ================= GIVE A REVIEW ================= */}
       <section className="py-32 px-8 md:px-20 bg-[#e8e6d8] relative border-t border-[#624a41]/10">
         <div className="max-w-2xl mx-auto">
-
-          {/* Section Header */}
           <div className="text-center mb-16">
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#bdaf62] font-bold block mb-4">
               Feedback
             </span>
-            <h3 className="text-4xl md:text-5xl font-light text-[#624a41] mb-6">
-              Share your experience
-            </h3>
-            <div className="h-px w-24 bg-[#892f1a] mx-auto opacity-50"></div>
+            <h3 className="text-4xl md:text-5xl font-light text-[#624a41] mb-6">Share your experience</h3>
+            <div className="h-px w-24 bg-[#892f1a] mx-auto opacity-50" />
           </div>
 
           <form onSubmit={submitReview} className="space-y-12">
-
-            {/* Role Input */}
             <div className="group relative">
               <input
                 value={role}
@@ -365,6 +479,7 @@ const HomePage = () => {
                 placeholder=" "
                 className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl"
                 id="roleInput"
+                disabled={isSubmitting}
               />
               <label
                 htmlFor="roleInput"
@@ -374,7 +489,6 @@ const HomePage = () => {
               </label>
             </div>
 
-            {/* Message Area */}
             <div className="group relative">
               <textarea
                 value={message}
@@ -383,6 +497,7 @@ const HomePage = () => {
                 rows={4}
                 className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl resize-none"
                 id="messageInput"
+                disabled={isSubmitting}
               />
               <label
                 htmlFor="messageInput"
@@ -392,25 +507,27 @@ const HomePage = () => {
               </label>
             </div>
 
-            {/* Rating & Submit */}
             <div className="flex flex-col items-center gap-10 mt-12">
-
-              {/* Star Rating */}
               <div className="flex flex-col items-center gap-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-[#624a41]/40">Rating</span>
+
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <button
                       key={n}
                       type="button"
+                      disabled={isSubmitting}
                       onClick={() => setStar(n)}
-                      className="transition-transform hover:scale-110 focus:outline-none"
+                      className={cn(
+                        "transition-transform focus:outline-none",
+                        isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+                      )}
                     >
                       <Star
                         size={24}
                         className={cn(
                           "transition-colors duration-300",
-                          star && n <= star ? "fill-[#892f1a] text-[#892f1a]" : "text-[#624a41]/20"
+                          n <= star ? "fill-[#892f1a] text-[#892f1a]" : "text-[#624a41]/20"
                         )}
                       />
                     </button>
@@ -418,17 +535,28 @@ const HomePage = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+                whileTap={!isSubmitting ? { scale: 0.95 } : {}}
                 type="submit"
-                className="bg-[#624a41] text-[#e8e6d8] px-12 py-4 text-[10px] uppercase tracking-[0.4em] hover:bg-[#892f1a] transition-all duration-500 shadow-xl"
+                disabled={isSubmitting || !message.trim()}
+                className={cn(
+                  "bg-[#624a41] text-[#e8e6d8] px-12 py-4 text-[10px] uppercase tracking-[0.4em] transition-all duration-500 shadow-xl flex items-center gap-2",
+                  isSubmitting || !message.trim()
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:bg-[#892f1a]"
+                )}
               >
-                Submit Review
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin w-4 h-4" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Review"
+                )}
               </motion.button>
 
-              {/* Success Feedback */}
               <AnimatePresence>
                 {reviewSuccess && (
                   <motion.div
@@ -446,28 +574,12 @@ const HomePage = () => {
         </div>
       </section>
 
-
-      {/* --- NUMBERS SECTION --- */}
-      <section className="py-40 px-8 bg-[#e8e6d8] text-center">
-        <h2 className="text-3xl italic mb-24 text-[#892f1a]">{data?.stats?.heading ?? "Our story in numbers"}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
-          {(data?.stats?.items ?? contentSections.find(s => s.id === 'home-stats')?.items ?? []).map((stat: any, i: number) => (
-            <div key={stat.id || stat._id || i}>
-              <div className="text-6xl font-light mb-4 text-[#624a41]">{stat.title}</div>
-              <p className="font-sans text-[10px] uppercase tracking-[0.4em] font-black text-[#bdaf62]">{stat.subtitle}</p>
-            </div>
-          ))}
+      {/* ================= FOOTER ================= */}
+      <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-8 ring-1 ring-neutral-700/10 dark:bg-neutral-800 text-center">
+        <div className="mt-8">
+          <ThreeDMarquee images={images} />
         </div>
-      </section>
-
-
-      {/* --- FOOTER --- */}
-      <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-2 ring-1 ring-neutral-700/10 dark:bg-neutral-800">
-        <ThreeDMarquee images={images} />
       </div>
     </div>
   );
-};
-
-
-export default HomePage;
+}
