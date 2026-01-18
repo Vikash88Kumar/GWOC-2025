@@ -61,3 +61,12 @@ export const getCurrentUser = async () => {
         throw error;
     }
 };
+
+export const updateAccountDetails = async (data) => {
+    try {
+        const res= await api.patch("/users/update-account",data)
+        return res.data
+    } catch (error) {
+        console.log("get all users error ",error)
+    }
+}
