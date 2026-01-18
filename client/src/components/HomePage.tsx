@@ -216,7 +216,7 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#e8e6d8] flex items-center justify-center">
+      <div className="min-h-screen w-full bg-[#e8e6d8] flex items-center justify-center">
         <Loader2 className="animate-spin h-10 w-10 text-[#624a41]" />
       </div>
     );
