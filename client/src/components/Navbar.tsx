@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
           boxShadow: scrolled ? "0 20px 25px -5px rgb(0 0 0 / 0.1)" : "none",
         }}
         transition={spring}
-        className="h-20 flex items-center justify-between gap-12 backdrop-blur-sm pointer-events-auto overflow-hidden"
+        className="h-16 flex items-center justify-between gap-12 backdrop-blur-sm pointer-events-auto overflow-hidden"
       >
         {/* LOGO SECTION */}
         <Link href="/" className="flex items-center gap-3 shrink-0 pointer-events-auto group">
