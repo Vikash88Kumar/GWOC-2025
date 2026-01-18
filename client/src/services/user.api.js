@@ -1,17 +1,16 @@
 import api from "../api/axios.js";
 
-// 1. REGISTER (Payload: firstName, email, password, etc.)
+// 1. REGISTER
 export const register = async (data) => {
     try {
         const res = await api.post("/users/register", data);
         return res.data;
     } catch (error) {
-        // Throw the error so the UI (React) can catch it and show a toast
         throw error;
     }
 };
 
-// 2. LOGIN (Payload: email, password)
+// 2. LOGIN
 export const login = async (data) => {
     try {
         const res = await api.post("/users/login", data);
@@ -21,7 +20,7 @@ export const login = async (data) => {
     }
 };
 
-// 3. VERIFY OTP (Payload: email, otp)
+// 3. VERIFY OTP
 export const verifyOTP = async (data) => {
     try {
         const res = await api.post("/users/verify-otp", data);
@@ -31,7 +30,7 @@ export const verifyOTP = async (data) => {
     }
 };
 
-// 4. RESEND OTP (Payload: email)
+// 4. RESEND OTP
 export const resendOTP = async (data) => {
     try {
         const res = await api.post("/users/resend-otp", data);
@@ -54,7 +53,6 @@ export const logout = async () => {
 // 6. GET CURRENT USER
 export const getCurrentUser = async () => {
     try {
-        // Changed to GET because we are fetching data, not sending it
         const res = await api.get("/users/current-user"); 
         return res.data;
     } catch (error) {
@@ -62,11 +60,28 @@ export const getCurrentUser = async () => {
     }
 };
 
+// 7. UPDATE ACCOUNT DETAILS (Text Data)
 export const updateAccountDetails = async (data) => {
     try {
-        const res= await api.patch("/users/update-account",data)
-        return res.data
+        const res = await api.patch("/users/update-account", data);
+        return res.data;
     } catch (error) {
-        console.log("get all users error ",error)
+        // ✅ Fixed: Throw error so the frontend knows it failed
+        throw error; 
     }
-}
+};
+
+// ✅ 8. UPDATE AVATAR (File Upload)
+// This function handles the FormData specifically
+export const updateUserAvatar = async (formData) => {
+    try {
+        const res = await api.patch("/users/avatar", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+};

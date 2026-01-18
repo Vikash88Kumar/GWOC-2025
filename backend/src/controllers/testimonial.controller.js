@@ -52,19 +52,21 @@ export const rejectTestimonial = asyncHandler(async (req, res) => {
 
 // --- 3. CREATE TESTIMONIAL (Client/User Side) ---
 export const createTestimonial = asyncHandler(async (req, res) => {
-  // We only expect these 3 fields from the frontend now
+  // 1. We ONLY extract role, message, star from frontend input
   const { role, message, star } = req.body;
 
+  // 2. We verify the user is logged in (middleware should handle this usually)
   if (!req.user?._id) {
       throw new ApiError(401, "You must be logged in to submit a review");
   }
 
+  // 3. We create the record linking the Logged In User
   const newTestimonial = await Testimonial.create({
-    user: req.user._id, // Link to the logged-in user
-    role: role || "User", // Use provided role or default
+    user: req.user._id, // <--- Link to the User ID from Token/Session
+    role: role || "Client", // Fallback if user didn't provide role
     message,
-    star,
-    status: "pending", // Default to pending approval
+    star: star || 5,
+    status: "pending", 
     isActive: false
   });
 
@@ -73,24 +75,28 @@ export const createTestimonial = asyncHandler(async (req, res) => {
   );
 });
 
+// --- GET TESTIMONIALS ---
 export const getTestimonials = asyncHandler(async (req, res) => {
-  // Fetch all. Optional: Add { isActive: true } inside find() to hide rejected/pending ones.
+  // Fetch and Populate User details
   const testimonials = await Testimonial.find()
-    .populate("user", "firstName lastName avatar companyName") // <--- The JOIN
-    .sort({ order: 1, createdAt: -1 });
+    .populate("user", "firstName lastName avatar companyName") 
+    .sort({ createdAt: -1 });
 
-  // Transform data to flatten the structure
+  // Format data so Frontend gets a clean structure
   const formattedTestimonials = testimonials.map((t) => {
-    const userData = t.user || {}; // Handle missing users (Anonymous)
+    const userData = t.user || {}; 
 
     return {  
       _id: t._id,
+      // Create Full Name from User Table
       clientName: userData.firstName 
         ? `${userData.firstName} ${userData.lastName || ""}`.trim() 
         : "Anonymous User",
       avatar: userData.avatar || "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-      company: userData.companyName || "", // From User table
-      role: t.role,    // From Testimonial table
+      // Company comes from User Table
+      company: userData.companyName || "", 
+      // Role comes from Testimonial input
+      role: t.role,    
       message: t.message,
       star: t.star,
       status: t.status,

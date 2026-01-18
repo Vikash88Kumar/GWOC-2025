@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// ✅ IMPORT YOUR API FUNCTIONS HERE
-import { getCurrentUser, updateAccountDetails } from '../../services/user.api'; // Adjust path as needed
+// ✅ IMPORT updateUserAvatar HERE
+import { getCurrentUser, updateAccountDetails, updateUserAvatar } from '../../services/user.api'; 
 import {
   User,
   Mail,
@@ -17,6 +17,8 @@ import {
   Loader2,
   RotateCcw,
   Save,
+  Upload,
+  X,
 } from 'lucide-react';
 
 type UserProfile = {
@@ -47,12 +49,9 @@ function cn(...classes: Array<string | false | undefined | null>) {
   return classes.filter(Boolean).join(' ');
 }
 
-// ✅ UPDATED: Normalizer to handle your specific ApiResponse structure
-// Your API returns: { statusCode: 200, data: { ...user }, message: "..." }
 function normalizeApiUser(apiResponse: any): UserProfile {
-  // If apiResponse has a .data property (ApiResponse class), use that. Otherwise use apiResponse itself.
+  // Handle both { data: user } and direct user object
   const u = apiResponse?.data || apiResponse || {};
-  
   return {
     firstName: String(u.firstName ?? ''),
     lastName: String(u.lastName ?? ''),
@@ -70,7 +69,8 @@ function isEmailLike(v: string) {
 }
 
 function isUrlLike(v: string) {
-  if (!v.trim()) return true; // optional
+  if (!v.trim()) return true;
+  if (v.startsWith('blob:')) return true; // Allow local preview blobs
   try {
     const url = new URL(v.trim());
     return url.protocol === 'http:' || url.protocol === 'https:';
@@ -82,10 +82,12 @@ function isUrlLike(v: string) {
 export default function UserProfilePage() {
   const [initial, setInitial] = useState<UserProfile>(emptyProfile);
   const [form, setForm] = useState<UserProfile>(emptyProfile);
+  
+  // State to hold the raw file for uploading
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
   const [toast, setToast] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
   const dirty = useMemo(() => JSON.stringify(form) !== JSON.stringify(initial), [form, initial]);
@@ -95,32 +97,24 @@ export default function UserProfilePage() {
     if (!form.firstName.trim()) e.firstName = 'First name is required';
     if (!form.email.trim()) e.email = 'Email is required';
     else if (!isEmailLike(form.email)) e.email = 'Enter a valid email';
-    if (!isUrlLike(form.avatar)) e.avatar = 'Avatar must be a valid URL';
     if (!isUrlLike(form.website)) e.website = 'Website must be a valid URL';
     return e;
   }, [form]);
 
   const canSave = dirty && Object.keys(errors).length === 0 && !saving;
 
-  // ✅ UPDATED: Fetch Data using getCurrentUser()
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         setLoading(true);
-        
-        // Call your backend API
         const response = await getCurrentUser();
-        
         if (!mounted) return;
-
-        // Normalize the data from the response
         const normalized = normalizeApiUser(response);
         setInitial(normalized);
         setForm(normalized);
       } catch (err: any) {
         if (!mounted) return;
-        // Handle Axios error or generic error
         const errMsg = err.response?.data?.message || err.message || 'Failed to load profile';
         setToast({ type: 'error', msg: errMsg });
       } finally {
@@ -136,30 +130,63 @@ export default function UserProfilePage() {
     setForm((p) => ({ ...p, [key]: value }));
   }
 
-  // ✅ UPDATED: Save Data using updateAccountDetails()
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      // Create local preview
+      const previewUrl = URL.createObjectURL(file);
+      setField('avatar', previewUrl);
+    }
+  }
+
+  // ✅ UPDATED onSave FUNCTION
   async function onSave() {
     setToast(null);
     setSaving(true);
     try {
+      let finalAvatarUrl = initial.avatar; // Default to existing avatar if no change
+
+      // ---------------------------------------------------------
+      // STEP 1: Upload Avatar File (if selected)
+      // ---------------------------------------------------------
+      if (avatarFile) {
+        const formData = new FormData();
+        // 'avatar' matches your backend: upload.single('avatar')
+        formData.append('avatar', avatarFile); 
+        
+        const uploadRes = await updateUserAvatar(formData);
+        
+        // Extract the new URL from the upload response
+        // normalizeApiUser handles { data: user } structure
+        const updatedUserFromUpload = normalizeApiUser(uploadRes);
+        finalAvatarUrl = updatedUserFromUpload.avatar;
+      } else {
+        // If no file, use whatever URL is currently in the form 
+        // (handles case where user typed a URL manually, though file upload is preferred)
+        finalAvatarUrl = form.avatar;
+      }
+
+      // ---------------------------------------------------------
+      // STEP 2: Update Text Details
+      // ---------------------------------------------------------
       const payload: UserProfile = {
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         email: form.email.trim().toLowerCase(),
-        avatar: (form.avatar || DEFAULT_AVATAR).trim(),
+        avatar: finalAvatarUrl, // Use the REAL url (from cloud or text), not blob:
         companyName: form.companyName.trim(),
         website: form.website.trim(),
         industry: form.industry.trim(),
         phone: form.phone.trim(),
       };
 
-      // Call your backend API
       const response = await updateAccountDetails(payload);
-
-      // Your controller returns the updated user object inside `response.data`
       const updated = normalizeApiUser(response);
       
       setInitial(updated);
       setForm(updated);
+      setAvatarFile(null); // Clear pending file
       setToast({ type: 'success', msg: 'Profile updated successfully' });
     } catch (err: any) {
       const errMsg = err.response?.data?.message || err.message || 'Update failed';
@@ -172,27 +199,22 @@ export default function UserProfilePage() {
   function onReset() {
     setToast(null);
     setForm(initial);
+    setAvatarFile(null);
   }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white text-black">
-      {/* Light ambient background */}
+      {/* Background Ambience */}
       <div className="pointer-events-none absolute inset-0">
         <motion.div
           className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full blur-3xl opacity-20"
-          style={{
-            background:
-              'radial-gradient(circle at 30% 30%, rgba(189,175,98,0.55), rgba(189,175,98,0) 60%)',
-          }}
+          style={{ background: 'radial-gradient(circle at 30% 30%, rgba(189,175,98,0.55), rgba(189,175,98,0) 60%)' }}
           animate={{ x: [0, 40, 0], y: [0, 25, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
           className="absolute -bottom-56 -right-56 h-[640px] w-[640px] rounded-full blur-3xl opacity-15"
-          style={{
-            background:
-              'radial-gradient(circle at 60% 60%, rgba(90,105,255,0.45), rgba(90,105,255,0) 60%)',
-          }}
+          style={{ background: 'radial-gradient(circle at 60% 60%, rgba(90,105,255,0.45), rgba(90,105,255,0) 60%)' }}
           animate={{ x: [0, -30, 0], y: [0, -35, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
         />
@@ -200,6 +222,7 @@ export default function UserProfilePage() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-14">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -212,9 +235,7 @@ export default function UserProfilePage() {
             </div>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Your Profile</h1>
-              <p className="text-sm text-black/60">
-                Update your personal + business identity.
-              </p>
+              <p className="text-sm text-black/60">Update your personal + business identity.</p>
             </div>
           </div>
         </motion.div>
@@ -273,18 +294,56 @@ export default function UserProfilePage() {
               <LabelRow icon={<Phone className="h-4 w-4" />} label="Phone" value={form.phone} />
             </div>
 
+            {/* IMAGE UPLOAD SECTION */}
             <div className="mt-6 rounded-2xl bg-black/3 p-4 ring-1 ring-black/10">
-              <div className="flex items-center gap-2 text-sm font-medium text-black/70">
-                <ImageIcon className="h-4 w-4 text-[#7a6e2a]" />
-                Avatar URL
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm font-medium text-black/70">
+                  <ImageIcon className="h-4 w-4 text-[#7a6e2a]" />
+                  Profile Photo
+                </div>
+                {avatarFile && (
+                  <button 
+                    onClick={() => {
+                        setAvatarFile(null);
+                        setField('avatar', initial.avatar);
+                    }}
+                    className="flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-0.5 text-xs text-red-600 hover:bg-red-500/20"
+                  >
+                    <X className="h-3 w-3" /> Remove
+                  </button>
+                )}
               </div>
 
-              <Input
-                value={form.avatar}
-                onChange={(v) => setField('avatar', v)}
-                placeholder="https://..."
-                error={errors.avatar}
-              />
+              <div className="mt-3">
+                <input 
+                    type="file" 
+                    id="avatar-upload" 
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden" 
+                />
+                <label 
+                    htmlFor="avatar-upload"
+                    className="group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/10 bg-white p-4 transition hover:border-[#bdaf62]/50 hover:bg-[#bdaf62]/5"
+                >
+                    <div className="grid h-10 w-10 place-items-center rounded-full bg-black/5 ring-1 ring-black/5 transition group-hover:scale-110 group-hover:bg-white group-hover:shadow-sm">
+                        <Upload className="h-5 w-5 text-black/40 group-hover:text-[#7a6e2a]" />
+                    </div>
+                    <div className="text-center">
+                        <p className="text-xs font-semibold text-black/70 group-hover:text-[#7a6e2a]">
+                            Click to upload
+                        </p>
+                        <p className="text-[10px] text-black/40">
+                            SVG, PNG, JPG (max 2MB)
+                        </p>
+                    </div>
+                    {avatarFile && (
+                        <div className="absolute inset-x-0 bottom-0 rounded-b-2xl bg-emerald-500/10 py-1 text-center text-[10px] font-medium text-emerald-700">
+                           {avatarFile.name} selected
+                        </div>
+                    )}
+                </label>
+              </div>
             </div>
           </motion.div>
 
@@ -508,38 +567,8 @@ function Field(props: {
             loading && 'opacity-60'
           )}
         />
-        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(1200px_circle_at_10%_10%,rgba(189,175,98,0.12),transparent_40%)] opacity-0 transition group-hover:opacity-100" />
       </motion.div>
 
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
-            className="mt-2 text-xs text-red-700/90"
-          >
-            {error}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function Input(props: { value: string; onChange: (v: string) => void; placeholder?: string; error?: string }) {
-  const { value, onChange, placeholder, error } = props;
-
-  return (
-    <div className="mt-3">
-      <div className={cn('rounded-2xl ring-1', error ? 'ring-red-500/30' : 'ring-black/10')}>
-        <input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full rounded-2xl bg-transparent px-4 py-3 text-sm text-black outline-none placeholder:text-black/30"
-        />
-      </div>
       <AnimatePresence>
         {error && (
           <motion.div

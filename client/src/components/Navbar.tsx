@@ -89,7 +89,7 @@ const Navbar: React.FC = () => {
                 exit={{ opacity: 0, x: -10 }}
                 className={`text-xl font-display font-bold tracking-tight ${logoTextMain}`}
               >
-                Bloom<span className={logoTextAccent}>.</span>
+                Bloom<span className={logoTextAccent}>Branding</span>
               </motion.span>
             )}
           </AnimatePresence>
@@ -125,6 +125,16 @@ const Navbar: React.FC = () => {
 
         {/* ACTION BUTTONS */}
         <div className={`flex items-center gap-6 shrink-0 ${navTextColor}`}>
+          <Link href="/dashboard">
+          <button
+            className={`text-[10px] font-bold uppercase tracking-widest px-5 py-2 rounded-full border transition-all duration-300 ${scrolled
+                ? "border-white/20 hover:bg-[var(--butter-yellow)] hover:text-[var(--dark-chocolate)] hover:border-transparent"
+                : "border-[var(--dark-chocolate)]/20 hover:bg-[var(--electric-rust)] hover:text-white hover:border-transparent"
+              }`}
+          >
+          Profile
+          </button>
+          </Link>
           <button
             onClick={handelLogout}
             className={`text-[10px] font-bold uppercase tracking-widest px-5 py-2 rounded-full border transition-all duration-300 ${scrolled
@@ -134,6 +144,7 @@ const Navbar: React.FC = () => {
           >
             Log Out
           </button>
+          
         </div>
       </motion.nav>
     </header>

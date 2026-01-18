@@ -1,333 +1,462 @@
-"use client";
-import { cn } from "@/lib/utils";
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Instagram, Facebook, Linkedin, ChevronLeft, ChevronRight } from 'lucide-react';
-import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
-import { BackgroundLines } from '@/components/ui/background-lines';
-import { ThreeDMarquee } from '@/components/ui/3d-marquee';
-import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
-import Link from 'next/link';
-import {createTestimonial} from "../../services/testimonial.api"
-import { getHomePage } from "../../services/homepage.api.js"
-import { AnimatedTestimonials } from '@/components/ui/animated-testimonials';
-import { useAdmin } from '@/contexts/AdminContext';
+// "use client";
+// import { cn } from "@/lib/utils";
+// import React, { useEffect, useState } from 'react';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import { Star, Loader2 } from 'lucide-react';
+// import { DottedGlowBackground } from "@/components/ui/dotted-glow-background";
+// import { ThreeDMarquee } from '@/components/ui/3d-marquee';
+// import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
+// import Link from 'next/link';
 
-const heroSliderImages = [
-  { src: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000', alt: 'Modern interior design' },
-  { src: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=2000', alt: 'Elegant living space' },
-  { src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2000', alt: 'Luxury home design' },
-  { src: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2000', alt: 'Contemporary architecture' },
-  { src: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2000', alt: 'Minimalist interior' },
-];
+// // ✅ Updated Imports
+// import { createTestimonial } from "../services/testimonial.api.js";
+// import { getHomePage } from "../services/homepage.api.js";
+// // Assuming the file you created is named Testimonial.tsx in your ui folder
+// import TestimonialSection from '@/components/ui/Testimonials'; 
+// import { useAdmin } from "@/contexts/AdminContext";
 
-const HomePage = () => {
-  const [data, setData] = useState<any>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// const HomePage = () => {
+//   const [data, setData] = useState<any>({});
+//   // ❌ Removed dbTestimonials state (handled inside TestimonialSection now)
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+
+//   // --- SLIDER STATE ---
+//   const [currentSlide, setCurrentSlide] = useState(0);
+
+//   // --- SUBMIT REVIEW STATE ---
+//   const [role, setRole] = useState('');
+//   const [message, setMessage] = useState('');
+//   const [star, setStar] = useState<number | null>(5);
+//   const [reviewSuccess, setReviewSuccess] = useState('');
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+
+//   // --- FETCH DATA ---
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         // ✅ Only fetch Homepage data here (Testimonials fetch themselves)
+//         const homeRes = await getHomePage();
+
+//         // Handle Homepage Data structure
+//         setData(homeRes?.data ?? homeRes ?? {});
+
+//       } catch (err) {
+//         console.error('Failed to fetch data:', err);
+//         setError(String(err));
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, []);
+
+//   // --- HERO SLIDER LOGIC ---
+//   const heroImages = Array.isArray(data?.hero?.backgroundImage) && data.hero.backgroundImage.length > 0
+//     ? data.hero.backgroundImage
+//     : ["https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000"]; // Fallback
+
+//   useEffect(() => {
+//     if (heroImages.length <= 1) return; 
+//     const interval = setInterval(() => {
+//       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+//     }, 5000); 
+//     return () => clearInterval(interval);
+//   }, [heroImages.length]);
+
+
+//   // --- DATA MAPPING ---
   
-  // Hero Slider State
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [slideDirection, setSlideDirection] = useState(0);
+//   // Projects
+//   const { addTestimonial } = useAdmin(); // We still need addTestimonial for the form
+  
+//   const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({
+//     title: it.title || '',
+//     date: it.subtitle || '',
+//     img: it.image || '',
+//     id: it._id,
+//     order: it.order || 0
+//   })).sort((a: any, b: any) => a.order - b.order);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getHomePage();
-        setData(res?.data ?? res);
-      } catch (err) {
-        console.error('Failed to fetch homepage:', err);
-        setError(String(err));
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+//   const projects = apiProjects.length > 0 ? apiProjects : [];
 
-  // Auto-play slider
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSlideDirection(1);
-      setCurrentSlide((prev) => (prev + 1) % heroSliderImages.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+//   // Footer Marquee Images
+//   const marqueeImages = (data?.footer?.marqueeImages && data.footer.marqueeImages.length > 0)
+//     ? data.footer.marqueeImages
+//     : [
+//         "/1.png", "/2.png", "/3.png", "/4.png", "/5.png" 
+//       ];
 
-  const handlePrevSlide = () => {
-    setSlideDirection(-1);
-    setCurrentSlide((prev) => (prev - 1 + heroSliderImages.length) % heroSliderImages.length);
-  };
 
-  const handleNextSlide = () => {
-    setSlideDirection(1);
-    setCurrentSlide((prev) => (prev + 1) % heroSliderImages.length);
-  };
+//   // --- SUBMIT REVIEW FUNCTION ---
+//   const submitReview = async (e: React.FormEvent) => {
+//     e.preventDefault();
 
-  const goToSlide = (index: number) => {
-    setSlideDirection(index > currentSlide ? 1 : -1);
-    setCurrentSlide(index);
-  };
+//     if (isSubmitting) return;
+//     setIsSubmitting(true);
 
-  const slideVariants = {
-    enter: (direction: number) => ({ x: direction > 0 ? '100%' : '-100%', opacity: 0, scale: 1.1 }),
-    center: { zIndex: 1, x: 0, opacity: 1, scale: 1 },
-    exit: (direction: number) => ({ zIndex: 0, x: direction < 0 ? '100%' : '-100%', opacity: 0, scale: 0.95 }),
-  };
+//     const payload = { role, message, star };
 
-  const { contentSections, testimonials: adminTestimonials, addTestimonial } = useAdmin();
-  const projectsSection = contentSections.find(s => s.id === 'home-projects');
-  const apiProjects = (data?.projects?.items ?? []).map((it: any) => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' }));
-  const projects = apiProjects.length
-    ? apiProjects
-    : (projectsSection?.items?.map(it => ({ title: it.title || '', date: it.subtitle || '', img: it.image || '' })) ?? [
-        { title: "NANDAN COFFEE", date: "October 2023 - Ongoing", img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?q=80&w=1000" },
-        { title: "PASTEL PATISSERIE", date: "December 2024", img: "https://images.unsplash.com/photo-1551443874-329402506e76?q=80&w=1000" },
-        { title: "SEEKHO SIKHAO FOUNDATION", date: "September 2023 - Ongoing", img: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?q=80&w=1000" },
-        { title: "MANA", date: "October 2024", img: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1000" },
-      ]);
+//     try {
+//       const res = await createTestimonial(payload);
 
-  const images = [
-    "/1.png", "/2.png", "/3.png", "/4.png", "/5.png", "/6.png", "/7.png", "/8.png", "/9.png", "/10.png",
-    "/11.png", "/12.png", "/13.png", "/14.png", "/15.png", "/16.png", "/17.png", "/18.png", "/19.png", "/20.png",
-    "/21.png", "/22.png", "/23.png", "/24.png", "/25.png", "/26.png", "/27.png", "/28.png", "/29.png", "/30.png",
-    "/31.png", "/32.png", "/33.png", "/34.png", "/35.png",
-  ];
+//       if (res?.data) {
+//         const t = res.data;
+//         addTestimonial({
+//           // ✅ FIX: Use 'id' and handle missing _id
+//           id: t._id || Date.now().toString(), 
+          
+//           clientName: t.name || 'Anonymous',
+//           clientRole: t.role || role,
+//           clientCompany: t.company || '',
+//           clientImage: t.avatar || '/placeholder-profile.png',
+//           content: t.message || message,
+          
+//           // ✅ FIX: Ensure rating is a number
+//           rating: t.star || star || 5, 
+          
+//           status: t.status || 'pending',
+//           createdAt: t.createdAt || new Date().toISOString(),
+//         });
+//       } else {
+//         // Fallback for failed response structure
+//         addTestimonial({
+//           id: Date.now().toString(),
+//           clientName: 'Anonymous',
+//           clientRole: role,
+//           clientCompany: '',
+//           clientImage: '/placeholder-profile.png',
+//           content: message,
+//           rating: star || 5, 
+//           status: 'pending',
+//           createdAt: new Date().toISOString(),
+//         });
+//       }
 
-  const animatedTestimonials = adminTestimonials.map(t => ({
-    quote: t.content,
-    name: t.clientName,
-    designation: `${t.clientRole}${t.clientCompany ? ' at ' + t.clientCompany : ''}`,
-    src: t.clientImage
-  }));
+//       setRole('');
+//       setMessage('');
+//       setStar(5);
+//       setReviewSuccess('Thanks for your review! It will appear after approval.');
+//       setTimeout(() => setReviewSuccess(''), 3000);
 
-  const [clientName, setClientName] = useState('');
-  const [role, setRole] = useState('');
-  const [company, setCompany] = useState('');
-  const [message, setMessage] = useState('');
-  const [star, setStar] = useState<number | null>(5);
-  const [reviewSuccess, setReviewSuccess] = useState('');
+//     } catch (err) {
+//       console.error('Failed to submit testimonial to server', err);
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
 
-  const submitReview = async(e: React.FormEvent) => {
-    e.preventDefault();
-    if (!clientName.trim() || !message.trim()) {
-      setReviewSuccess('Please add your name and message.');
-      setTimeout(() => setReviewSuccess(''), 3000);
-      return;
-    }
+//   if (loading) {
+//       return <div className="min-h-screen bg-[#e8e6d8] flex items-center justify-center"><Loader2 className="animate-spin h-10 w-10 text-[#624a41]" /></div>;
+//   }
 
-    const payload = { clientName, role, company, message, star };
-    try {
-      const res = await createTestimonial(payload);
-      if (res?.data) {
-        const t = res.data;
-        addTestimonial({
-          clientName: t.clientName || clientName,
-          clientRole: t.role || role || '',
-          clientCompany: t.company || company || '',
-          clientImage: '/placeholder-profile.png',
-          content: t.message || message,
-          rating: t.star || star || 5,
-          status: t.status || 'pending',
-          createdAt: t.createdAt || new Date().toISOString().split('T')[0],
-        });
-      } else {
-        addTestimonial({
-          clientName, clientRole: role || '', clientCompany: company || '', clientImage: '/placeholder-profile.png',
-          content: message, rating: star || 5, status: 'pending', createdAt: new Date().toISOString().split('T')[0],
-        });
-      }
-    } catch (err) {
-      console.error('Failed to submit testimonial to server', err);
-      addTestimonial({
-        clientName, clientRole: role || '', clientCompany: company || '', clientImage: '/placeholder-profile.png',
-        content: message, rating: star || 5, status: 'pending', createdAt: new Date().toISOString().split('T')[0],
-      });
-    }
+//   return (
+//     <div className="w-full bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
 
-    setClientName(''); setRole(''); setCompany(''); setMessage(''); setStar(5);
-    setReviewSuccess('Thanks for your review! It will appear after approval.');
-    setTimeout(() => setReviewSuccess(''), 3000);
-  };
+//       {/* ================= HERO SECTION ================= */}
+//       <section className="relative min-h-screen flex flex-col justify-center px-8 md:px-20 overflow-hidden">
+//         <div className="absolute inset-0 z-0">
+//           <AnimatePresence mode="popLayout">
+//             <motion.img
+//               key={currentSlide}
+//               src={heroImages[currentSlide]}
+//               alt={data?.hero?.headline ?? 'Studio Interior'}
+//               initial={{ opacity: 0 }}
+//               animate={{ opacity: 1 }}
+//               exit={{ opacity: 0 }}
+//               transition={{ duration: 1.5, ease: "easeInOut" }}
+//               className="absolute inset-0 w-full h-full object-cover"
+//             />
+//           </AnimatePresence>
+//           <div className="absolute inset-0 bg-[#892f1a]/40 mix-blend-multiply z-[1]"></div>
+//           <div className="absolute inset-0 bg-gradient-to-b from-[#624a41]/60 via-transparent to-[#e8e6d8] z-[2]"></div>
+//         </div>
+//       </section>
 
-  return (
-    <div className="w-full bg-[#e8e6d8] text-[#624a41] font-serif selection:bg-[#bdaf62] selection:text-white">
+//       {/* ================= INTRO SECTION ================= */}
+//       <section className="w-full py-32 px-8 md:px-20 grid md:grid-cols-1 gap-20 items-center bg-[#e8e6d8]">
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           whileInView={{ opacity: 1 }}
+//           transition={{ duration: 1 }}
+//         >
+//           <div className="relative flex w-full items-center justify-center">
+//             <DottedGlowBackground
+//               className="pointer-events-none mask-radial-to-90% mask-radial-at-center opacity-20 dark:opacity-100"
+//               opacity={0.5}
+//               gap={10}
+//               radius={2.5}
+//               colorLightVar="--color-neutral-500"
+//               glowColorLightVar="--color-neutral-600"
+//               colorDarkVar="--color-neutral-500"
+//               glowColorDarkVar="--color-dark"
+//               backgroundOpacity={0.01}
+//               speedMin={0.3}
+//               speedMax={1.6}
+//               speedScale={1}
+//             />
+//             <div className="w-full relative z-10 flex items-center justify-between space-y-6 px-4 py-16 text-center md:flex-row md:px-40">
+//                 <motion.div
+//                   initial={{ opacity: 0, y: 40 }}
+//                   animate={{ opacity: 1, y: 0 }}
+//                   transition={{ duration: 1.2, ease: "easeOut" }}
+//                   className="max-w-5xl z-10 mx-auto"
+//                 >
+//                   <h1 className="text-5xl md:text-[85px] font-light leading-[1.05] mb-10 text-[#624a41]">
+//                     {data?.intro?.heading || data?.hero?.headline || (
+//                       <>Creating strategic, <span className="italic text-[#bdaf62]">confident</span> and timeless designs.</>
+//                     )}
+//                   </h1>
+//                   <p className="font-sans text-sm md:text-base tracking-[0.3em] mb-12 text-[#624a41] uppercase max-w-3xl mx-auto">
+//                     {data?.intro?.description || data?.hero?.subHeadline || 'We ensure your brand feels like home to those it serves.'}
+//                   </p>
+                  
+//                   {data?.intro?.floatingCircleText && (
+//                       <div className="absolute -top-20 -right-20 hidden md:block animate-spin-slow">
+//                           <svg viewBox="0 0 100 100" width="140" height="140">
+//                             <defs>
+//                                 <path id="circle" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" />
+//                             </defs>
+//                             <text fontSize="11" fill="#624a41" fontWeight="bold" letterSpacing="2">
+//                                 <textPath xlinkHref="#circle">
+//                                     {data.intro.floatingCircleText} • {data.intro.floatingCircleText} •
+//                                 </textPath>
+//                             </text>
+//                           </svg>
+//                       </div>
+//                   )}
 
-      {/* --- HERO SECTION WITH IMAGE SLIDER --- */}
-      <section className="relative min-h-screen flex flex-col">
-        {/* Image Slider */}
-        <div className="relative h-[70vh] md:h-[80vh] overflow-hidden">
-          <AnimatePresence initial={false} custom={slideDirection} mode="popLayout">
-            <motion.div
-              key={currentSlide}
-              custom={slideDirection}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.5 }, scale: { duration: 0.8 } }}
-              className="absolute inset-0"
-            >
-              <img src={heroSliderImages[currentSlide].src} alt={heroSliderImages[currentSlide].alt} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#624a41]/40 via-transparent to-[#e8e6d8]" />
-            </motion.div>
-          </AnimatePresence>
+//                   <Link href={data?.hero?.ctaLink ?? '/services'}>
+//                     <motion.button
+//                       whileHover={{ scale: 1.05 }}
+//                       className="hover:bg-[#e8e6d8] hover:text-[#624a41] px-10 py-4 text-[10px] rounded-xl uppercase tracking-[0.4em] bg-[#892f1a] text-white transition-all duration-500 shadow-xl"
+//                     >
+//                       {data?.hero?.ctaText ?? "Let's Get Started"}
+//                     </motion.button>
+//                   </Link>
+//                 </motion.div>
+//             </div>
+//           </div>
+//         </motion.div>
+//       </section>
 
-          {/* Navigation Arrows */}
-          <button onClick={handlePrevSlide} className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-10 w-12 h-12 flex items-center justify-center bg-[#e8e6d8]/20 backdrop-blur-sm border border-[#e8e6d8]/30 rounded-full text-[#e8e6d8] hover:bg-[#e8e6d8]/40 transition-all duration-300 group" aria-label="Previous slide">
-            <ChevronLeft className="w-6 h-6 group-hover:-translate-x-0.5 transition-transform" />
-          </button>
-          <button onClick={handleNextSlide} className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 w-12 h-12 flex items-center justify-center bg-[#e8e6d8]/20 backdrop-blur-sm border border-[#e8e6d8]/30 rounded-full text-[#e8e6d8] hover:bg-[#e8e6d8]/40 transition-all duration-300 group" aria-label="Next slide">
-            <ChevronRight className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" />
-          </button>
+//       {/* ================= WORK SHOWCASE (PROJECTS) ================= */}
+//       <section className="bg-[#624a41] text-[#e8e6d8] py-32 px-8 md:px-20 relative">
+//         <div className={cn(
+//             "absolute inset-0",
+//             "bg-size-[40px_40px]",
+//             "bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
+//             "dark:bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
+//           )}
+//         />
+//         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
+//           <div className="md:w-1/3 pr-8">
+//             <div className="sticky top-32 flex justify-center flex-col">
+//               <h2 className="text-5xl font-light mb-6">{data?.projects?.heading ?? "Glimpse into our work"}</h2>
+//               <p className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62]">{data?.projects?.subHeading ?? "Selected Works"}</p>
+//             </div>
+//           </div>
 
-          {/* Slide Indicators */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex gap-3">
-            {heroSliderImages.map((_, index) => (
-              <button key={index} onClick={() => goToSlide(index)} className={`h-1 rounded-full transition-all duration-500 ${index === currentSlide ? 'w-8 bg-[#e8e6d8]' : 'w-4 bg-[#e8e6d8]/40 hover:bg-[#e8e6d8]/60'}`} aria-label={`Go to slide ${index + 1}`} />
-            ))}
-          </div>
+//           <div className="md:w-2/3 space-y-40">
+//             {projects.map((proj: any, idx: number) => (
+//               <motion.div
+//                 key={proj.id || idx}
+//                 initial={{ opacity: 0, y: 80 }}
+//                 whileInView={{ opacity: 1, y: 0 }}
+//                 viewport={{ once: true, margin: "-10%" }}
+//                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+//                 className="group"
+//               >
+//                 <CardContainer className="inter-var md:w-full w-auto h-auto perspective-1000px">
+//                   <CardBody className="bg-transparent relative group/card w-auto md:w-full rounded-xl p-0 border-none">
+//                     <CardItem translateZ="50" className="w-full h-auto mt-4">
+//                       <img
+//                         src={proj.img}
+//                         className="w-full object-cover rounded-xl group-hover/card:shadow-xl aspect-[4/3]"
+//                         alt={proj.title}
+//                       />
+//                     </CardItem>
+//                   </CardBody>
+//                 </CardContainer>
 
-          {/* Slide Counter */}
-          <div className="absolute top-8 right-8 z-10 font-sans text-xs tracking-[0.3em] text-[#e8e6d8]/80">
-            <span className="text-[#e8e6d8] font-medium">{String(currentSlide + 1).padStart(2, '0')}</span>
-            <span className="mx-2">/</span>
-            <span>{String(heroSliderImages.length).padStart(2, '0')}</span>
-          </div>
-        </div>
+//                 <div className="flex flex-col border-l-2 border-[#892f1a] pl-6 transition-all duration-500 group-hover:pl-10 mt-8">
+//                   <span className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62] mb-3">{proj.date}</span>
+//                   <h3 className="text-4xl tracking-wide font-light">{proj.title}</h3>
+//                 </div>
+//               </motion.div>
+//             ))}
+//           </div>
+//         </div>
+//       </section>
 
-        {/* Hero Content - Slides up from below */}
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-20 -mt-32 md:-mt-40 px-6 md:px-16 lg:px-24"
-        >
-          <div className="max-w-5xl">
-            <motion.div initial={{ width: 0 }} animate={{ width: '4rem' }} transition={{ duration: 0.8, delay: 0.5 }} className="h-px bg-[#892f1a] mb-8" />
-            <h1 className="text-4xl md:text-6xl lg:text-[80px] font-light leading-[1.1] mb-8 text-[#624a41]">
-              {data?.hero?.headline ?? (<>Creating strategic, <span className="italic text-[#bdaf62]">confident</span> and timeless designs with <span className="italic text-[#892f1a]">you</span> at the centre.</>)}
-            </h1>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.7 }} className="font-sans text-sm md:text-base tracking-[0.25em] mb-10 text-[#624a41]/70 uppercase max-w-2xl">
-              {data?.hero?.subHeadline ?? 'We ensure your brand feels like home to those it serves.'}
-            </motion.p>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.9 }}>
-              <Link href={data?.hero?.ctaLink ?? '/services'}>
-                <button className="group flex items-center gap-4 bg-[#892f1a] text-[#e8e6d8] px-8 py-4 text-xs uppercase tracking-[0.3em] hover:bg-[#624a41] transition-all duration-500 shadow-lg hover:shadow-xl">
-                  {data?.hero?.ctaText ?? "Let's Get Started"}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </Link>
-            </motion.div>
-          </div>
-        </motion.div>
+//       {/* ================= CLIENTS SECTION ================= */}
+//       {data?.clients?.logos?.length > 0 && (
+//           <section className="py-24 px-8 md:px-20 bg-[#e8e6d8]">
+//              <div className="max-w-7xl mx-auto">
+//                 <div className="text-center mb-16">
+//                     <h3 className="text-2xl font-light text-[#624a41]">{data.clients.heading || "Trusted By"}</h3>
+//                     <div className="h-px w-12 bg-[#892f1a] mx-auto mt-4 opacity-50"></div>
+//                 </div>
+                
+//                 <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
+//                     {data.clients.logos.map((logo: string, i: number) => (
+//                         <div key={i} className="w-32 h-20 relative flex items-center justify-center">
+//                              {/* eslint-disable-next-line @next/next/no-img-element */}
+//                              <img src={logo} alt="Client Logo" className="max-w-full max-h-full object-contain" />
+//                         </div>
+//                     ))}
+//                 </div>
+//              </div>
+//           </section>
+//       )}
 
-        <div className="flex-1 bg-[#e8e6d8] min-h-[30vh]" />
-      </section>
+//       {/* ================= STATS SECTION ================= */}
+//       <section className="py-40 px-8 bg-[#624a41]/5 text-center">
+//         <h2 className="text-3xl italic mb-24 text-[#892f1a]">{data?.stats?.heading ?? "Our story in numbers"}</h2>
+//         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
+//           {(data?.stats?.items ?? []).map((stat: any, i: number) => (
+//             <div key={stat._id || i}>
+//               <div className="text-6xl font-light mb-4 text-[#624a41]">{stat.title}</div>
+//               <p className="font-sans text-[10px] uppercase tracking-[0.4em] font-black text-[#bdaf62]">{stat.subtitle}</p>
+//             </div>
+//           ))}
+//         </div>
+//       </section>
 
-      {/* --- STICKY WORK SHOWCASE --- */}
-      <section className="bg-[#624a41] text-[#e8e6d8] py-32 px-8 md:px-20 relative">
-        <div className={cn("absolute inset-0", "bg-size-[40px_40px]", "bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]", "dark:bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]")} />
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16">
-          <div className="md:w-1/3 pr-8">
-            <div className="sticky top-32 flex justify-center">
-              <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-[#624a41] border border-[#bdaf62]/60 flex flex-col items-center justify-center text-center px-6 shadow-xl hover:scale-105 transition-transform duration-300">
-                <h2 className="text-3xl md:text-4xl italic font-light leading-tight mb-4 text-[#e8e6d8]">Glimpse into<br />our work</h2>
-                <div className="w-12 h-px bg-[#892f1a] mb-4"></div>
-                <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-[#bdaf62]">Portfolio — 2026</p>
-              </div>
-            </div>
-          </div>
-          <div className="md:w-2/3 space-y-40">
-            {projects.map((proj: any, idx: number) => (
-              <motion.div key={idx} initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }} className="group">
-                <CardContainer className="inter-var md:w-full w-auto h-auto perspective-1000px">
-                  <CardBody className="bg-transparent-50 relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/10 dark:bg-black dark:border-white/[0.2] w-auto md:w-full sm:w-[30rem] rounded-xl p-6 border">
-                    <CardItem translateZ="100" className="w-full h-64 mt-4">
-                      <img src={proj.img} className="h-64 sm:h-64 md:h-72 w-full object-cover rounded-xl group-hover/card:shadow-xl" alt="thumbnail" />
-                    </CardItem>
-                  </CardBody>
-                </CardContainer>
-                <div className="flex flex-col border-l-2 border-[#892f1a] pl-6 transition-all duration-500 group-hover:pl-10 mt-6">
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#bdaf62] mb-3">{proj.date}</span>
-                  <h3 className="text-4xl tracking-wide font-light">{proj.title}</h3>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+//       {/* ================= TESTIMONIALS SECTION (Self-Fetching) ================= */}
+//       <TestimonialSection />
 
-      {/* --- TESTIMONIALS SECTION --- */}
-      <AnimatedTestimonials testimonials={animatedTestimonials} />
+//       {/* ================= GIVE A REVIEW ================= */}
+//       <section className="py-32 px-8 md:px-20 bg-[#e8e6d8] relative border-t border-[#624a41]/10">
+//         <div className="max-w-2xl mx-auto">
 
-      {/* --- GIVE A REVIEW --- */}
-      <section className="max-w-2xl mx-auto px-4 py-12">
-        <h3 className="text-3xl font-semibold mb-6">Give a Review</h3>
-        <form onSubmit={submitReview} className="grid gap-3">
-          <input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Your name" className="rounded-md border px-4 py-2" />
-          <div className="flex gap-3">
-            <input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role (e.g., Founder)" className="rounded-md border px-4 py-2 flex-1" />
-            <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" className="rounded-md border px-4 py-2 flex-1" />
-          </div>
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Your message" rows={4} className="rounded-md border px-4 py-2" />
-          <div className="flex items-center gap-2">
-            <div className="text-sm">Rating:</div>
-            {[1,2,3,4,5].map(n => (
-              <button key={n} type="button" onClick={() => setStar(n)} className={`px-2 py-1 rounded ${star === n ? 'bg-[#892f1a] text-white' : 'bg-gray-100'}`}>{n}★</button>
-            ))}
-          </div>
-          <div className="flex items-center gap-4">
-            <button type="submit" className="bg-[#892f1a] text-white px-6 py-2 rounded">Submit Review</button>
-            <div className="text-sm text-green-600">{reviewSuccess}</div>
-          </div>
-        </form>
-      </section>
+//           <div className="text-center mb-16">
+//             <span className="text-[10px] uppercase tracking-[0.4em] text-[#bdaf62] font-bold block mb-4">
+//               Feedback
+//             </span>
+//             <h3 className="text-4xl md:text-5xl font-light text-[#624a41] mb-6">
+//               Share your experience
+//             </h3>
+//             <div className="h-px w-24 bg-[#892f1a] mx-auto opacity-50"></div>
+//           </div>
 
-      {/* --- NUMBERS SECTION --- */}
-      <section className="py-40 px-8 bg-[#e8e6d8] text-center">
-        <h2 className="text-3xl italic mb-24 text-[#892f1a]">Our story in numbers</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-6xl mx-auto">
-          {(contentSections.find(s => s.id === 'home-stats')?.items ?? []).map((stat, i) => (
-            <div key={stat.id || i}>
-              <div className="text-6xl font-light mb-4 text-[#624a41]">{stat.title}</div>
-              <p className="font-sans text-[10px] uppercase tracking-[0.4em] font-black text-[#bdaf62]">{stat.subtitle}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+//           <form onSubmit={submitReview} className="space-y-12">
+//             <div className="group relative">
+//               <input
+//                 value={role}
+//                 onChange={(e) => setRole(e.target.value)}
+//                 placeholder=" "
+//                 className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl"
+//                 id="roleInput"
+//                 disabled={isSubmitting}
+//               />
+//               <label htmlFor="roleInput" className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]">
+//                 Your Role (e.g. Founder)
+//               </label>
+//             </div>
 
-      {/* --- FOOTER --- */}
-      <footer className="bg-white/40 pt-32 pb-12 px-8 md:px-20 border-t border-[#624a41]/10">
-        <div className="flex flex-col md:flex-row justify-between gap-24 mb-32 max-w-7xl mx-auto">
-          <div>
-            <h3 className="text-5xl mb-12">{data?.footer?.heading ?? (<><span className="text-[#892f1a] italic">Ready to</span> elevate <br />your brand?</>)}</h3>
-            <div className="flex pb-4 w-full md:w-96 group">
-              <Link href={data?.footer?.ctaLink ?? '/contact'} className="no-underline">
-                <button className="flex items-center gap-4 bg-[#892f1a] text-white px-6 py-3 text-[10px] uppercase tracking-[0.4em] hover:bg-[#624a41] transition-all duration-500 shadow-xl">{data?.footer?.ctaText ?? 'Contact Us'}</button>
-              </Link>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-20 text-[10px] font-sans uppercase tracking-[0.4em]">
-            <div className="flex flex-col gap-6">
-              <a href="#" className="hover:text-[#892f1a]">Our Story</a>
-              <a href="#" className="hover:text-[#892f1a]">Work</a>
-            </div>
-            <div className="flex flex-col gap-6">
-              <div className="flex gap-4 text-[#624a41]/60">
-                <Instagram size={18} className="hover:text-[#892f1a]" />
-                <Facebook size={18} className="hover:text-[#892f1a]" />
-                <Linkedin size={18} className="hover:text-[#892f1a]" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-2 ring-1 ring-neutral-700/10 dark:bg-neutral-800">
-          <ThreeDMarquee images={images} />
-        </div>
-      </footer>
-    </div>
-  );
-};
+//             <div className="group relative">
+//               <textarea
+//                 value={message}
+//                 onChange={(e) => setMessage(e.target.value)}
+//                 placeholder=" "
+//                 rows={4}
+//                 className="peer w-full bg-transparent border-b border-[#624a41]/20 py-4 text-[#624a41] placeholder-transparent focus:outline-none focus:border-[#892f1a] transition-colors font-serif text-xl resize-none"
+//                 id="messageInput"
+//                 disabled={isSubmitting}
+//               />
+//               <label htmlFor="messageInput" className="absolute left-0 -top-3.5 text-[10px] uppercase tracking-[0.2em] text-[#624a41]/60 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[#624a41]/40 peer-placeholder-shown:top-4 peer-focus:-top-3.5 peer-focus:text-[10px] peer-focus:text-[#892f1a]">
+//                 Your Message
+//               </label>
+//             </div>
 
-export default HomePage;
+//             <div className="flex flex-col items-center gap-10 mt-12">
+//               <div className="flex flex-col items-center gap-4">
+//                 <span className="text-[10px] uppercase tracking-[0.2em] text-[#624a41]/40">Rating</span>
+//                 <div className="flex gap-2">
+//                   {[1, 2, 3, 4, 5].map((n) => (
+//                     <button
+//                       key={n}
+//                       type="button"
+//                       disabled={isSubmitting}
+//                       onClick={() => setStar(n)}
+//                       className={cn(
+//                         "transition-transform focus:outline-none",
+//                         isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
+//                       )}
+//                     >
+//                       <Star
+//                         size={24}
+//                         className={cn(
+//                           "transition-colors duration-300",
+//                           star && n <= star ? "fill-[#892f1a] text-[#892f1a]" : "text-[#624a41]/20"
+//                         )}
+//                       />
+//                     </button>
+//                   ))}
+//                 </div>
+//               </div>
+
+//               <motion.button
+//                 whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+//                 whileTap={!isSubmitting ? { scale: 0.95 } : {}}
+//                 type="submit"
+//                 disabled={isSubmitting}
+//                 className={cn(
+//                   "bg-[#624a41] text-[#e8e6d8] px-12 py-4 text-[10px] uppercase tracking-[0.4em] transition-all duration-500 shadow-xl flex items-center gap-2",
+//                   isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:bg-[#892f1a]"
+//                 )}
+//               >
+//                 {isSubmitting ? (
+//                   <>
+//                     <Loader2 className="animate-spin w-4 h-4" />
+//                     Submitting...
+//                   </>
+//                 ) : (
+//                   "Submit Review"
+//                 )}
+//               </motion.button>
+
+//               <AnimatePresence>
+//                 {reviewSuccess && (
+//                   <motion.div
+//                     initial={{ opacity: 0, y: 10 }}
+//                     animate={{ opacity: 1, y: 0 }}
+//                     exit={{ opacity: 0 }}
+//                     className="text-[#892f1a] font-serif italic text-lg"
+//                   >
+//                     {reviewSuccess}
+//                   </motion.div>
+//                 )}
+//               </AnimatePresence>
+//             </div>
+//           </form>
+//         </div>
+//       </section>
+
+//       {/* ================= FOOTER ================= */}
+//       <div className="mx-auto my-10 max-w-7xl rounded-3xl bg-gray-950/5 p-8 ring-1 ring-neutral-700/10 dark:bg-neutral-800 text-center">
+//          <div className="mb-10">
+//             {data?.footer?.heading && (
+//                 <h2 className="text-3xl md:text-5xl font-light text-[#624a41] mb-6">{data.footer.heading}</h2>
+//             )}
+//             {data?.footer?.ctaText && (
+//                  <Link href="/contact">
+//                     <button className="bg-[#892f1a] text-white px-8 py-3 rounded-full uppercase tracking-widest text-xs hover:bg-[#624a41] transition-colors">
+//                         {data.footer.ctaText}
+//                     </button>
+//                  </Link>
+//             )}
+//          </div>
+
+//          <div className="mt-8">
+//             <ThreeDMarquee images={marqueeImages} />
+//          </div>
+//       </div>
+
+//     </div>
+//   );
+// };
+
+// export default HomePage;
