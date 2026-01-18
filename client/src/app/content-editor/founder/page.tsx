@@ -9,7 +9,7 @@ import {
   updateFounderMilestones, 
   updateFounderConnect,
   updateFounderAwards 
-} from '../../../../services/founder.api.js';
+} from '../../../services/founder.api';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

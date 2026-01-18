@@ -7,7 +7,7 @@ import {
   updateServiceCTA, 
   updateServiceItem, 
   addServiceItem 
-} from '../../../../services/service.api';
+} from '../../../services/service.api';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

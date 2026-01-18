@@ -11,7 +11,7 @@
    updateHomeStats, 
    updateHomeClients,      // New import
    updateHomeFooter 
-   } from '../../../../services/homepage.api';
+   } from '../../../services/homepage.api';
 
    import { Button } from '@/components/ui/button';
    import { Input } from '@/components/ui/input';
