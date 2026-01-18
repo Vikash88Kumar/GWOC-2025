@@ -10,7 +10,7 @@ import {
   deleteMilestoneById, 
   updateMarqueeSection, 
   updateTestimonialsSection 
-} from '@/services/story.api';
+} from '../../../../services/story.api';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
